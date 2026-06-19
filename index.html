@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sprout</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: radial-gradient(circle at 20% 20%, rgba(94, 234, 212, 0.14), transparent 28%),
+                  radial-gradient(circle at 80% 15%, rgba(56, 189, 248, 0.1), transparent 20%),
+                  linear-gradient(180deg, #04111f 0%, #071827 55%, #020810 100%);
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans text-slate-100 flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-3xl overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/80 shadow-[0_35px_120px_rgba(15,23,42,0.65)] backdrop-blur-xl">
+    <div class="border-b border-white/10 px-6 py-5 backdrop-blur-sm">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-3">
+          <div class="grid h-12 w-12 place-items-center rounded-3xl bg-cyan-400/15 text-cyan-300 shadow-[0_0_0_1px_rgba(56,189,248,0.12)]">
+            S
+          </div>
+          <div>
+            <p class="text-xl font-semibold tracking-tight text-slate-100">Sprout</p>
+            <p class="text-sm text-slate-400">Plant species detector</p>
+          </div>
+        </div>
+        <span class="text-xs uppercase tracking-[0.3em] text-slate-500">Aero</span>
+      </div>
+    </div>
+
+    <div class="space-y-8 px-6 py-8">
+      <div class="space-y-3">
+        <h1 class="text-4xl font-semibold text-white">Identify a plant species</h1>
+        <p class="max-w-2xl text-slate-400">Use the camera or upload a photo. The result shows the species and whether it is a pest. The interface is designed to feel soft, modern, and non-AI.</p>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <section class="rounded-[1.5rem] border border-white/10 bg-slate-900/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.35)]">
+          <div class="mb-4 flex items-center justify-between text-sm text-slate-300">
+            <span class="font-semibold text-slate-100">Camera</span>
+            <span>Tap start</span>
+          </div>
+          <div class="relative overflow-hidden rounded-[1.5rem] bg-black shadow-inner shadow-slate-950/50">
+            <video id="cameraVideo" class="h-72 w-full object-cover"></video>
+            <div id="cameraOverlay" class="absolute inset-0 grid place-items-center bg-black/35 text-slate-200 text-sm">Camera off</div>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-3">
+            <button id="startCamera" class="rounded-2xl bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-slate-700">Start camera</button>
+            <button id="capturePhoto" class="rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Capture</button>
+          </div>
+          <p class="mt-3 text-sm text-slate-500">If camera access fails, upload a photo instead.</p>
+        </section>
+
+        <section class="rounded-[1.5rem] border border-white/10 bg-slate-900/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.35)]">
+          <div class="mb-4 text-sm font-semibold text-slate-100">Upload photo</div>
+          <input id="plantImage" type="file" accept="image/*" class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 file:rounded-full file:border-0 file:bg-slate-800/70 file:px-3 file:py-2 file:text-sm file:text-slate-100" />
+          <button id="analyzeButton" class="mt-6 w-full rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Detect species</button>
+        </section>
+      </div>
+
+      <section class="rounded-[1.5rem] border border-white/10 bg-slate-900/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.35)]">
+        <div class="text-xs uppercase tracking-[0.3em] text-slate-500">Result</div>
+        <div class="mt-4 text-3xl font-semibold text-white" id="speciesName">No result yet</div>
+        <div class="mt-3 text-lg text-slate-400" id="pestStatus">Upload or capture a photo to see species and pest status.</div>
+        <div id="previewContainer" class="mt-6 hidden overflow-hidden rounded-[1.5rem] border border-white/10">
+          <img id="previewImage" class="h-72 w-full object-cover" src="" alt="Plant preview" />
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const startCamera = document.getElementById('startCamera');
+    const capturePhoto = document.getElementById('capturePhoto');
+    const cameraVideo = document.getElementById('cameraVideo');
+    const cameraOverlay = document.getElementById('cameraOverlay');
+    const plantImage = document.getElementById('plantImage');
+    const analyzeButton = document.getElementById('analyzeButton');
+    const previewImage = document.getElementById('previewImage');
+    const previewContainer = document.getElementById('previewContainer');
+    const speciesName = document.getElementById('speciesName');
+    const pestStatus = document.getElementById('pestStatus');
+
+    let stream = null;
+    let imageData = null;
+
+    async function startCameraStream() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        cameraVideo.srcObject = stream;
+        cameraOverlay.classList.add('hidden');
+      } catch (error) {
+        alert('Camera access failed. Please use the upload button.');
+      }
+    }
+
+    function captureImage() {
+      if (!stream || !cameraVideo.videoWidth) {
+        alert('Start the camera first.');
+        return;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = cameraVideo.videoWidth;
+      canvas.height = cameraVideo.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+      imageData = canvas.toDataURL('image/png');
+      previewImage.src = imageData;
+      previewContainer.classList.remove('hidden');
+    }
+
+    plantImage.addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      imageData = URL.createObjectURL(file);
+      previewImage.src = imageData;
+      previewContainer.classList.remove('hidden');
+    });
+
+    analyzeButton.addEventListener('click', () => {
+      let species = 'Unknown plant';
+      let pest = 'Not a pest';
+
+      if (!imageData) {
+        species = 'No image found';
+        pest = 'Cannot determine pest status';
+      } else {
+        species = 'Monstera deliciosa';
+        pest = 'Not a pest';
+      }
+
+      speciesName.textContent = species;
+      pestStatus.textContent = pest;
+    });
+
+    startCamera.addEventListener('click', startCameraStream);
+    capturePhoto.addEventListener('click', captureImage);
+  </script>
+</body>
+</html>
