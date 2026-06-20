@@ -1,6 +1,6 @@
 # Sprout
 
-[!Image of a sprout](https://www.flaticon.com/free-icon/sprout_628297)
+[!Image of a sprout][(https://www.flaticon.com/free-icon/sprout_628297](https://cdn.vectorstock.com/i/500p/24/71/plant-sprout-icon-image-vector-17642471.jpg)
 
 Sprout is a handy litte--and lite--app which determines plant species based on photos.
 
