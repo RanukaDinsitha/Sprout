@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -22,18 +22,13 @@
       <header
         class="flex items-center justify-between border-b border-neutral-100 pb-6"
       >
-        <div class="flex items-center gap-3.5">
-          <div
-            class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-50 text-emerald-700 font-medium text-lg border border-emerald-100"
-          ></div>
-          <div>
-            <p class="text-lg font-semibold tracking-tight text-neutral-900">
-              Sprout
-            </p>
-            <p class="text-xs text-neutral-500 font-medium">
-              Your Local Plant Expert
-            </p>
-          </div>
+        <div>
+          <p class="text-lg font-semibold tracking-tight text-neutral-900">
+            Sprout
+          </p>
+          <p class="text-xs text-neutral-500 font-medium">
+            Your Local Plant Expert
+          </p>
         </div>
         <span
           class="text-[10px] uppercase tracking-widest font-semibold text-neutral-400 bg-neutral-100 px-2.5 py-1 rounded-md"
@@ -178,55 +173,55 @@
     </div>
 
     <script>
-          const startCamera = document.getElementById('startCamera');
-          const capturePhoto = document.getElementById('capturePhoto');
-          const cameraVideo = document.getElementById('cameraVideo');
-          const cameraOverlay = document.getElementById('cameraOverlay');
-          const cameraStatusText = document.getElementById('cameraStatusText');
-          const plantImage = document.getElementById('plantImage');
-          const analyzeButton = document.getElementById('analyzeButton');
-          const previewImage = document.getElementById('previewImage');
-          const previewContainer = document.getElementById('previewContainer');
-          const speciesName = document.getElementById('speciesName');
-          const pestStatus = document.getElementById('pestStatus');
+      const startCamera = document.getElementById('startCamera');
+      const capturePhoto = document.getElementById('capturePhoto');
+      const cameraVideo = document.getElementById('cameraVideo');
+      const cameraOverlay = document.getElementById('cameraOverlay');
+      const cameraStatusText = document.getElementById('cameraStatusText');
+      const plantImage = document.getElementById('plantImage');
+      const analyzeButton = document.getElementById('analyzeButton');
+      const previewImage = document.getElementById('previewImage');
+      const previewContainer = document.getElementById('previewContainer');
+      const speciesName = document.getElementById('speciesName');
+      const pestStatus = document.getElementById('pestStatus');
 
-          let stream = null;
-          let imageData = null;
+      let stream = null;
+      let imageData = null;
 
-          async function startCameraStream() {
-            try {
-              stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-              cameraVideo.srcObject = stream;
-              cameraOverlay.classList.add('hidden');
-              cameraStatusText.textContent = 'Live Feed';
-              cameraStatusText.classList.replace('text-neutral-400', 'text-emerald-600');
-            } catch (error) {
-              alert('Can not use your camera hardware. Please try using the upload system instead.');
-            }
-          }
+      async function startCameraStream() {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          cameraVideo.srcObject = stream;
+          cameraOverlay.classList.add('hidden');
+          cameraStatusText.textContent = 'Live Feed';
+          cameraStatusText.classList.replace('text-neutral-400', 'text-emerald-600');
+        } catch (error) {
+          alert('Can not use your camera hardware. Please try using the upload system instead.');
+        }
+      }
 
-          function captureImage() {
-            if (!stream || !cameraVideo.videoWidth) {
-              alert('Please activate the camera lens system before attempting capture.');
-              return;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = cameraVideo.videoWidth;
-            canvas.height = cameraVideo.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-            imageData = canvas.toDataURL('image/png');
-            previewImage.src = imageData;
-            previewContainer.classList.remove('hidden');
-          }
+      function captureImage() {
+        if (!stream || !cameraVideo.videoWidth) {
+          alert('Please activate the camera lens system before attempting capture.');
+          return;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = cameraVideo.videoWidth;
+        canvas.height = cameraVideo.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+        imageData = canvas.toDataURL('image/png');
+        previewImage.src = imageData;
+        previewContainer.classList.remove('hidden');
+      }
 
-          plantImage.addEventListener('change', event => {
-            const file = event.target.files[0];
-            if (!file) return;
-            imageData = URL.createObjectURL(file);
-            previewImage.src = imageData;
-            previewContainer.classList.remove('hidden');
-          });
+      plantImage.addEventListener('change', event => {
+        const file = event.target.files[0];
+        if (!file) return;
+        imageData = URL.createObjectURL(file);
+        previewImage.src = imageData;
+        previewContainer.classList.remove('hidden');
+      });
 
       analyzeButton.addEventListener('click', async () => {
         if (!imageData) {
@@ -241,11 +236,9 @@
         pestStatus.textContent = 'Evaluating biosafety designations...';
 
         try {
-          // Convert image data to blob
           const response = await fetch(imageData);
           const blob = await response.blob();
 
-          // Create FormData and send to Flask
           const formData = new FormData();
           formData.append('image', blob, 'plant.jpg');
 
