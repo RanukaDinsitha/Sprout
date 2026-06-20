@@ -10,11 +10,154 @@
       href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..0,800;1,300..0,800&family=Puvi:wght@400;700;900&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
-    />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Open Sans"', "sans-serif"],
+              title: ['"Alibaba Sans"', '"Puvi"', "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen bg-[#fbfaf7] font-sans text-neutral-800 flex flex-col antialiased"
+  >
+    <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto px-6 py-8 gap-8">
+      
+      <header class="flex items-center justify-between border-b border-neutral-200/60 pb-6">
+        <div>
+          <p class="text-xl font-bold tracking-tight text-neutral-900 font-title">
+            Sprout
+          </p>
+          <p class="text-xs text-neutral-500 font-medium mt-0.5"></p>
+        </div>
+        <span class="h-2 w-2 rounded-none bg-emerald-500 animate-pulse"></span>
+      </header>
+
+      <main class="flex-1 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-stretch">
+        
+        <div class="flex flex-col gap-6">
+          <div class="space-y-2">
+            <h1 class="text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl font-title">
+              Take or upload
+            </h1>
+            <p class="text-sm leading-relaxed text-neutral-500 max-w-2xl">
+              Take or upload a photo of a plant. Sprout will give you information about the plant and if there are any pests
+            </p>
+          </div>
+
+          <div class="grid gap-6 sm:grid-cols-2 flex-1">
+            <section class="flex flex-col justify-between rounded-none border border-neutral-200/70 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)]">
+              <div class="w-full flex flex-col flex-1">
+                <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-4 tracking-widest">
+                  <span>Camera</span>
+                  <span id="cameraStatusText" class="text-neutral-400">Disconnected</span>
+                </div>
+
+                <div class="relative w-full flex-1 min-h-[260px] overflow-hidden rounded-none bg-neutral-100 border border-neutral-200 shadow-inner flex items-center justify-center">
+                  <video
+                    id="cameraVideo"
+                    class="absolute inset-0 h-full w-full object-cover rounded-none"
+                    autoplay
+                    playsinline
+                    muted
+                  ></video>
+                  <div
+                    id="cameraOverlay"
+                    class="absolute inset-0 flex items-center justify-center bg-neutral-50 text-neutral-400 text-xs font-medium rounded-none"
+                  >
+                    Camera feed inactive
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 flex gap-3">
+                <button
+                  id="startCamera"
+                  class="flex-1 rounded-none bg-white border border-neutral-200 px-4 py-3 text-xs font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50 active:bg-neutral-100"
+                >
+                  Open Lens
+                </button>
+                <button
+                  id="capturePhoto"
+                  class="flex-1 rounded-none bg-emerald-600 px-4 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800"
+                >
+                  Snapshot
+                </button>
+              </div>
+            </section>
+
+            <section class="flex flex-col justify-between rounded-none border border-neutral-200/70 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)]">
+              <div class="w-full flex flex-col flex-1">
+                <div class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-4 tracking-widest">
+                  Upload
+                </div>
+                <label
+                  class="group relative flex flex-col items-center justify-center w-full flex-1 min-h-[260px] border-2 border-dashed border-neutral-200 hover:border-neutral-300 rounded-none bg-neutral-50/40 cursor-pointer transition"
+                >
+                  <div class="space-y-1 text-center px-4">
+                    <span class="block text-xs font-medium text-neutral-600 group-hover:text-neutral-800 transition">
+                      Select file from device
+                    </span>
+                    <span class="block text-[10px] text-neutral-400">
+                      JPG, PNG up to 10MB
+                    </span>
+                  </div>
+                  <input
+                    id="plantImage"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                  />
+                </label>
+              </div>
+
+              <button
+                id="analyzeButton"
+                class="mt-6 w-full rounded-none bg-neutral-900 px-4 py-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-neutral-800 active:bg-neutral-950 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Run Diagnostic
+              </button>
+            </section>
+          </div>
+        </div>
+
+        <section class="flex flex-col rounded-none border border-neutral-200/80 bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-6 tracking-widest">
+            Evaluation Metrics
+          </div>
+
+          <div class="space-y-6 flex-1 flex flex-col justify-between">
+            <div class="grid gap-2">
+              <div class="text-2xl font-bold tracking-tight text-neutral-900 font-title" id="speciesName">
+                Awaiting Data
+              </div>
+              <div class="text-xs font-medium text-neutral-500 leading-relaxed" id="pestStatus">
+                Submit a fresh photo or snapshot to populate report details.
+              </div>
+            </div>
+
+            <div
+              id="previewContainer"
+              class="hidden flex-1 min-h-[300px] overflow-hidden rounded-none border border-neutral-200 bg-neutral-50 flex items-center justify-center relative"
+            >
+              <img
+                id="previewImage"
+                class="absolute inset-0 h-full w-full object-cover rounded-none"
+                src=""
+                alt="Captured specimen preview"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
     <script>
       const startCamera = document.getElementById("startCamera");
       const capturePhoto = document.getElementById("capturePhoto");
@@ -122,180 +265,5 @@
       startCamera.addEventListener("click", startCameraStream);
       capturePhoto.addEventListener("click", captureImage);
     </script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['"Open Sans"', "sans-serif"],
-              title: ['"Alibaba Sans"', '"Puvi"', "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
-  </head>
-  <body
-    class="min-h-screen bg-[#fbfaf7] font-sans text-neutral-800 flex flex-col antialiased"
-  >
-    <div class="flex-1 flex flex-col w-full max-w-7xl mx-auto px-6 py-8 gap-8">
-      <header
-        class="flex items-center justify-between border-b border-neutral-200/60 pb-6"
-      >
-        <div>
-          <p
-            class="text-xl font-bold tracking-tight text-neutral-900 font-title"
-          >
-            Sprout
-          </p>
-          <p class="text-xs text-neutral-500 font-medium mt-0.5"></p>
-        </div>
-        <span class="h-2 w-2 rounded-none bg-emerald-500 animate-pulse"></span>
-      </header>
-
-      <main class="flex-1 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-stretch">
-        <div class="flex flex-col gap-6">
-          <div class="space-y-2">
-            <h1
-              class="text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl font-title"
-            >
-              Take or upload
-            </h1>
-            <p class="text-sm leading-relaxed text-neutral-500 max-w-2xl">
-              Take or upload a photo of a plant. Sprout will give you
-              information about the plant and if there are any pests
-            </p>
-          </div>
-
-          <div class="grid gap-6 sm:grid-cols-2 flex-1">
-            <section
-              class="flex flex-col justify-between rounded-none border border-neutral-200/70 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)]"
-            >
-              <div class="w-full flex flex-col flex-1">
-                <div
-                  class="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-4 tracking-widest"
-                >
-                  <span>Camera</span>
-                  <span id="cameraStatusText" class="text-neutral-400"
-                    >Disconnected</span
-                  >
-                </div>
-
-                <div
-                  class="relative w-full flex-1 min-h-[260px] overflow-hidden rounded-none bg-neutral-100 border border-neutral-200 shadow-inner flex items-center justify-center"
-                >
-                  <video
-                    id="cameraVideo"
-                    class="absolute inset-0 h-full w-full object-cover rounded-none"
-                    autoplay
-                    playsinline
-                    muted
-                  ></video>
-                  <div
-                    id="cameraOverlay"
-                    class="absolute inset-0 flex items-center justify-center bg-neutral-50 text-neutral-400 text-xs font-medium rounded-none"
-                  >
-                    Camera feed inactive
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-6 flex gap-3">
-                <button
-                  id="startCamera"
-                  class="flex-1 rounded-none bg-white border border-neutral-200 px-4 py-3 text-xs font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50 active:bg-neutral-100"
-                >
-                  Open Lens
-                </button>
-                <button
-                  id="capturePhoto"
-                  class="flex-1 rounded-none bg-emerald-600 px-4 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800"
-                >
-                  Snapshot
-                </button>
-              </div>
-            </section>
-
-            <section
-              class="flex flex-col justify-between rounded-none border border-neutral-200/70 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)]"
-            >
-              <div class="w-full flex flex-col flex-1">
-                <div
-                  class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-4 tracking-widest"
-                >
-                  Upload
-                </div>
-                <label
-                  class="group relative flex flex-col items-center justify-center w-full flex-1 min-h-[260px] border-2 border-dashed border-neutral-200 hover:border-neutral-300 rounded-none bg-neutral-50/40 cursor-pointer transition"
-                >
-                  <div class="space-y-1 text-center px-4">
-                    <span
-                      class="block text-xs font-medium text-neutral-600 group-hover:text-neutral-800 transition"
-                    >
-                      Select file from device
-                    </span>
-                    <span class="block text-[10px] text-neutral-400">
-                      JPG, PNG up to 10MB
-                    </span>
-                  </div>
-                  <input
-                    id="plantImage"
-                    type="file"
-                    accept="image/*"
-                    class="hidden"
-                  />
-                </label>
-              </div>
-
-              <button
-                id="analyzeButton"
-                class="mt-6 w-full rounded-none bg-neutral-900 px-4 py-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-neutral-800 active:bg-neutral-950 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                Run Diagnostic
-              </button>
-            </section>
-          </div>
-        </div>
-
-        <section
-          class="flex flex-col rounded-none border border-neutral-200/80 bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.02)]"
-        >
-          <div
-            class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-6 tracking-widest"
-          >
-            Evaluation Metrics
-          </div>
-
-          <div class="space-y-6 flex-1 flex flex-col justify-between">
-            <div class="grid gap-2">
-              <div
-                class="text-2xl font-bold tracking-tight text-neutral-900 font-title"
-                id="speciesName"
-              >
-                Awaiting Data
-              </div>
-              <div
-                class="text-xs font-medium text-neutral-500 leading-relaxed"
-                id="pestStatus"
-              >
-                Submit a fresh photo or snapshot to populate report details.
-              </div>
-            </div>
-
-            <div
-              id="previewContainer"
-              class="hidden flex-1 min-h-[300px] overflow-hidden rounded-none border border-neutral-200 bg-neutral-50 flex items-center justify-center relative"
-            >
-              <img
-                id="previewImage"
-                class="absolute inset-0 h-full w-full object-cover rounded-none"
-                src=""
-                alt="Captured specimen preview"
-              />
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
   </body>
 </html>
