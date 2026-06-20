@@ -1,5 +1,7 @@
 # Sprout
 
+[!Image of a sprout](https://www.flaticon.com/free-icon/sprout_628297)
+
 Sprout is a handy litte--and lite--app which determines plant species based on photos.
 
 ![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white) 
