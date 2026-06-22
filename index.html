@@ -60,7 +60,38 @@
           transform: rotate(1turn);
         }
       }
-      /* Align the inline logo with the site title without changing markup */
+      body {
+        background-image: radial-gradient(circle at top left, rgba(16,185,129,0.08), transparent 36%);
+      }
+      .app-card {
+        border-radius: 1.5rem;
+        border-color: rgba(226,232,240,0.88);
+        box-shadow: 0 26px 70px rgba(15,23,42,0.05);
+      }
+      .panel-input {
+        border-radius: 1.25rem;
+        border-color: rgba(148,163,184,0.25);
+        background-color: rgba(248,250,252,0.96);
+      }
+      .panel-input:hover {
+        border-color: rgba(148,163,184,0.65);
+        background-color: rgba(255,255,255,0.96);
+      }
+      .preview-box {
+        border-radius: 1.25rem;
+      }
+      .button-soft {
+        transition: transform 160ms ease, background-color 160ms ease;
+      }
+      .button-soft:hover {
+        transform: translateY(-1px);
+      }
+      .button-soft:active {
+        transform: translateY(0);
+      }
+      .section-label {
+        letter-spacing: 0.18em;
+      }
       header > div {
         display: flex;
         align-items: center;
@@ -122,7 +153,7 @@
 
           <div class="grid gap-6 sm:grid-cols-2 flex-1">
             <section
-              class="flex flex-col justify-between rounded-none border border-neutral-200/70 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)]"
+              class="flex flex-col justify-between border bg-white p-6 app-card"
             >
               <div class="w-full flex flex-col flex-1">
                 <div
@@ -156,14 +187,14 @@
               <div class="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
                   id="startCamera"
-                  class="flex-1 rounded-none bg-white border border-neutral-200 px-4 py-3 text-xs font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50 active:bg-neutral-100"
+                  class="flex-1 rounded-none bg-white border border-neutral-200 px-4 py-3 text-xs font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50 active:bg-neutral-100 button-soft"
                 >
                   <i class="fa-solid fa-video mr-2"></i>
                   Open Lens
                 </button>
                 <button
                   id="capturePhoto"
-                  class="flex-1 rounded-none bg-emerald-600 px-4 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800"
+                  class="flex-1 rounded-none bg-emerald-600 px-4 py-3 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800 button-soft"
                 >
                   <i class="fa-solid fa-camera mr-2"></i>
                   Snapshot
@@ -172,16 +203,16 @@
             </section>
 
             <section
-              class="flex flex-col justify-between rounded-none border border-neutral-200/70 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)]"
+              class="flex flex-col justify-between border bg-white p-6 app-card"
             >
               <div class="w-full flex flex-col flex-1">
                 <div
-                  class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-4 tracking-widest"
+                  class="text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-4 tracking-widest section-label"
                 >
                   Upload
                 </div>
                 <label
-                  class="group relative flex flex-col items-center justify-center w-full flex-1 min-h-[260px] border-2 border-dashed border-neutral-200 hover:border-neutral-300 rounded-none bg-neutral-50/40 cursor-pointer transition"
+                  class="group relative flex flex-col items-center justify-center w-full flex-1 min-h-[260px] border-2 border-dashed border-neutral-200 hover:border-neutral-300 bg-neutral-50/40 panel-input cursor-pointer transition"
                 >
                   <div class="space-y-1 text-center px-4">
                     <span class="block text-xs font-medium text-neutral-600 group-hover:text-neutral-800 transition flex items-center justify-center gap-2">
@@ -203,7 +234,7 @@
         </div>
 
         <section
-          class="flex flex-col justify-between rounded-none border border-neutral-200/70 bg-white p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)]"
+          class="flex flex-col justify-between border bg-white p-6 app-card"
         >
           <div class="flex flex-col gap-6">
             <div>
@@ -217,7 +248,7 @@
 
             <div
               id="previewContainer"
-              class="hidden min-h-[220px] sm:min-h-[300px] overflow-hidden rounded-none border border-neutral-200 bg-neutral-50 flex items-center justify-center relative"
+              class="hidden min-h-[220px] sm:min-h-[300px] overflow-hidden border border-neutral-200 bg-neutral-50 flex items-center justify-center relative preview-box"
             >
               <img
                 id="previewImage"
@@ -230,7 +261,7 @@
 
           <button
             id="analyzeButton"
-            class="mt-6 w-full rounded-none bg-emerald-600 px-4 py-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-30 disabled:cursor-not-allowed"
+            class="mt-6 w-full rounded-none bg-emerald-600 px-4 py-3.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-30 disabled:cursor-not-allowed button-soft"
             aria-label="Submit image for analysis"
           >
             <i class="fa-solid fa-magnifying-glass mr-2"></i>

@@ -11,8 +11,9 @@ __pycache__/
 # C extensions
 *.so
 
-# History
+# History and Backend Images
 .history/
+wellington_pests
 
 # Distribution / packaging
 .Python
