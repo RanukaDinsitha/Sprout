@@ -14,6 +14,7 @@ __pycache__/
 # History and Backend Images
 .history/
 wellington_pests
+dataset_prepared
 
 # Distribution / packaging
 .Python

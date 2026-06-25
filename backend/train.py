@@ -2,7 +2,12 @@ import argparse
 import os
 import random
 import shutil
+import sys
 from pathlib import Path
+
+# Allow forcing CPU-only execution via environment variable or CLI flag before TensorFlow loads.
+if os.getenv('USE_CPU_ONLY', '0') == '1' or '--use_cpu' in sys.argv or '--cpu' in sys.argv:
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import tensorflow as tf
 
@@ -19,8 +24,9 @@ def preprocess_image(image, img_size):
 def get_augmentation(img_size):
     data_augment = tf.keras.Sequential([
         tf.keras.layers.RandomFlip('horizontal'),
-        tf.keras.layers.RandomRotation(0.08),
-        tf.keras.layers.RandomZoom(0.08),
+        tf.keras.layers.RandomRotation(0.12),
+        tf.keras.layers.RandomZoom(0.1),
+        tf.keras.layers.RandomContrast(0.1),
     ], name='augmentation')
 
     def apply(x, training=False):
@@ -31,16 +37,15 @@ def get_augmentation(img_size):
     return apply
 
 
-def prepare_for_training(ds, batch_size, img_size, shuffle=True):
-    autotune = tf.data.AUTOTUNE
+def prepare_for_training(ds, batch_size, img_size, shuffle=True, num_parallel_calls=tf.data.AUTOTUNE, prefetch_buffer=tf.data.AUTOTUNE):
     if shuffle:
         ds = ds.shuffle(1000)
-    ds = ds.map(lambda x, y: (preprocess_image(x, img_size), y), num_parallel_calls=autotune)
-    ds = ds.batch(batch_size).prefetch(autotune)
+    ds = ds.map(lambda x, y: (preprocess_image(x, img_size), y), num_parallel_calls=num_parallel_calls)
+    ds = ds.batch(batch_size).prefetch(prefetch_buffer)
     return ds
 
 
-def get_datasets(dataset='cifar10', data_dir=None, img_size=224, batch_size=32):
+def get_datasets(dataset='cifar10', data_dir=None, img_size=224, batch_size=32, num_parallel_calls=tf.data.AUTOTUNE, prefetch_buffer=tf.data.AUTOTUNE):
     if dataset == 'cifar10':
         (x_train, y_train), _ = tf.keras.datasets.cifar10.load_data()
         val_split = 5000
@@ -51,8 +56,20 @@ def get_datasets(dataset='cifar10', data_dir=None, img_size=224, batch_size=32):
         val_ds = tf.data.Dataset.from_tensor_slices((x_val, y_val))
         num_classes = 10
 
-        train_ds = prepare_for_training(train_ds, batch_size, img_size, shuffle=True)
-        val_ds = prepare_for_training(val_ds, batch_size, img_size, shuffle=False)
+        train_ds = prepare_for_training(
+            train_ds,
+            batch_size,
+            img_size,
+            shuffle=True,
+            num_parallel_calls=num_parallel_calls,
+            prefetch_buffer=prefetch_buffer)
+        val_ds = prepare_for_training(
+            val_ds,
+            batch_size,
+            img_size,
+            shuffle=False,
+            num_parallel_calls=num_parallel_calls,
+            prefetch_buffer=prefetch_buffer)
         return train_ds, val_ds, num_classes
 
     if dataset == 'dir':
@@ -77,8 +94,11 @@ def get_datasets(dataset='cifar10', data_dir=None, img_size=224, batch_size=32):
             seed=1337)
 
         num_classes = len(train_ds.class_names)
-        train_ds = train_ds.map(lambda x, y: (tf.cast(x, tf.float32) / 255.0, y))
-        val_ds = val_ds.map(lambda x, y: (tf.cast(x, tf.float32) / 255.0, y))
+        train_ds = train_ds.map(lambda x, y: (tf.cast(x, tf.float32) / 255.0, y), num_parallel_calls=num_parallel_calls)
+        train_ds = train_ds.shuffle(1000)
+        val_ds = val_ds.map(lambda x, y: (tf.cast(x, tf.float32) / 255.0, y), num_parallel_calls=num_parallel_calls)
+        train_ds = train_ds.prefetch(prefetch_buffer)
+        val_ds = val_ds.prefetch(prefetch_buffer)
         return train_ds, val_ds, num_classes
 
     raise ValueError(f'Unknown dataset: {dataset}')
@@ -92,6 +112,7 @@ def build_model(num_classes, img_size=224, fine_tune_at=None, dropout=0.3):
 
     x = base_model.output
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
+    x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.layers.Dropout(dropout)(x)
     outputs = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
     model = tf.keras.Model(inputs, outputs)
@@ -174,16 +195,24 @@ def parse_args():
     subparsers = parser.add_subparsers(dest='command', required=True)
 
     train_parser = subparsers.add_parser('train', help='Train a model')
-    train_parser.add_argument('--data_dir', default=None, help='Path to image folder (directory dataset root)')
+    train_parser.add_argument('--data_dir', default='./wellington_pests', help='Path to image folder (directory dataset root)')
     train_parser.add_argument('--dataset', default='cifar10', choices=['cifar10', 'dir'], help='Dataset to use for training')
     train_parser.add_argument('--img_size', type=int, default=224)
-    train_parser.add_argument('--batch_size', type=int, default=32)
-    train_parser.add_argument('--epochs', type=int, default=30)
+    train_parser.add_argument('--batch_size', type=int, default=16, help='Batch size for CPU training')
+    train_parser.add_argument('--epochs', type=int, default=80)
     train_parser.add_argument('--output_dir', default='outputs')
-    train_parser.add_argument('--fine_tune_at', type=int, default=100)
+    train_parser.add_argument('--learning_rate', type=float, default=1e-4)
+    train_parser.add_argument('--dropout', type=float, default=0.3)
+    train_parser.add_argument('--fine_tune_at', type=int, default=150)
+    train_parser.add_argument('--early_stopping_patience', type=int, default=8)
+    train_parser.add_argument('--reduce_lr_patience', type=int, default=3)
+    train_parser.add_argument('--num_parallel_calls', type=int, default=-1, help='Number of parallel calls for dataset mapping; -1 means AUTOTUNE')
+    train_parser.add_argument('--prefetch_buffer', type=int, default=-1, help='Dataset prefetch buffer size; -1 means AUTOTUNE')
+    train_parser.add_argument('--use_cpu', action='store_true', help='Force CPU-only execution')
+    train_parser.add_argument('--verbose', action='store_true', help='Enable more verbose training logs')
 
     prepare_parser = subparsers.add_parser('prepare', help='Prepare a directory dataset from raw class folders')
-    prepare_parser.add_argument('--source_dir', required=True, help='Parent folder containing class-named subfolders')
+    prepare_parser.add_argument('--source_dir', default='', help='Parent folder containing class-named subfolders')
     prepare_parser.add_argument('--dest_dir', default='dataset_prepared', help='Output root for train/val/test splits')
     prepare_parser.add_argument('--num_classes', type=int, default=79)
     prepare_parser.add_argument('--images_per_class', type=int, default=100)
@@ -196,18 +225,37 @@ def parse_args():
 
 def run_training(args):
     os.makedirs(args.output_dir, exist_ok=True)
+
+    if args.use_cpu:
+        print('Using CPU-only mode. This may be slower but avoids GPU/DirectML runtime issues.')
+
+    num_parallel_calls = tf.data.AUTOTUNE if args.num_parallel_calls < 0 else args.num_parallel_calls
+    prefetch_buffer = tf.data.AUTOTUNE if args.prefetch_buffer < 0 else args.prefetch_buffer
+
+    if args.verbose:
+        print(f'Training settings: img_size={args.img_size}, batch_size={args.batch_size}, epochs={args.epochs}, '
+              f'lr={args.learning_rate}, dropout={args.dropout}, fine_tune_at={args.fine_tune_at}, '
+              f'num_parallel_calls={num_parallel_calls}, prefetch_buffer={prefetch_buffer}')
+
     train_ds, val_ds, num_classes = get_datasets(
         dataset=args.dataset,
         data_dir=args.data_dir,
         img_size=args.img_size,
-        batch_size=args.batch_size)
+        batch_size=args.batch_size,
+        num_parallel_calls=num_parallel_calls,
+        prefetch_buffer=prefetch_buffer)
 
-    augmentation = get_augmentation(args.img_size)
-    model = build_model(num_classes=num_classes, img_size=args.img_size, fine_tune_at=args.fine_tune_at)
+    model = build_model(
+        num_classes=num_classes,
+        img_size=args.img_size,
+        fine_tune_at=args.fine_tune_at,
+        dropout=args.dropout)
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(1e-4),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=args.learning_rate),
         loss='sparse_categorical_crossentropy',
         metrics=['accuracy'])
+
+    augmentation = get_augmentation(args.img_size)
 
     callbacks = [
         tf.keras.callbacks.ModelCheckpoint(
@@ -215,19 +263,24 @@ def run_training(args):
             save_best_only=True,
             monitor='val_accuracy',
             mode='max'),
-        tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3),
-        tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=8, restore_best_weights=True)
+        tf.keras.callbacks.ReduceLROnPlateau(
+            monitor='val_loss',
+            factor=0.5,
+            patience=args.reduce_lr_patience),
+        tf.keras.callbacks.EarlyStopping(
+            monitor='val_loss',
+            patience=args.early_stopping_patience,
+            restore_best_weights=True)
     ]
 
-    autotune = tf.data.AUTOTUNE
     train_ds = train_ds.map(
         lambda x, y: (augmentation(x, training=True), y),
-        num_parallel_calls=autotune)
-    train_ds = train_ds.prefetch(autotune)
-    val_ds = val_ds.prefetch(autotune)
+        num_parallel_calls=num_parallel_calls)
+    train_ds = train_ds.prefetch(prefetch_buffer)
+    val_ds = val_ds.prefetch(prefetch_buffer)
 
     model.fit(train_ds, epochs=args.epochs, validation_data=val_ds, callbacks=callbacks)
-    model.save(os.path.join(args.output_dir, 'final_model'))
+    model.save(os.path.join(args.output_dir, 'final_model.keras'))
     print('Training finished. Artifacts in', args.output_dir)
 
 
