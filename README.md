@@ -1,5 +1,12 @@
 # Sprout
 
+<svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M2 20c4-1 6-1 10-1s6 0 10 1" stroke="#8B5A2B" />
+  <path d="M12 19V9" stroke="#4CAF50" />
+  <path d="M12 13c-3-1-5-4-5-7 2 0 4 2 5 4" fill="#4CAF50" stroke="#4CAF50" />
+  <path d="M12 11c3-1 5-4 5-7-2 0-4 2-5 4" fill="#4CAF50" stroke="#4CAF50" />
+</svg>
+
 Sprout is a handy litte--and lite--app which determines plant species based on photos.
 
 ![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white) 
