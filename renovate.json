@@ -1,0 +1,17 @@
+{
+  "$schema": "https://renovatebot.com",
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": ["html-tags"],
+  "html-tags": {
+    "fileMatch": ["\\.html$"]
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["html-tags"],
+      "groupName": "cdn-links",
+      "schedule": ["before 9am on monday"]
+    }
+  ]
+}
