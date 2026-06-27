@@ -11,10 +11,11 @@ __pycache__/
 # C extensions
 *.so
 
-# History and Backend Images
+# History and Backend Images and more
 .history/
 wellington_pests
 dataset_prepared
+what-to-do.txt
 
 # Distribution / packaging
 .Python

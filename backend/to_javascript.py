@@ -2,6 +2,8 @@
 import argparse
 import os
 import shutil
+import subprocess
+import sys
 
 
 def parse_args():
@@ -47,15 +49,30 @@ def load_keras_model(path):
 
 
 def convert_to_tfjs(input_path, output_dir):
-    try:
-        import tensorflowjs as tfjs # type: ignore
-    except ImportError as exc:
-        raise RuntimeError(
-            'The tensorflowjs package is required to convert models. Install it with `pip install tensorflowjs`.'
-        ) from exc
+    python_executable = sys.executable
+    command = [
+        python_executable,
+        '-m',
+        'tensorflowjs.converters.converter',
+        '--input_format',
+        'keras',
+        '--output_format',
+        'tfjs_layers_model',
+        input_path,
+        output_dir,
+    ]
 
-    model = load_keras_model(input_path)
-    tfjs.converters.save_keras_model(model, output_dir)
+    print('Running conversion command:')
+    print(' '.join(command))
+
+    completed = subprocess.run(command, capture_output=True, text=True)
+    if completed.returncode != 0:
+        stderr = completed.stderr.strip()
+        raise RuntimeError(
+            'TensorFlow.js conversion failed.\n'
+            f'STDOUT:\n{completed.stdout}\n'
+            f'STDERR:\n{stderr}'
+        )
 
 
 def main():
