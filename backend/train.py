@@ -5,7 +5,6 @@ import shutil
 import sys
 from pathlib import Path
 
-# Allow forcing CPU-only execution via environment variable or CLI flag before TensorFlow loads.
 if os.getenv('USE_CPU_ONLY', '0') == '1' or '--use_cpu' in sys.argv or '--cpu' in sys.argv:
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
