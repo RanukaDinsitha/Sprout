@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, jsonify
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
-from PIL import Image
+from tensorflow.keras.applications.efficientnet import preprocess_input
+from PIL import Image, ImageOps
 from os.path import join
 import numpy as np
 import io
@@ -11,25 +12,102 @@ app = Flask(__name__)
 
 # CONFIGURATION: Change these to match your model's parameters
 MODEL_PATH = join("model", "ai.keras")
-IMAGE_SIZE = 224 # Target width/height your model expects
+IMAGE_SIZE = 224 
 
-# Safe global model loading on server startup
+# 1. MANUALLY DEFINE YOUR NAMES HERE
+# CRITICAL: They must be in the exact alphabetical/index order they were trained in!
+CLASS_LABELS = [
+    'Annual poa',
+     'Black nightshade',
+     'Blackberry',
+     'Bracken',
+     'Broad-leaved dock',
+     'Broad-leaved fleabane',
+     'Broad-leaved plantain',
+     'Broom',
+     'Californian thistle',
+     'Cape weed',
+     'Catsear',
+     'Chickweed',
+     'Cleavers',
+     'Clustered dock',
+     'Couch',
+     'Creeping buttercup',
+     'Creeping oxalis',
+     'Creeping speedwell',
+     'Daisy',
+     'Dandelion',
+     'Fiddle dock',
+     'Field speedwell',
+     'Galinsoga',
+     'Giant buttercup',
+     'Gorse',
+     'Great bindweed',
+     'Groundsel',
+     'Hairy buttercup',
+     'Hawkbit',
+     'Hawksbeard',
+     'Hedge mustard',
+     'Hemlock',
+     'Hydrocotyle',
+     'Ivy',
+     'Mallow',
+     'Manuka',
+     'Mouse-ear hawkweed',
+     'Musky storksbill',
+     'Narrow-leaved plantain',
+     'Nettle',
+     'Nodding thistle',
+     'Old man’s beard',
+     'Onehunga weed',
+     'Oxeye daisy',
+     'Parsley dropwort',
+     'Parsley piert',
+     'Paspalum',
+     'Pennyroyal',
+     'Pink shamrock',
+     'Ragwort',
+     'Red dead-nettle',
+     'Redroot',
+     'Scarlet pimpernel',
+     'Scotch thistle',
+     'Scrambling fumitory',
+     'Scrambling speedwell',
+     'Selfheal',
+     "Sheep's sorrel",
+     "Shepherd's purse",
+     'Sow thistle',
+     'Spurrey',
+     'Staggerweed',
+     'Stinking mayweed',
+     'Suckling clover',
+     'Sweet brier',
+     'Tauhinu',
+     'Tradescantia',
+     'Turf speedwell',
+     'Twin cress',
+     'Water pepper',
+     'White clover',
+     'Wild radish',
+     'Wild turnip',
+     'Willow weed',
+     'Winged thistle',
+     'Wireweed',
+     'Yarrow'
+]
+
+
 try:
     model = load_model(MODEL_PATH)
     print("✓ Keras AI Engine successfully loaded into memory.")
     
-    # AUTOMATIC DETECTOR: 
-    # This reads the exact number of classes directly from your model file
     NUM_CLASSES = model.output_shape[-1]
-    print(f"✓ Dynamic Setup: Detected exactly {NUM_CLASSES} classes.")
-    
-    # Creates a generic list dynamically: ["Class 0", "Class 1", ... up to your exact total]
-    CLASS_LABELS = [f"Class {i}" for i in range(NUM_CLASSES)]
-    
+    if len(CLASS_LABELS) != NUM_CLASSES:
+        print(f"⚠️ WARNING: Your model expects {NUM_CLASSES} classes, but you only provided {len(CLASS_LABELS)} text names in your list!")
+        
 except Exception as e:
     print(f"⚠️ Critical Error loading model: {e}")
     model = None
-    CLASS_LABELS = []
     
 @app.route('/')
 def home():
@@ -51,19 +129,20 @@ def predict():
     try:
         # 1. Read the image stream natively
         img_bytes = file.read()
-        image = Image.open(io.BytesIO(img_bytes)).convert('RGB')
+        image = Image.open(io.BytesIO(img_bytes))
+        image = ImageOps.exif_transpose(image).convert('RGB')
         
-        # 2. Resize to match your network geometry
-        resized_image = image.resize((IMAGE_SIZE, IMAGE_SIZE)) 
+        # 2. Resize to match your network geometry and preserve quality
+        resized_image = image.resize((IMAGE_SIZE, IMAGE_SIZE), Image.Resampling.LANCZOS)
         img_array = img_to_array(resized_image)
         img_array = np.expand_dims(img_array, axis=0)
         
-        # 3. Scale pixel values (0-1 normalization)
-        img_array = img_array / 255.0  
+        # 3. Apply the same preprocessing used during training
+        img_array = preprocess_input(img_array)
 
         # 4. Run inference
-        predictions = model.predict(img_array)[0]
-        top_idx = np.argmax(predictions)
+        predictions = model.predict(img_array, verbose=0)[0]
+        top_idx = int(np.argmax(predictions))
         
         return jsonify({
             "class": CLASS_LABELS[top_idx],

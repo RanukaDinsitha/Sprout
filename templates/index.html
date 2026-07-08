@@ -150,10 +150,11 @@
         </div>
       </div>
 
+      <div id="errorState" class="hidden mt-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm"></div>
+
     </main>
 
     <script>
-      // Handles rendering the thumbnail instantly inside your frame container
       function previewImage(event) {
         const input = event.target;
         if (input.files && input.files[0]) {
@@ -168,7 +169,6 @@
         }
       }
 
-      // Asynchronous non-refreshing connection to Python model
       document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const fileInput = document.getElementById('fileInput');
@@ -180,7 +180,6 @@
         const formData = new FormData();
         formData.append('file', fileInput.files[0]);
 
-        // Shift view states directly to your loader animations
         document.getElementById('uploadForm').classList.add('hidden');
         document.getElementById('loadingState').classList.remove('hidden');
         document.getElementById('resultState').classList.add('hidden');
@@ -195,11 +194,9 @@
             return;
           }
 
-          // Write model logic strings safely directly into your nodes
           document.getElementById('predictedClass').innerText = data.class;
           document.getElementById('confidenceValue').innerText = data.confidence;
           
-          // Theme variations depending on findings (Amber accents for Weeds vs Emerald for Crops)
           const iconBox = document.getElementById('resultIconBox');
           const confText = document.getElementById('confidenceValue');
           if (data.class.toLowerCase() === 'weed') {
@@ -210,7 +207,6 @@
             confText.className = "text-xl font-black text-emerald-600";
           }
 
-          // Restore workspace view state
           document.getElementById('loadingState').classList.add('hidden');
           document.getElementById('uploadForm').classList.remove('hidden');
           document.getElementById('resultState').classList.remove('hidden');
