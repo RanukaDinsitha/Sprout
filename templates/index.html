@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght=0,300..0,800;1,300..0,800&family=Puvi:wght@400;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght=0,300..0,800;1,300..0,800&family=Puvi:wght=400;700;900&display=swap"
       rel="stylesheet"
     />
     <link
@@ -31,133 +31,165 @@
 
     <style>
       .loader {
-        width: 50px;
-        aspect-ratio: 1;
+        width: 48px;
+        height: 48px;
+        border: 5px solid #e2e8f0;
+        border-bottom-color: #059669;
         border-radius: 50%;
-        border: 8px solid transparent;
-        border-right-color: rgba(255, 160, 0, 0.6);
-        position: relative;
-        animation: l24 1s infinite linear;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
       }
-      .loader:before,
-      .loader:after {
-        content: "";
-        position: absolute;
-        inset: -8px;
-        border-radius: 50%;
-        border: inherit;
-        animation: inherit;
-        animation-duration: 2s;
-      }
-      .loader:after {
-        animation-duration: 4s;
-      }
-      @keyframes l24 {
-        100% {
-          transform: rotate(1turn);
-        }
+      @keyframes rotation {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
       body {
-        background-image: radial-gradient(circle at top left, rgba(16,185,129,0.08), transparent 36%);
+        background-color: #f1f5f9;
       }
       .app-card {
-        border-radius: 1.5rem;
-        border-color: rgba(226,232,240,0.88);
-        box-shadow: 0 26px 70px rgba(15,23,42,0.05);
+        border-radius: 1rem;
+        border: 2px solid #cbd5e1;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
       }
       .panel-input {
-        border-radius: 1.25rem;
-        border-color: rgba(148,163,184,0.25);
-        background-color: rgba(248,250,252,0.96);
+        border-radius: 0.75rem;
+        border: 2px dashed #94a3b8;
+        background-color: #f8fafc;
       }
       .panel-input:hover {
-        border-color: rgba(148,163,184,0.65);
-        background-color: rgba(255,255,255,0.96);
+        border-color: #475569;
+        background-color: #f1f5f9;
       }
       .preview-box {
-        border-radius: 1.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid #cbd5e1;
       }
-      .button-soft {
-        transition: transform 160ms ease, background-color 160ms ease;
+      .action-button {
+        transition: background-color 150ms ease, transform 100ms ease;
       }
-      .button-soft:hover {
-        transform: translateY(-1px);
-      }
-      .button-soft:active {
-        transform: translateY(0);
-      }
-      .section-label {
-        letter-spacing: 0.18em;
-      }
-      header > div {
-        display: flex;
-        align-items: center;
-        gap: 1px;
+      .action-button:active {
+        transform: scale(0.98);
       }
     </style>
   </head>
-  <body class="bg-slate-50 font-sans min-h-screen flex flex-col items-center justify-center p-6">
+  <body class="font-sans min-h-screen flex flex-col items-center justify-center p-4">
 
-    <header class="mb-8 text-center">
-      <div class="justify-center text-emerald-600 text-3xl font-title font-bold flex items-center">
+    <header class="mb-6 text-center">
+      <div class="justify-center text-emerald-700 text-3xl font-title font-bold flex items-center tracking-tight">
         <i class="fa-solid fa-seedling mr-2"></i>Sprout
       </div>
-      <p class="text-slate-500 text-sm mt-1">Weed Plant Detection AI Engine</p>
+      <p class="text-slate-600 text-sm mt-1 font-medium">Weed Plant Detection AI Engine</p>
     </header>
 
-    <main class="app-card bg-white border border-slate-200/80 w-full max-w-xl p-8 transition-all duration-300">
+    <main class="app-card bg-white w-full max-w-xl p-6 md:p-8">
+      
+      <div class="flex gap-2 mb-6 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+        <button id="tabUpload" onclick="switchMode('upload')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200">
+          <i class="fa-solid fa-file-image"></i> Upload File
+        </button>
+        <button id="tabCamera" onclick="switchMode('camera')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-camera"></i> Live Camera
+        </button>
+      </div>
       
       <form id="uploadForm" enctype="multipart/form-data" class="space-y-6">
         
-        <div class="flex flex-col items-center justify-center w-full">
-          <label class="panel-input border-2 border-dashed w-full h-48 flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden">
+        <div id="uploadContainer" class="flex flex-col items-center justify-center w-full">
+          <label class="panel-input w-full h-56 flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden">
             <div class="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4" id="uploadPrompt">
-              <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-3"></i>
-              <p class="mb-2 text-sm text-slate-600 font-semibold">Click to upload plant image</p>
-              <p class="text-xs text-slate-400">PNG, JPG or JPEG up to 10MB</p>
+              <i class="fa-solid fa-cloud-arrow-up text-4xl text-slate-400 mb-3"></i>
+              <p class="mb-1 text-sm text-slate-700 font-bold">Click to upload plant image</p>
+              <p class="text-xs text-slate-500">PNG, JPG or JPEG up to 10MB</p>
             </div>
             <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover preview-box" src="" alt="Preview">
             <input type="file" id="fileInput" name="file" accept="image/*" class="hidden" onchange="previewImage(event)" />
           </label>
         </div>
 
-        <button type="submit" id="submitBtn" class="button-soft w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-2xl shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+        <div id="cameraContainer" class="hidden flex flex-col items-center justify-center w-full space-y-4">
+          <div class="w-full h-56 bg-slate-900 rounded-xl relative overflow-hidden border border-slate-300">
+            <video id="videoFeed" autoplay playsinline class="w-full h-full object-cover"></video>
+            <div id="cameraPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 text-slate-400 text-sm">
+              <i class="fa-solid fa-video-slash text-2xl mb-2"></i> Camera is off
+            </div>
+          </div>
+          <div class="flex w-full gap-2">
+            <button type="button" id="startCamBtn" onclick="initCam()" class="action-button flex-1 py-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2">
+              <i class="fa-solid fa-power-off"></i> Start Camera
+            </button>
+            <button type="button" id="captureBtn" onclick="captureFrame()" disabled class="action-button flex-1 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-circle"></i> Capture Photo
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="action-button w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 border border-emerald-800">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Plant Structure
         </button>
       </form>
 
       <div id="loadingState" class="hidden flex flex-col items-center justify-center py-8 space-y-4">
         <div class="loader"></div>
-        <p class="text-slate-500 text-sm animate-pulse font-medium">AI is inspecting leaf geometry...</p>
+        <p class="text-slate-600 text-sm font-bold">AI is inspecting leaf geometry...</p>
       </div>
 
-      <div id="resultState" class="hidden mt-8 pt-6 border-t border-slate-100 space-y-4">
-        <div class="section-label text-xs font-bold text-slate-400 uppercase tracking-wider">Analysis Result</div>
-        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+      <div id="resultState" class="hidden mt-6 pt-6 border-t-2 border-slate-200 space-y-4">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Analysis Result</div>
+        <div class="flex items-center justify-between p-4 bg-slate-100 rounded-xl border border-slate-200">
           <div class="flex items-center gap-3">
-            <div class="p-3 bg-emerald-100 text-emerald-700 rounded-xl" id="resultIconBox">
+            <div class="p-3 bg-emerald-700 text-white rounded-xl" id="resultIconBox">
               <i class="fa-solid fa-square-check text-xl"></i>
             </div>
             <div>
-              <div class="text-xs text-slate-400 font-medium">Detected Classification</div>
-              <div class="text-lg font-bold text-slate-800" id="predictedClass">Unknown</div>
+              <div class="text-xs text-slate-500 font-bold">Detected Classification</div>
+              <div class="text-lg font-black text-slate-800" id="predictedClass">Unknown</div>
             </div>
           </div>
           <div class="text-right">
-            <div class="text-xs text-slate-400 font-medium">Confidence Match</div>
-            <div class="text-xl font-black text-emerald-600" id="confidenceValue">0.0%</div>
+            <div class="text-xs text-slate-500 font-bold">Confidence Match</div>
+            <div class="text-xl font-black text-emerald-700" id="confidenceValue">0.0%</div>
           </div>
         </div>
       </div>
 
-      <div id="errorState" class="hidden mt-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm"></div>
-
     </main>
 
+    <canvas id="captureCanvas" class="hidden"></canvas>
+
     <script>
+      let currentMode = 'upload';
+      let cameraStream = null;
+      let activeBlob = null; // Holds the native file payload (from either file upload or camera snapshot)
+
+      function switchMode(mode) {
+        if (mode === currentMode) return;
+        currentMode = mode;
+
+        const tabUpload = document.getElementById('tabUpload');
+        const tabCamera = document.getElementById('tabCamera');
+        const uploadCont = document.getElementById('uploadContainer');
+        const cameraCont = document.getElementById('cameraContainer');
+
+        if (mode === 'upload') {
+          tabUpload.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200";
+          tabCamera.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
+          uploadCont.classList.remove('hidden');
+          cameraCont.classList.add('hidden');
+          killCam();
+        } else {
+          tabCamera.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200";
+          tabUpload.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
+          cameraCont.classList.remove('hidden');
+          uploadCont.classList.add('hidden');
+          resetUploadData();
+        }
+      }
+
       function previewImage(event) {
         const input = event.target;
         if (input.files && input.files[0]) {
+          activeBlob = input.files[0];
           const reader = new FileReader();
           reader.onload = function(e) {
             document.getElementById('uploadPrompt').classList.add('hidden');
@@ -165,20 +197,74 @@
             img.src = e.target.result;
             img.classList.remove('hidden');
           }
-          reader.readAsDataURL(input.files[0]);
+          reader.readAsDataURL(activeBlob);
         }
+      }
+
+      function resetUploadData() {
+        activeBlob = null;
+        document.getElementById('fileInput').value = "";
+        document.getElementById('imagePreview').src = "";
+        document.getElementById('imagePreview').classList.add('hidden');
+        document.getElementById('uploadPrompt').classList.remove('hidden');
+      }
+
+      async function initCam() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+          const video = document.getElementById('videoFeed');
+          video.srcObject = cameraStream;
+          document.getElementById('cameraPlaceholder').classList.add('hidden');
+          document.getElementById('captureBtn').disabled = false;
+          document.getElementById('startCamBtn').innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> Restart Cam`;
+        } catch (err) {
+          alert("Camera acquisition failure: Access denied or device occupied.");
+        }
+      }
+
+      function killCam() {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(track => track.stop());
+          cameraStream = null;
+        }
+        document.getElementById('videoFeed').srcObject = null;
+        document.getElementById('cameraPlaceholder').classList.remove('hidden');
+        document.getElementById('captureBtn').disabled = true;
+        document.getElementById('startCamBtn').innerHTML = `<i class="fa-solid fa-power-off"></i> Start Camera`;
+      }
+
+      function captureFrame() {
+        const video = document.getElementById('videoFeed');
+        const canvas = document.getElementById('captureCanvas');
+        if (!cameraStream) return;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+          activeBlob = blob;
+          // Temporarily flip user layout visualization to the standard image panel view to lock item frame
+          switchMode('upload');
+          document.getElementById('uploadPrompt').classList.add('hidden');
+          const img = document.getElementById('imagePreview');
+          img.src = URL.createObjectURL(blob);
+          img.classList.remove('hidden');
+        }, 'image/jpeg', 0.9);
       }
 
       document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const fileInput = document.getElementById('fileInput');
-        if (!fileInput.files[0]) {
-          alert("Please upload an image file first.");
+        
+        if (!activeBlob) {
+          alert("Please capture or upload an image file first.");
           return;
         }
 
         const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+        // Pack data contextually as structural binary payload block
+        formData.append('file', activeBlob, currentMode === 'camera' ? 'snapshot.jpg' : activeBlob.name);
 
         document.getElementById('uploadForm').classList.add('hidden');
         document.getElementById('loadingState').classList.remove('hidden');
@@ -200,11 +286,11 @@
           const iconBox = document.getElementById('resultIconBox');
           const confText = document.getElementById('confidenceValue');
           if (data.class.toLowerCase() === 'weed') {
-            iconBox.className = "p-3 bg-amber-100 text-amber-700 rounded-xl";
-            confText.className = "text-xl font-black text-amber-600";
+            iconBox.className = "p-3 bg-amber-700 text-white rounded-xl";
+            confText.className = "text-xl font-black text-amber-700";
           } else {
-            iconBox.className = "p-3 bg-emerald-100 text-emerald-700 rounded-xl";
-            confText.className = "text-xl font-black text-emerald-600";
+            iconBox.className = "p-3 bg-emerald-700 text-white rounded-xl";
+            confText.className = "text-xl font-black text-emerald-700";
           }
 
           document.getElementById('loadingState').classList.add('hidden');
