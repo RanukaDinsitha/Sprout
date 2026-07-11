@@ -28,7 +28,6 @@
       };
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <style>
       .loader {
         width: 48px;
@@ -84,15 +83,25 @@
 
     <main class="app-card bg-white w-full max-w-xl p-6 md:p-8">
       
-      <div class="flex gap-2 mb-6 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
-        <button id="tabUpload" onclick="switchMode('upload')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200">
+      <div class="flex gap-2 mb-4 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+        <button id="tabUpload" type="button" onclick="switchMode('upload')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200">
           <i class="fa-solid fa-file-image"></i> Upload File
         </button>
-        <button id="tabCamera" onclick="switchMode('camera')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900">
+        <button id="tabCamera" type="button" onclick="switchMode('camera')" class="flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900">
           <i class="fa-solid fa-camera"></i> Live Camera
         </button>
       </div>
-      
+
+      <div class="mb-6">
+        <label for="modelSelect" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+          <i class="fa-solid fa-microchip mr-1"></i> Select Model Architecture
+        </label>
+        <select id="modelSelect" name="model_choice" class="w-full p-3 bg-slate-50 border-2 border-slate-300 text-slate-800 font-semibold rounded-xl text-sm focus:outline-none focus:border-emerald-600 transition-colors">
+          <option value="0" selected>Pesti — PyTorch Model (.pt)</option>
+          <option value="1">Plight — Keras Model (.keras)</option>
+        </select>
+      </div>
+
       <form id="uploadForm" enctype="multipart/form-data" class="space-y-6">
         
         <div id="uploadContainer" class="flex flex-col items-center justify-center w-full">
@@ -135,7 +144,11 @@
       </div>
 
       <div id="resultState" class="hidden mt-6 pt-6 border-t-2 border-slate-200 space-y-4">
-        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Analysis Result</div>
+        <div class="flex items-center justify-between">
+          <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Analysis Result</div>
+          <span id="modelBadge" class="text-xs px-2.5 py-1 font-bold rounded-full bg-slate-200 text-slate-700">Pesti (.pt)</span>
+        </div>
+        
         <div class="flex items-center justify-between p-4 bg-slate-100 rounded-xl border border-slate-200">
           <div class="flex items-center gap-3">
             <div class="p-3 bg-emerald-700 text-white rounded-xl" id="resultIconBox">
@@ -160,7 +173,7 @@
     <script>
       let currentMode = 'upload';
       let cameraStream = null;
-      let activeBlob = null; // Holds the native file payload (from either file upload or camera snapshot)
+      let activeBlob = null; 
 
       function switchMode(mode) {
         if (mode === currentMode) return;
@@ -245,7 +258,6 @@
 
         canvas.toBlob((blob) => {
           activeBlob = blob;
-          // Temporarily flip user layout visualization to the standard image panel view to lock item frame
           switchMode('upload');
           document.getElementById('uploadPrompt').classList.add('hidden');
           const img = document.getElementById('imagePreview');
@@ -258,13 +270,16 @@
         e.preventDefault();
         
         if (!activeBlob) {
-          alert("Please capture or upload an image file first.");
+          alert("Please upload an image or capture a photo before submitting.");
           return;
         }
 
+        const selectedModel = document.getElementById('modelSelect').value;
         const formData = new FormData();
-        // Pack data contextually as structural binary payload block
+        
+        // Append input file and model parameters
         formData.append('file', activeBlob, currentMode === 'camera' ? 'snapshot.jpg' : activeBlob.name);
+        formData.append('model_choice', selectedModel);
 
         document.getElementById('uploadForm').classList.add('hidden');
         document.getElementById('loadingState').classList.remove('hidden');
@@ -282,10 +297,12 @@
 
           document.getElementById('predictedClass').innerText = data.class;
           document.getElementById('confidenceValue').innerText = data.confidence;
+          document.getElementById('modelBadge').innerText = data.model_used || (selectedModel === '0' ? 'Pesti (.pt)' : 'Plight (.keras)');
           
           const iconBox = document.getElementById('resultIconBox');
           const confText = document.getElementById('confidenceValue');
-          if (data.class.toLowerCase() === 'weed') {
+          
+          if (data.class.toLowerCase().includes('weed')) {
             iconBox.className = "p-3 bg-amber-700 text-white rounded-xl";
             confText.className = "text-xl font-black text-amber-700";
           } else {
@@ -298,7 +315,7 @@
           document.getElementById('resultState').classList.remove('hidden');
 
         } catch (err) {
-          alert("Server Connection Error.");
+          alert("There has been an error connecting to the backend, please refresh the page.");
           resetUI();
         }
       });
