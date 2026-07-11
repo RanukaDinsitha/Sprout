@@ -47,12 +47,12 @@
         background-color: #f1f5f9;
       }
       .app-card {
-        border-radius: 1rem;
+        border-radius: 1.5rem;
         border: 2px solid #cbd5e1;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
       }
       .panel-input {
-        border-radius: 0.75rem;
+        border-radius: 1.25rem;
         border: 2px dashed #94a3b8;
         background-color: #f8fafc;
       }
@@ -61,7 +61,7 @@
         background-color: #f1f5f9;
       }
       .preview-box {
-        border-radius: 0.5rem;
+        border-radius: 1rem;
         border: 1px solid #cbd5e1;
       }
       .action-button {
@@ -72,14 +72,16 @@
       }
     </style>
   </head>
-  <body class="font-sans min-h-screen flex flex-col items-center justify-center p-4">
+  <body class="font-sans h-screen max-h-screen overflow-hidden flex flex-col items-center justify-center p-4">
 
-    <header class="mb-6 text-center">
-      <div class="justify-center text-emerald-700 text-3xl font-title font-bold flex items-center tracking-tight">
-        <i class="fa-solid fa-seedling mr-2"></i>Sprout
-      </div>
-      <p class="text-slate-600 text-sm mt-1 font-medium">Weed Plant Detection AI Engine</p>
-    </header>
+    <div class="md:max-w-[50vw] w-[50vw] min-w-[320px] h-full flex flex-col items-center justify-between py-4">
+      
+      <header class="mb-4 text-center w-full shrink-0">
+        <div class="justify-center text-emerald-700 text-3xl font-title font-bold flex items-center tracking-tight">
+          <i class="fa-solid fa-seedling mr-2"></i>Sprout
+        </div>
+        <p class="text-slate-600 text-sm mt-1 font-medium">Weed Plant Detection AI Engine</p>
+      </header>
 
     <main class="app-card bg-white w-full max-w-xl p-6 md:p-8">
       
@@ -116,32 +118,32 @@
           </label>
         </div>
 
-        <div id="cameraContainer" class="hidden flex flex-col items-center justify-center w-full space-y-4">
-          <div class="w-full h-56 bg-slate-900 rounded-xl relative overflow-hidden border border-slate-300">
-            <video id="videoFeed" autoplay playsinline class="w-full h-full object-cover"></video>
-            <div id="cameraPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 text-slate-400 text-sm">
-              <i class="fa-solid fa-video-slash text-2xl mb-2"></i> Camera is off
+          <div id="cameraContainer" class="hidden flex flex-col items-center justify-center w-full flex-1 min-h-[200px] space-y-4">
+            <div class="w-full h-full min-h-[160px] bg-slate-900 rounded-2xl relative overflow-hidden border border-slate-300">
+              <video id="videoFeed" autoplay playsinline class="w-full h-full object-cover"></video>
+              <div id="cameraPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 text-slate-400 text-sm">
+                <i class="fa-solid fa-video-slash text-2xl mb-2"></i> Camera is off
+              </div>
+            </div>
+            <div class="flex w-full gap-2 shrink-0">
+              <button type="button" id="startCamBtn" onclick="initCam()" class="action-button flex-1 py-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-full text-sm flex items-center justify-center gap-2">
+                <i class="fa-solid fa-power-off"></i> Start Camera
+              </button>
+              <button type="button" id="captureBtn" onclick="captureFrame()" disabled class="action-button flex-1 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-full text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fa-solid fa-circle"></i> Capture Photo
+              </button>
             </div>
           </div>
-          <div class="flex w-full gap-2">
-            <button type="button" id="startCamBtn" onclick="initCam()" class="action-button flex-1 py-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2">
-              <i class="fa-solid fa-power-off"></i> Start Camera
-            </button>
-            <button type="button" id="captureBtn" onclick="captureFrame()" disabled class="action-button flex-1 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fa-solid fa-circle"></i> Capture Photo
-            </button>
-          </div>
+
+          <button type="submit" id="submitBtn" class="action-button w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-full shadow-md flex items-center justify-center gap-2 border border-emerald-800 shrink-0">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Submit
+          </button>
+        </form>
+
+        <div id="loadingState" class="hidden flex flex-col items-center justify-center py-8 space-y-4 flex-1">
+          <div class="loader"></div>
+          <p class="text-slate-600 text-sm font-bold">Searching...</p>
         </div>
-
-        <button type="submit" id="submitBtn" class="action-button w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 border border-emerald-800">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze Plant Structure
-        </button>
-      </form>
-
-      <div id="loadingState" class="hidden flex flex-col items-center justify-center py-8 space-y-4">
-        <div class="loader"></div>
-        <p class="text-slate-600 text-sm font-bold">AI is inspecting leaf geometry...</p>
-      </div>
 
       <div id="resultState" class="hidden mt-6 pt-6 border-t-2 border-slate-200 space-y-4">
         <div class="flex items-center justify-between">
@@ -166,7 +168,8 @@
         </div>
       </div>
 
-    </main>
+      </main>
+    </div>
 
     <canvas id="captureCanvas" class="hidden"></canvas>
 
@@ -185,14 +188,14 @@
         const cameraCont = document.getElementById('cameraContainer');
 
         if (mode === 'upload') {
-          tabUpload.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200";
-          tabCamera.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
+          tabUpload.className = "flex-1 py-2.5 px-4 rounded-full font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200";
+          tabCamera.className = "flex-1 py-2.5 px-4 rounded-full font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
           uploadCont.classList.remove('hidden');
           cameraCont.classList.add('hidden');
           killCam();
         } else {
-          tabCamera.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200";
-          tabUpload.className = "flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
+          tabCamera.className = "flex-1 py-2.5 px-4 rounded-full font-semibold text-sm flex items-center justify-center gap-2 transition-all bg-white text-slate-800 shadow-sm border border-slate-200";
+          tabUpload.className = "flex-1 py-2.5 px-4 rounded-full font-semibold text-sm flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
           cameraCont.classList.remove('hidden');
           uploadCont.classList.add('hidden');
           resetUploadData();
