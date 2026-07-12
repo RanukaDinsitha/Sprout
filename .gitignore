@@ -13,6 +13,8 @@ __pycache__/
 
 # History and Backend Images and more
 .history/
+images
+weeds
 wellington_pests
 dataset_prepared
 what-to-do.txt
