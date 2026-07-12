@@ -234,7 +234,7 @@
           document.getElementById('captureBtn').disabled = false;
           document.getElementById('startCamBtn').innerHTML = `<i class="fa-solid fa-arrow-rotate-right"></i> Restart Cam`;
         } catch (err) {
-          alert("Camera acquisition failure: Access denied or device occupied.");
+          alert("Sprout has failed to get the camera: access denied or device occupied.");
         }
       }
 
@@ -273,7 +273,7 @@
         e.preventDefault();
         
         if (!activeBlob) {
-          alert("Please upload an image or capture a photo before submitting.");
+          alert("Sprout says please upload an image or capture a photo before submitting.");
           return;
         }
 
@@ -318,7 +318,7 @@
           document.getElementById('resultState').classList.remove('hidden');
 
         } catch (err) {
-          alert("There has been an error connecting to the backend, please refresh the page.");
+          alert("Sprout had an error connecting to the backend, please try and refresh the page.");
           resetUI();
         }
       });
