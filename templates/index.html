@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..0,800;1,300..0,800&family=Puvi:wght@400;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght=0,300..0,800;1,300..0,800&family=Puvi:wght=400;700;900&display=swap"
       rel="stylesheet"
     />
 
@@ -16,7 +16,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
       crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+      dependency="no-referrer"
     />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -100,33 +100,43 @@
         }
       }
 
-      /* Glassmorphic UI Card Styling with 3D Tilt Support */
+      /* Glassmorphic UI Card Styling with Increased Transparency */
       .app-card {
         border-radius: 1.25rem;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(16px);
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease-out;
+        border: 1px solid rgba(255, 255, 255, 0.08); /* Finer border for seamless glass integration */
+        background: rgba(15, 23, 42, 0.35); /* Reduced opacity from 0.75 to 0.35 to match header reference */
+        backdrop-filter: blur(20px); /* Increased blur depth to maintain text readability */
+        -webkit-backdrop-filter: blur(20px); /* Safari support */
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease-out, background-color 0.3s ease;
         will-change: transform;
       }
 
       .app-card:hover {
+        background: rgba(15, 23, 42, 0.45); /* Subtle color lift on hover */
         border-color: rgba(16, 185, 129, 0.35);
-        box-shadow: 0 25px 60px rgba(16, 185, 129, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 60px rgba(16, 185, 129, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      /* Transparent Header Match */
+      .header-glass {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(15, 23, 42, 0.35);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
       }
 
       /* Upload Panel Input */
       .panel-input {
         border-radius: 1rem;
-        border: 2 border-dashed rgba(148, 163, 184, 0.25);
-        background: rgba(30, 41, 59, 0.6);
+        border: 2px border-dashed rgba(148, 163, 184, 0.15);
+        background: rgba(30, 41, 59, 0.25); /* More transparent upload target */
         transition: all 0.3s ease;
       }
 
       .panel-input:hover {
         border-color: rgba(16, 185, 129, 0.7);
-        background: rgba(30, 41, 59, 0.85);
+        background: rgba(30, 41, 59, 0.4);
         box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
       }
 
@@ -165,8 +175,8 @@
       /* Custom Styled Model Select Dropdown */
       .model-select {
         border-radius: 0.75rem;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        background-color: rgba(30, 41, 59, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: rgba(15, 23, 42, 0.6); /* Blends into glass cards */
         color: #f8fafc;
         transition: all 0.2s ease;
       }
@@ -215,7 +225,7 @@
       class="relative z-10 flex flex-col min-h-screen w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 gap-6 sm:gap-8 opacity-0 transition-opacity duration-700"
     >
       <header
-        class="flex items-center justify-between border border-white/10 pb-4 sm:py-4 bg-slate-900/60 backdrop-blur-xl px-4 sm:px-6 rounded-2xl shadow-xl"
+        class="flex items-center justify-between header-glass pb-4 sm:py-4 px-4 sm:px-6 rounded-2xl shadow-xl"
       >
         <div class="flex items-center gap-3">
           <span class="text-2xl font-bold tracking-tight text-white font-title">
@@ -230,7 +240,7 @@
           />
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-[11px] font-mono text-emerald-400 uppercase tracking-widest hidden sm:inline">Engine is fully operational</span>
+          <span class="text-[11px] font-mono text-emerald-400 uppercase tracking-widest hidden sm:inline">Engine Active</span>
           <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
         </div>
       </header>
@@ -242,7 +252,7 @@
               Welcome!
             </h1>
             <p class="text-xs sm:text-sm leading-relaxed text-slate-300 max-w-2xl">
-              Take or upload a photo of a weed or plant specimen. Sprout will classify it using integrated local models and a deep neural network check.
+              Take or upload a photo of a weed or plant specimen. Sprout will classify it using integrated local models and web double-checks.
             </p>
           </div>
 
@@ -254,7 +264,7 @@
                   <span id="cameraStatusText" class="text-rose-400 font-bold">Disconnected</span>
                 </div>
 
-                <div class="relative w-full flex-1 min-h-[220px] sm:min-h-[260px] media-box overflow-hidden rounded-xl bg-slate-950 border border-slate-800 shadow-inner flex items-center justify-center">
+                <div class="relative w-full flex-1 min-h-[220px] sm:min-h-[260px] media-box overflow-hidden rounded-xl bg-slate-950/40 border border-slate-800/60 shadow-inner flex items-center justify-center">
                   <video
                     id="cameraVideo"
                     class="absolute inset-0 h-full w-full object-cover rounded-xl"
@@ -264,7 +274,7 @@
                   ></video>
                   <div
                     id="cameraOverlay"
-                    class="absolute inset-0 flex items-center justify-center bg-slate-950/90 text-slate-400 text-xs font-medium px-4 text-center"
+                    class="absolute inset-0 flex items-center justify-center bg-slate-950/80 text-slate-400 text-xs font-medium px-4 text-center"
                   >
                     Camera lens inactive
                   </div>
@@ -274,7 +284,7 @@
               <div class="mt-5 flex flex-col gap-2.5 sm:flex-row">
                 <button
                   id="startCamera"
-                  class="flex-1 rounded-xl bg-slate-800/80 border border-slate-700/60 px-4 py-2.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700 hover:text-white button-soft"
+                  class="flex-1 rounded-xl bg-slate-800/40 border border-slate-700/40 px-4 py-2.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700/60 hover:text-white button-soft"
                 >
                   <i class="fa-solid fa-video mr-1.5 text-emerald-400"></i>
                   Open Lens
@@ -346,7 +356,7 @@
 
             <div
               id="previewContainer"
-              class="hidden min-h-[200px] sm:min-h-[260px] overflow-hidden rounded-xl border border-slate-800 bg-slate-950 flex items-center justify-center relative shadow-inner"
+              class="hidden min-h-[200px] sm:min-h-[260px] overflow-hidden rounded-xl border border-slate-800/40 bg-slate-950/40 flex items-center justify-center relative shadow-inner"
             >
               <img
                 id="previewImage"
@@ -567,4 +577,3 @@
     </script>
   </body>
 </html>
-
