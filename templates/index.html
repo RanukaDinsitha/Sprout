@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..0,800;1,300..0,800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..0,800;1,300..0,800&family=Puvi:wght@400;700;900&display=swap"
       rel="stylesheet"
     />
 
@@ -55,13 +55,26 @@
         pointer-events: auto;
       }
 
+      /* Interactive Glowing Cursor Light */
+      #cursor-glow {
+        pointer-events: none;
+        position: fixed;
+        width: 350px;
+        height: 350px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, rgba(16, 185, 129, 0) 70%);
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+      }
+
       /* Loader Spinner */
       .loader {
         width: 48px;
         aspect-ratio: 1;
         border-radius: 50%;
         border: 6px solid transparent;
-        border-right-color: rgba(16, 185, 129, 0.8);
+        border-right-color: rgba(16, 185, 129, 0.9);
         position: relative;
         animation: l24 2.5s infinite linear;
       }
@@ -87,51 +100,84 @@
         }
       }
 
-      /* Responsive UI Card Styling with Glassmorphism for dynamic contrast */
+      /* Glassmorphic UI Card Styling with 3D Tilt Support */
       .app-card {
         border-radius: 1.25rem;
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        background-color: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(12px);
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease-out;
+        will-change: transform;
       }
 
+      .app-card:hover {
+        border-color: rgba(16, 185, 129, 0.35);
+        box-shadow: 0 25px 60px rgba(16, 185, 129, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      /* Upload Panel Input */
       .panel-input {
         border-radius: 1rem;
-        border-color: rgba(148, 163, 184, 0.3);
-        background-color: rgba(248, 250, 252, 0.8);
+        border: 2 border-dashed rgba(148, 163, 184, 0.25);
+        background: rgba(30, 41, 59, 0.6);
+        transition: all 0.3s ease;
       }
 
       .panel-input:hover {
-        border-color: rgba(16, 185, 129, 0.5);
-        background-color: rgba(255, 255, 255, 0.95);
+        border-color: rgba(16, 185, 129, 0.7);
+        background: rgba(30, 41, 59, 0.85);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
       }
 
+      /* Interactive Magnetic Buttons */
       .button-soft {
-        transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        will-change: transform;
+      }
+
+      .button-soft::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        transition: transform 0.5s ease, opacity 0.5s ease;
+        pointer-events: none;
+      }
+
+      .button-soft:active::after {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+        transition: 0s;
       }
 
       .button-soft:hover {
-        transform: translateY(-1px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
       }
 
-      .button-soft:active {
-        transform: translateY(0);
-      }
-
+      /* Custom Styled Model Select Dropdown */
       .model-select {
         border-radius: 0.75rem;
-        border-color: rgba(148, 163, 184, 0.35);
-        background-color: rgba(248, 250, 252, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        background-color: rgba(30, 41, 59, 0.9);
+        color: #f8fafc;
+        transition: all 0.2s ease;
       }
 
       .model-select:focus {
         outline: none;
-        border-color: rgba(5, 150, 105, 0.6);
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.8);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
       }
 
-      /* Dynamic Height Adjustment for Mobile devices */
+      /* Responsive Height Adjustment */
       @media (max-width: 640px) {
         .media-box {
           min-height: 200px;
@@ -139,24 +185,25 @@
       }
     </style>
   </head>
-  <body class="min-h-screen bg-[#0f172a] font-sans text-neutral-800 antialiased overflow-x-hidden">
+  <body class="min-h-screen bg-[#0f172a] font-sans text-slate-100 antialiased overflow-x-hidden">
     
     <div id="vanta-canvas"></div>
+    <div id="cursor-glow"></div>
 
     <div
       id="pageLoader"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md transition-opacity duration-500"
     >
       <div
-        class="flex flex-col items-center gap-4 rounded-3xl border border-emerald-100 bg-white p-8 shadow-2xl text-center max-w-sm mx-4"
+        class="flex flex-col items-center gap-4 rounded-3xl border border-emerald-500/20 bg-slate-900/90 p-8 shadow-2xl text-center max-w-sm mx-4"
       >
         <div class="loader"></div>
-        <div class="inline-flex items-center text-sm font-mono text-emerald-600">
+        <div class="inline-flex items-center text-sm font-mono text-emerald-400">
           <span
             id="loading-text"
             class="transition-all duration-300 ease-in-out opacity-100 transform translate-y-0"
           >
-            Identifying plants...
+            Initializing Sprout AI...
           </span>
           <span class="inline-block w-0.5 h-4 bg-current ml-2 animate-pulse"></span>
         </div>
@@ -168,9 +215,9 @@
       class="relative z-10 flex flex-col min-h-screen w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 gap-6 sm:gap-8 opacity-0 transition-opacity duration-700"
     >
       <header
-        class="flex items-center justify-between border-b border-white/20 pb-4 sm:pb-6 bg-slate-900/40 backdrop-blur-md px-4 sm:px-6 rounded-2xl"
+        class="flex items-center justify-between border border-white/10 pb-4 sm:py-4 bg-slate-900/60 backdrop-blur-xl px-4 sm:px-6 rounded-2xl shadow-xl"
       >
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
           <span class="text-2xl font-bold tracking-tight text-white font-title">
             Sprout
           </span>
@@ -182,7 +229,10 @@
             title="Sprout logo"
           />
         </div>
-        <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-mono text-emerald-400 uppercase tracking-widest hidden sm:inline">Engine Active</span>
+          <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        </div>
       </header>
 
       <main class="flex-1 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] items-stretch">
@@ -192,19 +242,19 @@
               Welcome!
             </h1>
             <p class="text-xs sm:text-sm leading-relaxed text-slate-300 max-w-2xl">
-              Take or upload a photo of a weed or plant. Sprout will identify the specimen using AI classification engines.
+              Take or upload a photo of a weed or plant specimen. Sprout will classify it using integrated local models and web double-checks.
             </p>
           </div>
 
           <div class="grid gap-6 sm:grid-cols-2 flex-1">
             <section class="flex flex-col justify-between p-5 sm:p-6 app-card">
               <div class="w-full flex flex-col flex-1">
-                <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">
+                <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-3">
                   <span>Camera Feed</span>
-                  <span id="cameraStatusText" class="text-rose-500 font-bold">Disconnected</span>
+                  <span id="cameraStatusText" class="text-rose-400 font-bold">Disconnected</span>
                 </div>
 
-                <div class="relative w-full flex-1 min-h-[220px] sm:min-h-[260px] media-box overflow-hidden rounded-xl bg-neutral-900 border border-neutral-200/60 shadow-inner flex items-center justify-center">
+                <div class="relative w-full flex-1 min-h-[220px] sm:min-h-[260px] media-box overflow-hidden rounded-xl bg-slate-950 border border-slate-800 shadow-inner flex items-center justify-center">
                   <video
                     id="cameraVideo"
                     class="absolute inset-0 h-full w-full object-cover rounded-xl"
@@ -214,9 +264,9 @@
                   ></video>
                   <div
                     id="cameraOverlay"
-                    class="absolute inset-0 flex items-center justify-center bg-neutral-900/90 text-neutral-400 text-xs font-medium px-4 text-center"
+                    class="absolute inset-0 flex items-center justify-center bg-slate-950/90 text-slate-400 text-xs font-medium px-4 text-center"
                   >
-                    Camera feed inactive
+                    Camera lens inactive
                   </div>
                 </div>
               </div>
@@ -224,14 +274,14 @@
               <div class="mt-5 flex flex-col gap-2.5 sm:flex-row">
                 <button
                   id="startCamera"
-                  class="flex-1 rounded-xl bg-white border border-neutral-200 px-4 py-2.5 text-xs font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-50 active:bg-neutral-100 button-soft"
+                  class="flex-1 rounded-xl bg-slate-800/80 border border-slate-700/60 px-4 py-2.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700 hover:text-white button-soft"
                 >
-                  <i class="fa-solid fa-video mr-1.5 text-neutral-500"></i>
+                  <i class="fa-solid fa-video mr-1.5 text-emerald-400"></i>
                   Open Lens
                 </button>
                 <button
                   id="capturePhoto"
-                  class="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:bg-emerald-800 button-soft"
+                  class="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-500 button-soft"
                 >
                   <i class="fa-solid fa-camera mr-1.5"></i>
                   Snapshot
@@ -241,20 +291,22 @@
 
             <section class="flex flex-col justify-between p-5 sm:p-6 app-card">
               <div class="w-full flex flex-col flex-1">
-                <div class="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">
+                <div class="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-3">
                   File Upload
                 </div>
                 <label
-                  class="group relative flex flex-col items-center justify-center w-full flex-1 min-h-[220px] sm:min-h-[260px] media-box border-2 border-dashed border-neutral-300 hover:border-emerald-500 panel-input cursor-pointer transition p-4 text-center"
+                  class="group relative flex flex-col items-center justify-center w-full flex-1 min-h-[220px] sm:min-h-[260px] media-box panel-input cursor-pointer transition p-4 text-center"
                 >
-                  <div class="space-y-2">
-                    <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto transition group-hover:scale-110">
-                      <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                  <div class="space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mx-auto transition group-hover:scale-110 group-hover:bg-emerald-500/20">
+                      <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
                     </div>
-                    <span class="block text-xs font-semibold text-neutral-700 group-hover:text-emerald-700 transition">
-                      Select file from device
-                    </span>
-                    <span class="block text-[10px] text-neutral-400">JPG, PNG, WEBP up to 10MB</span>
+                    <div>
+                      <span class="block text-xs font-semibold text-slate-200 group-hover:text-emerald-400 transition">
+                        Select image from device
+                      </span>
+                      <span class="block text-[10px] text-slate-400 mt-1">JPG, PNG, WEBP up to 10MB</span>
+                    </div>
                   </div>
                   <input id="plantImage" type="file" accept="image/*" class="hidden" />
                 </label>
@@ -266,35 +318,35 @@
         <section class="flex flex-col justify-between p-5 sm:p-6 app-card">
           <div class="flex flex-col gap-5">
             <div>
-              <div id="speciesName" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 font-title">
+              <div id="speciesName" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-title">
                 Awaiting Specimen
               </div>
-              <div id="pestStatus" class="text-xs font-medium text-neutral-500 leading-relaxed mt-2">
+              <div id="pestStatus" class="text-xs font-medium text-slate-400 leading-relaxed mt-2">
                 Capture or upload an image to begin classification analysis.
               </div>
             </div>
 
             <div>
-              <label for="modelSelect" class="block text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2">
-                <i class="fa-solid fa-microchip mr-1"></i> Model Architecture
+              <label for="modelSelect" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                <i class="fa-solid fa-microchip mr-1 text-emerald-400"></i> Model Architecture
               </label>
               <select
                 id="modelSelect"
                 name="model_choice"
-                class="model-select w-full px-3.5 py-2.5 text-xs font-semibold text-neutral-700 border transition cursor-pointer"
+                class="model-select w-full px-3.5 py-2.5 text-xs font-semibold text-slate-200 border transition cursor-pointer"
               >
                 <option value="0" selected>Pesti (.pt)</option>
-                <option value="1" selected>Plight (.keras)</option>
+                <option value="1">Plight (.keras)</option>
                 <option value="2">Pieflower</option>
-                <option value="2">Pesti Flash(.pt)</option>
-                <option value="3">Plight Flash(.keras)</option>
-                <option value="4">Pieflower Flash</option>
+                <option value="3">Pesti Flash (.pt)</option>
+                <option value="4">Plight Flash (.keras)</option>
+                <option value="5">Pieflower Flash</option>
               </select>
             </div>
 
             <div
               id="previewContainer"
-              class="hidden min-h-[200px] sm:min-h-[260px] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-900 flex items-center justify-center relative shadow-inner"
+              class="hidden min-h-[200px] sm:min-h-[260px] overflow-hidden rounded-xl border border-slate-800 bg-slate-950 flex items-center justify-center relative shadow-inner"
             >
               <img
                 id="previewImage"
@@ -307,7 +359,7 @@
 
           <button
             id="analyzeButton"
-            class="mt-6 w-full rounded-xl bg-emerald-600 px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-40 disabled:cursor-not-allowed button-soft"
+            class="mt-6 w-full rounded-xl bg-emerald-600 px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed button-soft"
             aria-label="Submit image for analysis"
           >
             <i class="fa-solid fa-magnifying-glass mr-2"></i>
@@ -319,9 +371,11 @@
 
     <script>
       window.addEventListener("DOMContentLoaded", () => {
+        let vantaEffect = null;
+
         // Initialize Vanta.js Interactive Network Background
         try {
-          VANTA.NET({
+          vantaEffect = VANTA.NET({
             el: "#vanta-canvas",
             mouseControls: true,
             touchControls: true,
@@ -332,15 +386,66 @@
             scaleMobile: 1.00,
             color: 0x10b981,
             backgroundColor: 0x0f172a,
-            points: 11.00,
-            maxDistance: 20.00,
-            spacing: 16.00
+            points: 12.00,
+            maxDistance: 22.00,
+            spacing: 15.00
           });
         } catch (e) {
           console.warn("Vanta background failed to load:", e);
         }
 
-        // Element Selectors
+        // Mouse Lighting & Magnetic Button Physics
+        const cursorGlow = document.getElementById("cursor-glow");
+        const magneticButtons = document.querySelectorAll(".button-soft");
+        const tiltCards = document.querySelectorAll(".app-card");
+
+        window.addEventListener("mousemove", (e) => {
+          const { clientX: x, clientY: y } = e;
+          
+          // Move ambient glow with mouse
+          cursorGlow.style.left = `${x}px`;
+          cursorGlow.style.top = `${y}px`;
+
+          // Magnetic effect on buttons
+          magneticButtons.forEach((btn) => {
+            const rect = btn.getBoundingClientRect();
+            const btnX = rect.left + rect.width / 2;
+            const btnY = rect.top + rect.height / 2;
+            const dist = Math.hypot(x - btnX, y - btnY);
+
+            if (dist < 80) {
+              const pullX = (x - btnX) * 0.25;
+              const pullY = (y - btnY) * 0.25;
+              btn.style.transform = `translate(${pullX}px, ${pullY}px) scale(1.03)`;
+            } else {
+              btn.style.transform = `translate(0px, 0px) scale(1)`;
+            }
+          });
+
+          // 3D Card tilt effect
+          tiltCards.forEach((card) => {
+            const rect = card.getBoundingClientRect();
+            const cardX = rect.left + rect.width / 2;
+            const cardY = rect.top + rect.height / 2;
+            const dist = Math.hypot(x - cardX, y - cardY);
+
+            if (dist < 400) {
+              const rotateX = ((y - cardY) / rect.height) * -8;
+              const rotateY = ((x - cardX) / rect.width) * 8;
+              card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            } else {
+              card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+            }
+          });
+        });
+
+        // Reset positions when mouse leaves viewport
+        document.addEventListener("mouseleave", () => {
+          magneticButtons.forEach((btn) => (btn.style.transform = "translate(0,0) scale(1)"));
+          tiltCards.forEach((card) => (card.style.transform = "perspective(1000px) rotateX(0) rotateY(0)"));
+        });
+
+        // UI Selectors
         const startCamera = document.getElementById("startCamera");
         const capturePhoto = document.getElementById("capturePhoto");
         const cameraVideo = document.getElementById("cameraVideo");
@@ -355,7 +460,6 @@
         const pageLoader = document.getElementById("pageLoader");
         const appContent = document.getElementById("appContent");
         const modelSelect = document.getElementById("modelSelect");
-        const loaderText = document.getElementById("loading-text");
 
         let stream = null;
         let imageData = null;
@@ -369,7 +473,7 @@
             cameraVideo.srcObject = stream;
             cameraOverlay.classList.add("hidden");
             cameraStatusText.textContent = "Live Feed";
-            cameraStatusText.className = "text-emerald-600 font-bold";
+            cameraStatusText.className = "text-emerald-400 font-bold";
           } catch (error) {
             alert("Sprout cannot access hardware camera. Please use file upload instead.");
           }
@@ -435,7 +539,7 @@
               pestStatus.textContent = data.error;
             } else if (data.class) {
               speciesName.textContent = data.class;
-              const modelLabel = data.model_used || (modelSelect.value === "0" ? "Pesti (.pt)" : "Plight (.keras)");
+              const modelLabel = data.model_used || "Local AI Model";
               pestStatus.textContent = `Confidence: ${data.confidence} | Engine: ${modelLabel}`;
             } else {
               speciesName.textContent = "Unknown Specimen";
@@ -453,12 +557,14 @@
         startCamera.addEventListener("click", startCameraStream);
         capturePhoto.addEventListener("click", captureImage);
 
+        // Fade out loader
         setTimeout(() => {
           pageLoader.style.opacity = "0";
           appContent.style.opacity = "1";
           setTimeout(() => pageLoader.remove(), 500);
-        }, 1500);
+        }, 1200);
       });
     </script>
   </body>
 </html>
+
