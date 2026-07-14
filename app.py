@@ -200,9 +200,7 @@ def predict():
         # Dynamic name lookup & remap
         raw_class = str(result.names[top1_idx])
         class_remap = {
-            "Annual_poa": "Wireweed",
-            "Annual poa": "Wireweed",
-            "Wireweed": "Annual Poa",
+            "Wireweed": "Wireweed"
         }
         predicted_class = class_remap.get(raw_class, raw_class.replace("_", " ")).title()
 
