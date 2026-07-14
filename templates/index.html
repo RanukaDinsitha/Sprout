@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..0,800;1,300..0,800&family=Puvi:wght@400;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..0,800;1,300..0,800&display=swap"
       rel="stylesheet"
     />
     <link
@@ -24,7 +24,7 @@
           extend: {
             fontFamily: {
               sans: ['"Open Sans"', "sans-serif"],
-              title: ['"Alibaba Sans"', '"Puvi"', "sans-serif"],
+              title: ['"Comic Sans MS"', '"Comic Sans"', "cursive", "sans-serif"],
             },
           },
         },
@@ -139,7 +139,7 @@
           >
             Sprout
           </p>
-          <p class="text-xs text-neutral-500 font-medium mt-0.5">Weed Plant Detection AI Engine</p>
+          <p class="text-xs text-neutral-500 font-medium mt-0.5">AI Pest-Plant Identifier</p>
         </div>
         <span class="h-2 w-2 rounded-none bg-emerald-500 animate-pulse"></span>
       </header>
@@ -310,7 +310,7 @@
         const modelSelect = document.getElementById("modelSelect");
 
         let stream = null;
-        let imageData = null; // data URL (from camera or upload) used for preview + submission
+        let imageData = null;
 
         async function startCameraStream() {
           try {
@@ -413,7 +413,6 @@
         startCamera.addEventListener("click", startCameraStream);
         capturePhoto.addEventListener("click", captureImage);
 
-        // Fades loader screen out safely after initialization window
         setTimeout(() => {
           pageLoader.style.opacity = "0";
           appContent.style.opacity = "1";
