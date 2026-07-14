@@ -1,1 +1,0 @@
-.\.sprout\Scripts\Activate.ps1

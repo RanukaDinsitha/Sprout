@@ -8,15 +8,28 @@ from ultralytics import YOLO
 
 app = Flask(__name__)
 
+# ------------------------------------------------------------------------------
 # CONFIGURATION
+# ------------------------------------------------------------------------------
+# Toggle CORS support: Set to True when serving external mobile apps or tunnels
+CORS_ENABLED = False
+
+if CORS_ENABLED:
+    try:
+        from flask_cors import CORS
+        CORS(app)
+        print("Sprout: CORS activated.")
+    except ImportError:
+        print("Sprout warning: flask_cors module not found. Run 'pip install flask-cors' to enable.")
+
 APP_DIR = Path(__file__).parent
 MODELS_DIR = APP_DIR / "models"
 MODEL_PATH = MODELS_DIR / "best.pt"
-KEY_FILE_PATH = APP_DIR / "key"  # Path to your Plant.id API key file
+KEY_FILE_PATH = APP_DIR / "key"  # Path to Plant.id API key file
 
 
 def load_api_key(key_path: Path) -> str:
-    """Helper function to load the API key from a local file."""
+    """Helper function to load the API key from a local file or txt file."""
     if not key_path.exists():
         key_path_txt = key_path.with_suffix(".txt")
         if key_path_txt.exists():
@@ -39,22 +52,19 @@ def load_api_key(key_path: Path) -> str:
 
 # Load Plant.id API Key
 PLANT_ID_API_KEY = load_api_key(KEY_FILE_PATH)
-PLANT_ID_URL = "https://plant.id/api/v3/identification"
-
-# Confidence threshold to trigger web verification (85%)
-CONFIDENCE_THRESHOLD = 85.0
+PLANT_ID_URL = "https://api.plant.id/v3/identification"
 
 
 def load_yolo_model(model_path: Path):
     if not model_path.exists():
-        print(f"Sprout was unable to locate the model's file. Please check file directory as specified: {model_path}")
+        print(f"Sprout was unable to locate the model file: {model_path}")
         return None
     try:
         model = YOLO(str(model_path))
-        print(f"Sprout has detected model and has been imported; the path is: {model_path}")
+        print(f"Sprout has detected and imported model from: {model_path}")
         return model
     except Exception as e:
-        print(f"Sprout was unable to load the model due to an error, please view: {model_path}: {e}")
+        print(f"Sprout error loading model at {model_path}: {e}")
         return None
 
 
@@ -62,14 +72,16 @@ def load_yolo_model(model_path: Path):
 model = load_yolo_model(MODEL_PATH)
 
 
-def query_plant_id(image_bytes: bytes) -> str | None:
-    """Sends the image to Plant.id API for botanical double-check."""
+# ------------------------------------------------------------------------------
+# PLANT.ID API HELPER
+# ------------------------------------------------------------------------------
+def query_plant_id(image_bytes: bytes) -> dict | None:
+    """Sends encoded image bytes to Plant.id API v3 as a secondary fallback."""
     if not PLANT_ID_API_KEY:
         print("Sprout warning: Plant.id API key not provided. Skipping web verification.")
         return None
 
     try:
-        # Encode image to Base64 format expected by Plant.id v3
         encoded_img = base64.b64encode(image_bytes).decode("utf-8")
 
         headers = {
@@ -77,10 +89,7 @@ def query_plant_id(image_bytes: bytes) -> str | None:
             "Content-Type": "application/json",
         }
 
-        # Crucial: details parameter tells Plant.id to return common names
-        params = {
-            "details": "common_names,description"
-        }
+        params = {"details": "common_names,description"}
 
         payload = {
             "images": [f"data:image/jpeg;base64,{encoded_img}"],
@@ -105,15 +114,20 @@ def query_plant_id(image_bytes: bytes) -> str | None:
                 details = top_suggestion.get("details", {})
                 common_names = details.get("common_names", [])
 
-                # Extract top common name or fallback to scientific name
+                # Prefer common name, fallback to scientific name
                 if common_names:
                     match_name = str(common_names[0]).title()
                 else:
-                    match_name = str(top_suggestion.get("name", "Unknown Species"))
+                    match_name = str(top_suggestion.get("name", "Unknown Species")).title()
 
-                prob = top_suggestion.get("probability", 0) * 100
+                prob = float(top_suggestion.get("probability", 0.0)) * 100
                 print(f"Sprout Plant.id returned: '{match_name}' with {prob:.1f}% certainty")
-                return match_name
+
+                return {
+                    "class": match_name,
+                    "confidence": f"{prob:.1f}%",
+                    "model_used": "Plant.id Cloud Verification Engine"
+                }
         else:
             print(f"Sprout Plant.id API HTTP error {response.status_code}: {response.text}")
 
@@ -123,6 +137,9 @@ def query_plant_id(image_bytes: bytes) -> str | None:
     return None
 
 
+# ------------------------------------------------------------------------------
+# ROUTES
+# ------------------------------------------------------------------------------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -132,15 +149,13 @@ def home():
 def predict():
     if model is None:
         return (
-            jsonify(
-                {"error": "Sprout has detected that the model file is missing or misconfigured on the server."}
-            ),
+            jsonify({"error": "Sprout has detected that the model file is missing or misconfigured."}),
             500,
         )
 
     if "file" not in request.files:
         return (
-            jsonify({"error": "Sprout has not detected an image payload found in request."}),
+            jsonify({"error": "Sprout has not detected an image payload in the request."}),
             400,
         )
 
@@ -157,61 +172,90 @@ def predict():
         image = Image.open(io.BytesIO(img_bytes))
         image = ImageOps.exif_transpose(image).convert("RGB")
 
-        # Run local YOLO inference
+        # ----------------------------------------------------------------------
+        # STEP 1: Run Local 76-Class YOLO Model Inference
+        # ----------------------------------------------------------------------
         results = model.predict(source=image, verbose=False)
         result = results[0]
 
-        # Guard check to satisfy static analysis
         if result.probs is None:
-            return (
-                jsonify(
-                    {"error": "Sprout was unable to generate classification probabilities."}
-                ),
-                500,
-            )
+            print("Sprout: Model returned no probability scores. Requesting Plant.id...")
+            plant_id_resp = query_plant_id(img_bytes)
+            if plant_id_resp:
+                return jsonify(plant_id_resp), 200
+            return jsonify({"error": "Sprout was unable to generate classification probabilities."}), 500
 
-        # PyTorch Tensor operations avoid Pylance attribute access errors
-        probs = result.probs
-        top_idx = int(probs.data.argmax().item())
-        confidence = float(probs.data.max().item()) * 100
+        # Pylance-safe PyTorch Tensor parsing for Top-1 and Top-2
+        probs = result.probs.data
+        top2_values, top2_indices = probs.topk(2)
 
-        # Dynamic name lookup from YOLO metadata
-        raw_class = str(result.names[top_idx])
+        top1_idx = int(top2_indices[0].item())
+        top1_conf = float(top2_values[0].item())
 
-        # REMAP TABLE FOR LOCAL MODEL
+        top2_conf = float(top2_values[1].item()) if len(top2_values) > 1 else 0.0
+
+        # Calculate dominance margin over 2nd place
+        margin = top1_conf - top2_conf
+
+        # Dynamic name lookup & remap
+        raw_class = str(result.names[top1_idx])
         class_remap = {
             "Annual_poa": "Wireweed",
             "Annual poa": "Wireweed",
             "Wireweed": "Annual Poa",
         }
+        predicted_class = class_remap.get(raw_class, raw_class.replace("_", " ")).title()
 
-        predicted_class = class_remap.get(raw_class, raw_class.replace("_", " "))
-        verification_source = "Sprout Local Engine"
-
-        # Verification fallback if confidence is below threshold
-        if confidence < CONFIDENCE_THRESHOLD:
-            print(f"Sprout detected low confidence ({confidence:.1f}%). Requesting Plant.id web verification...")
-            plant_id_prediction = query_plant_id(img_bytes)
-
-            if plant_id_prediction:
-                predicted_class = plant_id_prediction
-                verification_source = "Sprout Plant.id Verification Engine"
-
-        # Send successful JSON response back to web client
-        return jsonify(
-            {
+        # ----------------------------------------------------------------------
+        # STEP 2: Apply 76-Class Dynamic Decision Matrix
+        # ----------------------------------------------------------------------
+        # Rule A: High local conviction (>= 60%)
+        if top1_conf >= 0.60:
+            return jsonify({
                 "class": predicted_class,
-                "confidence": f"{confidence:.1f}%",
-                "source": verification_source,
-            }
-        )
+                "confidence": f"{top1_conf * 100:.1f}%",
+                "model_used": "Sprout Local Engine (High Conviction)"
+            }), 200
+
+        # Rule B: Moderate conviction (30%–59%) with dominant margin over #2 (>= 0.12)
+        elif top1_conf >= 0.30 and margin >= 0.12:
+            return jsonify({
+                "class": predicted_class,
+                "confidence": f"{top1_conf * 100:.1f}% (Margin: +{margin * 100:.1f}%)",
+                "model_used": "Sprout Local Engine (Margin Dominance)"
+            }), 200
+
+        # Rule C: Low conviction (< 30%) or tight margin (< 12%) -> Fallback to Plant.id
+        else:
+            print(f"Sprout: Local model uncertain on '{predicted_class}' ({top1_conf * 100:.1f}%, margin: {margin * 100:.1f}%). Triggering Plant.id...")
+            plant_id_resp = query_plant_id(img_bytes)
+
+            if plant_id_resp:
+                return jsonify(plant_id_resp), 200
+
+            # Fallback to local prediction if Plant.id call/key fails
+            return jsonify({
+                "class": predicted_class,
+                "confidence": f"{top1_conf * 100:.1f}%",
+                "model_used": "Sprout Local Engine (Fallback)"
+            }), 200
 
     except Exception as e:
         return (
-            jsonify({"error": f"Sprout's engine has had an Inference failure: {str(e)}"}),
+            jsonify({"error": f"Sprout's engine had an inference failure: {str(e)}"}),
             500,
         )
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "online",
+        "model_loaded": model is not None,
+        "cors_enabled": CORS_ENABLED,
+        "api_key_loaded": bool(PLANT_ID_API_KEY)
+    }), 200
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

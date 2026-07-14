@@ -3,7 +3,7 @@ import os
 
 def main():
     # 1. Load YOLO11 Nano Classification model
-    model = YOLO("yolo26n-cls.pt") 
+    model = YOLO("yolo26m-cls.pt") 
 
     # 2. Train Classification Model
     results = model.train(
