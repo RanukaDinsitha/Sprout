@@ -257,7 +257,7 @@
           <div class="flex flex-col gap-4 flex-1">
             <div>
               <div id="speciesName" class="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white font-title">
-                Awaiting Specimen
+                Waiting for a photo
               </div>
               <div id="pestStatus" class="text-xs font-medium text-slate-400 leading-relaxed mt-1">
                 Upload a photo or take a snapshot above to identify the plant.
@@ -299,7 +299,7 @@
                   id="changePhotoBtn"
                   class="absolute top-3 right-3 rounded-lg bg-slate-900/80 border border-slate-700/60 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 backdrop-blur-md hover:bg-slate-800 transition shadow-md group/btn"
                 >
-                  <i class="fa-solid fa-arrows-rotate mr-1 text-emerald-400 group-hover/btn:fa-spin"></i> Change Image
+                  <i class="fa-solid fa-arrows-rotate mr-1 text-emerald-400 group-hover/btn:fa-spin"></i> Swap
                 </button>
               </div>
             </div>
@@ -311,7 +311,7 @@
             aria-label="Submit image for analysis"
           >
             <i id="analyzeIcon" class="fa-solid fa-magnifying-glass mr-2 group-hover:fa-beat-fade"></i>
-            <span id="analyzeBtnText">Submit Specimen</span>
+            <span id="analyzeBtnText">Submit</span>
           </button>
         </section>
       </main>
@@ -495,7 +495,9 @@
             cameraStatusText.textContent = "Live";
             cameraStatusText.className = "text-emerald-400 font-bold";
           } catch (error) {
-            alert("Sprout cannot access hardware camera. Please use file upload instead.");
+            // Using in-app safe HTML overlay reporting instead of blocky native dialog windows
+            speciesName.textContent = "Hardware Error";
+            pestStatus.textContent = "Camera access denied. Please use the file upload card below.";
           }
         }
 
@@ -516,7 +518,8 @@
 
         function captureImage() {
           if (!stream || !cameraVideo.videoWidth) {
-            alert("Please activate the camera lens before capturing.");
+            speciesName.textContent = "Lenses Closed";
+            pestStatus.textContent = "Please click 'Open Lens' to activate camera preview first.";
             return;
           }
           const canvas = document.createElement("canvas");
@@ -560,8 +563,20 @@
             const formData = new FormData();
             formData.append("file", blob, "plant.jpg");
 
-            const result = await fetch("/predict", {
+            // Point to absolute tunnel domain when using fully static hosting architectures
+            // (e.g., https://slinky-hatching-reversal.ngrok-free.dev/predict)
+            const activePredictionEndpoint = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost" 
+              ? "/predict" 
+              : "https://slinky-hatching-reversal.ngrok-free.dev/predict";
+
+            const headers = {};
+            if (activePredictionEndpoint.includes("ngrok-free.dev")) {
+              headers["ngrok-skip-browser-warning"] = "69420";
+            }
+
+            const result = await fetch(activePredictionEndpoint, {
               method: "POST",
+              headers: headers,
               body: formData,
             });
             const data = await result.json();
