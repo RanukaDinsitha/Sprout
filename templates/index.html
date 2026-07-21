@@ -381,15 +381,18 @@
 
     <script>
       window.addEventListener("DOMContentLoaded", () => {
+        const isMobileOrTablet = window.innerWidth <= 1024 || 'ontouchstart' in window;
+
+        // Initialize Vanta background with active mouse reaction controls
         let vantaEffect = null;
 
         // Initialize Vanta.js Interactive Network Background
         try {
           vantaEffect = VANTA.NET({
             el: "#vanta-canvas",
-            mouseControls: true,
-            touchControls: true,
-            gyroControls: false,
+            mouseControls: false, // Disabled mouse tracking
+            touchControls: false, // Disabled touch tracking
+            gyroControls: false,  // Disabled device gyro tracking
             minHeight: 200.00,
             minWidth: 200.00,
             scale: 1.00,
@@ -404,7 +407,51 @@
           console.warn("Vanta background failed to load:", e);
         }
 
-        // Mouse Lighting & Magnetic Button Physics
+        // Re-awaken Three.js animation when returning to tab or resizing
+        document.addEventListener("visibilitychange", () => {
+          if (!document.hidden && vantaEffect) {
+            vantaEffect.resize();
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (vantaEffect) {
+            vantaEffect.resize();
+          }
+        });
+
+        // Fast Rotating Loader Screen
+        const loaderText = document.getElementById("loading-text");
+        const pageLoader = document.getElementById("pageLoader");
+        const appContent = document.getElementById("appContent");
+
+        const phrases = [
+          "Initializing Sprout...",
+          "Preparing Engine...",
+          "Loading Neural Network..."
+        ];
+        let phraseIdx = 0;
+
+        const phraseTimer = setInterval(() => {
+          phraseIdx++;
+          if (phraseIdx >= phrases.length) {
+            clearInterval(phraseTimer);
+            return;
+          }
+          loaderText.style.opacity = "0";
+          setTimeout(() => {
+            loaderText.textContent = phrases[phraseIdx];
+            loaderText.style.opacity = "1";
+          }, 100);
+        }, 500);
+
+        setTimeout(() => {
+          pageLoader.style.opacity = "0";
+          appContent.style.opacity = "1";
+          setTimeout(() => pageLoader.remove(), 300);
+        }, 1200);
+
+        // Hardware Accelerated Pointer Physics Restored
         const cursorGlow = document.getElementById("cursor-glow");
         const magneticButtons = document.querySelectorAll(".button-soft");
         const tiltCards = document.querySelectorAll(".app-card");
@@ -485,7 +532,8 @@
             cameraStatusText.textContent = "Live Feed";
             cameraStatusText.className = "text-emerald-400 font-bold";
           } catch (error) {
-            alert("Sprout cannot access hardware camera. Please use file upload instead.");
+            speciesName.textContent = "Hardware Error";
+            pestStatus.textContent = "Camera access denied. Please use the file upload card below.";
           }
         }
 
@@ -538,7 +586,8 @@
             formData.append("file", blob, "plant.jpg");
             formData.append("model_choice", modelSelect.value);
 
-            const result = await fetch("/predict", {
+            const activePredictionEndpoint = "https://sproutboy.pythonanywhere.com/predict";
+            const result = await fetch(activePredictionEndpoint, {
               method: "POST",
               body: formData,
             });
@@ -560,7 +609,8 @@
             pestStatus.textContent = `API Request failed: ${error.message}`;
           } finally {
             analyzeButton.disabled = false;
-            analyzeButton.innerHTML = originalContent;
+            analyzeIcon.className = "fa-solid fa-magnifying-glass mr-2 group-hover:fa-beat-fade";
+            analyzeBtnText.textContent = "Submit";
           }
         });
 
