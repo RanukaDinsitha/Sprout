@@ -326,9 +326,9 @@
         try {
           vantaEffect = VANTA.NET({
             el: "#vanta-canvas",
-            mouseControls: true,  // Mouse reactions restored
-            touchControls: true,  // Touch controls restored
-            gyroControls: true,   // Gyro controls restored
+            mouseControls: false, // Disabled mouse tracking
+            touchControls: false, // Disabled touch tracking
+            gyroControls: false,  // Disabled device gyro tracking
             minHeight: 200.00,
             minWidth: 200.00,
             scale: 1.00,
@@ -563,7 +563,6 @@
             formData.append("file", blob, "plant.jpg");
 
             const activePredictionEndpoint = "https://sproutboy.pythonanywhere.com/predict";
-
             const result = await fetch(activePredictionEndpoint, {
               method: "POST",
               body: formData,
