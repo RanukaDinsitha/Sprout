@@ -3,37 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Sprout</title>
+    <title>Sprout - Plant & Weed Identifier</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     
     <link rel="icon" type="image/png" href="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png" />
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
-    <script>
-      window.tailwind = window.tailwind || {};
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['"Inter"', "sans-serif"],
-              title: ['"Plus Jakarta Sans"', '"Inter"', "sans-serif"],
-              brand: ['"Montserrat"', "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Direct Tailwind CSS link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js" integrity="sha512-YQv6LYAsg79vklj7it788YfFkhKkS9mYg+lOoxgInQ03fVf9Y7M7f6KkaXmE9b6nI767y8Ff8F3Y3D8=" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script 
-    src="https://jsdelivr.net" 
-    integrity="sha384-88KscMee1Kj+NisYdE77fE18Gz30Y+T9O/U9LwV7G2C5VvXq6X/M0WJkWlWf5VbA" 
-    crossorigin="anonymous">
-    </script>
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    
+    <!-- Vanta.js Net Effect Library -->
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
     <style>
       * {
         margin: 0;
@@ -42,7 +30,14 @@
         -webkit-tap-highlight-color: transparent;
       }
 
-      /* Fullscreen interactive canvas background */
+      body {
+        background-color: #0b071e;
+        color: #f1f5f9;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* Fullscreen interactive background canvas */
       #vanta-canvas {
         width: 100vw;
         height: 100vh;
@@ -51,398 +46,401 @@
         left: 0;
         z-index: 0;
         pointer-events: auto;
-        will-change: transform;
       }
 
-      /* Interactive Ambient Light Glow (Touch & Mouse) */
-      #cursor-glow {
-        pointer-events: none;
+      /* Ambient Glowing Orbs mimicking the reference design background */
+      .bg-orb {
         position: fixed;
-        width: 260px;
-        height: 260px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, rgba(16, 185, 129, 0) 75%);
-        transform: translate3d(-50%, -50%, 0);
+        filter: blur(80px);
+        pointer-events: none;
         z-index: 1;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        will-change: transform, opacity;
+        opacity: 0.6;
       }
 
-      /* Custom Conic-Gradient Matrix Loader */
+      .bg-orb-1 {
+        width: 320px;
+        height: 320px;
+        background: linear-gradient(135deg, #ff3b8d, #ff7a00);
+        top: 10%;
+        left: -100px;
+      }
+
+      .bg-orb-2 {
+        width: 380px;
+        height: 380px;
+        background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+        bottom: 5%;
+        right: -100px;
+      }
+
+      .bg-orb-3 {
+        width: 250px;
+        height: 250px;
+        background: linear-gradient(135deg, #ff2a8d, #9333ea);
+        top: 50%;
+        left: 60%;
+        transform: translate(-50%, -50%);
+        opacity: 0.35;
+      }
+
+      /* Custom Loader */
       .loader {
         width: 32px;
-        aspect-ratio: 1;
-        --g: conic-gradient(from -90deg at 6px 6px, #10b981 90deg, #0000 0);
-        background: var(--g), var(--g), var(--g);
-        background-size: 50% 50%;
-        animation: l16 1s infinite;
+        height: 32px;
+        border: 3px solid rgba(255, 255, 255, 0.15);
+        border-top-color: #ff416c;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
       }
 
-      @keyframes l16 {
-        0%   { background-position: 0 0, 6px 6px, 12px 12px; } 
-        50%  { background-position: 0 12px, 6px 6px, 12px 0; } 
-        100% { background-position: 12px 12px, 0 0; } 
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
 
-      /* Glassmorphic UI Card Styling with 3D Depth Support */
-      .app-card {
-        border-radius: 1.25rem;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
-        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease-out;
-        will-change: transform;
+      /* Dark Glassmorphic Card Styling */
+      .glass-card {
+        background: rgba(23, 17, 48, 0.55);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        border-radius: 1.75rem;
       }
 
-      .app-card:hover, .app-card:active {
-        border-color: rgba(16, 185, 129, 0.35);
-        box-shadow: 0 18px 45px rgba(16, 185, 129, 0.15);
+      /* Vibrant Accent Gradient Buttons */
+      .btn-gradient {
+        background: linear-gradient(135deg, #ff3b70 0%, #ff6b35 100%);
+        box-shadow: 0 8px 25px rgba(255, 59, 112, 0.4);
+        transition: all 0.25s ease;
       }
 
-      /* Header Glass Styling */
-      .header-glass {
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+      .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(255, 59, 112, 0.6);
       }
 
-      /* Upload Panel Box */
-      .panel-input {
-        border-radius: 1rem;
-        border: 2px dashed rgba(148, 163, 184, 0.25);
-        background: rgba(30, 41, 59, 0.3);
-        transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease-out;
+      .btn-gradient:active {
+        transform: translateY(1px);
       }
 
-      .panel-input:hover, .panel-input:active {
-        border-color: rgba(16, 185, 129, 0.7);
-        background: rgba(30, 41, 59, 0.5);
+      .btn-secondary-glass {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        transition: all 0.2s ease;
       }
 
-      /* Interactive Magnetic & Soft Buttons */
-      .button-soft {
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
-        will-change: transform;
-        touch-action: manipulation;
+      .btn-secondary-glass:hover {
+        background: rgba(255, 255, 255, 0.16);
+        border-color: rgba(255, 255, 255, 0.25);
       }
 
-      .button-soft:active {
-        transform: scale(0.96) !important;
+      /* Minimal Tab Pill Styling */
+      .pill-tab {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+        padding: 4px;
       }
 
-      /* Animated SVG Upload Pulse */
+      .pill-tab-btn {
+        border-radius: 9999px;
+        transition: all 0.2s ease;
+      }
+
+      .pill-tab-btn.active {
+        background: linear-gradient(135deg, #ff3b70, #ff6b35);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(255, 59, 112, 0.3);
+      }
+
+      /* Dropzone Frame */
+      .dropzone-frame {
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        background: rgba(13, 9, 32, 0.4);
+        transition: all 0.25s ease;
+      }
+
+      .dropzone-frame:hover {
+        border-color: #ff3b70;
+        background: rgba(255, 59, 112, 0.05);
+      }
+
+      /* Interactive Floating Animation */
       @keyframes floatPulse {
         0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-4px); }
+        50% { transform: translateY(-6px); }
       }
 
       .animate-float {
-        animation: floatPulse 2s ease-in-out infinite;
+        animation: floatPulse 2.5s ease-in-out infinite;
       }
     </style>
   </head>
-  <body class="min-h-screen bg-[#0f172a] font-sans text-slate-100 antialiased overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+  <body class="min-h-screen text-slate-100 antialiased flex flex-col justify-between">
     
+    <!-- Background Elements -->
     <div id="vanta-canvas"></div>
-    <div id="cursor-glow"></div>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
 
+    <!-- Initial Loading Screen -->
     <div
       id="pageLoader"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md transition-opacity duration-300"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 bg-opacity-90 backdrop-blur-xl transition-opacity duration-300"
     >
-      <div
-        class="flex items-center gap-4 rounded-2xl border border-emerald-500/20 bg-slate-900/90 px-6 py-4 shadow-2xl text-center max-w-xs mx-4"
-      >
+      <div class="flex items-center gap-4 rounded-2xl border border-white border-opacity-10 bg-slate-900/80 px-8 py-5 shadow-2xl">
         <div class="loader"></div>
-        <span
-          id="loading-text"
-          class="text-xs font-mono text-emerald-400 font-medium transition-all duration-150 opacity-100"
-        >
-          Initializing Sprout...
+        <span class="text-sm font-semibold tracking-wide text-white">
+          Loading Sprout UI...
         </span>
       </div>
     </div>
 
-    <!-- Help Modal Overlay -->
+    <!-- Help Modal -->
     <div
       id="helpModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4"
     >
       <div
         id="helpModalCard"
-        class="relative w-full max-w-md rounded-2xl border border-emerald-500/30 bg-slate-900/95 p-6 shadow-2xl transition-transform duration-300 scale-95"
+        class="relative w-full max-w-md glass-card p-6 sm:p-8 transition-transform duration-300 scale-95"
       >
         <button
           id="closeHelpBtn"
-          class="absolute top-4 right-4 h-8 w-8 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 flex items-center justify-center transition"
+          class="absolute top-4 right-4 h-9 w-9 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition"
           aria-label="Close help modal"
         >
-          <i class="fa-solid fa-xmark text-base"></i>
+          <i class="fa-solid fa-xmark text-sm"></i>
         </button>
 
-        <div class="flex items-center gap-2.5 mb-4">
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-            <i class="fa-solid fa-circle-question text-sm"></i>
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 to-amber-500 flex items-center justify-center text-white text-lg shadow-lg">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
-          <h2 class="text-lg font-bold text-white font-title">How to Use Sprout</h2>
+          <div>
+            <h2 class="text-lg font-bold text-white">Quick Guide</h2>
+            <p class="text-xs text-slate-400">3 quick steps to identify plants</p>
+          </div>
         </div>
 
-        <div class="space-y-3.5 text-xs text-slate-300 leading-relaxed">
-          <div class="flex items-start gap-3">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[11px] font-bold flex items-center justify-center border border-emerald-500/30">1</span>
-            <p><strong class="text-white">Capture or Upload:</strong> Click <span class="text-emerald-400 font-medium">Open Lens</span> to use your camera and click <span class="text-emerald-400 font-medium">Snapshot</span>, or simply tap the upload dropzone to select an image from your device.</p>
+        <div class="space-y-3.5 text-xs text-slate-200">
+          <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-amber-500 text-white font-extrabold flex items-center justify-center text-xs">1</span>
+            <span>Switch to <strong>Camera</strong> or tap <strong>Upload Box</strong>.</span>
           </div>
-          <div class="flex items-start gap-3">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[11px] font-bold flex items-center justify-center border border-emerald-500/30">2</span>
-            <p><strong class="text-white">Review Preview:</strong> Check the preview card to ensure your photo clearly shows the leaf, flower, or plant stem.</p>
+
+          <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-amber-500 text-white font-extrabold flex items-center justify-center text-xs">2</span>
+            <span>Take a snap or choose a plant leaf image.</span>
           </div>
-          <div class="flex items-start gap-3">
-            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[11px] font-bold flex items-center justify-center border border-emerald-500/30">3</span>
-            <p><strong class="text-white">Analyze:</strong> Press the <span class="text-emerald-400 font-medium">Submit</span> button to run neural classification and receive instant identification and confidence ratings.</p>
+
+          <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-r from-pink-500 to-amber-500 text-white font-extrabold flex items-center justify-center text-xs">3</span>
+            <span>Click <strong>"Identify Plant"</strong> for instant analysis.</span>
           </div>
         </div>
 
         <button
           id="dismissHelpBtn"
-          class="mt-6 w-full rounded-xl bg-emerald-600 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-500 button-soft"
+          class="mt-6 w-full rounded-xl btn-gradient py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg"
         >
-          Got it!
+          Got It
         </button>
       </div>
     </div>
 
+    <!-- Main Container Layout -->
     <div
       id="appContent"
-      class="relative z-10 flex flex-col min-h-screen w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8 gap-4 sm:gap-6 opacity-0 transition-opacity duration-300"
+      class="relative z-10 flex flex-col justify-between min-h-screen w-full max-w-lg mx-auto px-4 py-6 opacity-0 transition-opacity duration-300"
     >
-      <header
-        class="flex items-center justify-between header-glass py-3 px-4 sm:px-6 rounded-xl sm:rounded-2xl shadow-lg"
-      >
-        <div class="flex items-center gap-2.5">
-          <span class="text-xl sm:text-2xl font-black tracking-tight text-white font-brand">
-            Sprout
-          </span>
-          <img
-            id="sprout-logo"
-            src="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png"
-            class="h-6 sm:h-7 w-auto object-contain"
-            alt="Sprout logo"
-            title="Sprout logo"
-          />
-        </div>
+      <!-- Navigation Header -->
+      <header class="flex items-center justify-between py-2 mb-4">
         <div class="flex items-center gap-3">
-          <button
-            id="openHelpBtn"
-            class="flex items-center gap-1.5 rounded-lg bg-slate-800/80 border border-slate-700/60 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-slate-700 hover:text-white button-soft"
-            title="How to use Sprout"
-            aria-label="Help"
-          >
-            <i class="fa-solid fa-circle-question text-emerald-400"></i>
-            <span class="hidden sm:inline">Help</span>
-          </button>
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] sm:text-[11px] font-mono text-emerald-400 uppercase tracking-widest hidden xs:inline">Engine Ready</span>
-            <i class="fa-solid fa-circle text-[10px] text-emerald-400 fa-pulse"></i>
+          <div class="w-10 h-10 rounded-2xl glass-card flex items-center justify-center p-2 border border-white/20 shadow-md">
+            <img
+              src="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png"
+              class="h-full w-full object-contain"
+              alt="Sprout Logo"
+            />
+          </div>
+          <div>
+            <h1 class="text-lg font-extrabold text-white tracking-wide leading-tight">SPROUT</h1>
+            <p class="text-[10px] text-pink-400 font-semibold tracking-widest uppercase">Plant & Weed AI</p>
           </div>
         </div>
+
+        <button
+          id="openHelpBtn"
+          class="w-9 h-9 rounded-full btn-secondary-glass flex items-center justify-center text-slate-200 hover:text-white"
+          title="Help & Info"
+        >
+          <i class="fa-solid fa-circle-question text-sm"></i>
+        </button>
       </header>
 
-      <main class="flex-1 grid gap-4 sm:gap-6 lg:grid-cols-2 items-stretch">
-        <div class="flex flex-col gap-4 sm:gap-6">
-          <div class="space-y-1 px-1">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white font-title">
-              Welcome!
-            </h1>
-            <p class="text-xs sm:text-sm leading-relaxed text-slate-300 max-w-2xl">
-              Take a snapshot or upload an image to identify weed and plant specimens.
-            </p>
-          </div>
-
-          <section class="flex flex-col justify-between p-4 sm:p-5 app-card flex-1">
-            <div class="w-full flex flex-col flex-1">
-              <div class="flex items-center justify-between text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-2.5">
-                <span>Live Camera View</span>
-                <span id="cameraStatusText" class="text-rose-400 font-bold">Inactive</span>
-              </div>
-
-              <div class="relative w-full flex-1 min-h-[220px] sm:min-h-[280px] media-box overflow-hidden rounded-xl bg-slate-950/60 border border-slate-800/60 shadow-inner flex items-center justify-center">
-                <video
-                  id="cameraVideo"
-                  class="absolute inset-0 h-full w-full object-cover rounded-xl"
-                  autoplay
-                  playsinline
-                  muted
-                ></video>
-                <div
-                  id="cameraOverlay"
-                  class="absolute inset-0 flex items-center justify-center bg-slate-950/80 text-slate-400 text-xs font-medium px-4 text-center"
-                >
-                  Camera lens inactive
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-4 flex flex-row gap-2">
-              <button
-                id="startCamera"
-                class="flex-1 rounded-xl bg-slate-800/60 border border-slate-700/50 px-3 py-2.5 text-xs font-semibold text-slate-200 shadow-sm transition hover:bg-slate-700/80 hover:text-white button-soft group"
-              >
-                <i class="fa-solid fa-video mr-1.5 text-emerald-400 group-hover:fa-beat-fade"></i>
-                Open Lens
-              </button>
-              <button
-                id="capturePhoto"
-                class="flex-1 rounded-xl bg-emerald-600 px-3 py-2.5 text-xs font-semibold text-white shadow-md transition hover:bg-emerald-500 button-soft group"
-              >
-                <i class="fa-solid fa-camera mr-1.5 group-hover:fa-bounce"></i>
-                Snapshot
-              </button>
-            </div>
-          </section>
+      <!-- Main Interactive Content Card -->
+      <main class="flex-1 flex flex-col justify-between gap-4">
+        
+        <!-- Mode Switcher Pill -->
+        <div class="pill-tab grid grid-cols-2 text-xs font-bold text-slate-400 p-1">
+          <button id="tabUpload" class="pill-tab-btn py-2 text-center active flex items-center justify-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Upload Photo</span>
+          </button>
+          <button id="tabCamera" class="pill-tab-btn py-2 text-center flex items-center justify-center gap-2">
+            <i class="fa-solid fa-camera"></i>
+            <span>Live Camera</span>
+          </button>
         </div>
 
-        <section class="flex flex-col justify-between p-4 sm:p-5 app-card h-full">
-          <div class="flex flex-col gap-4 flex-1">
-            <div>
-              <div id="speciesName" class="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-white font-title">
-                Waiting for a photo
-              </div>
-              <div id="pestStatus" class="text-xs font-medium text-slate-400 leading-relaxed mt-1">
-                Upload a photo or take a snapshot above to identify the plant.
-              </div>
-            </div>
-
-            <div class="flex-1 flex flex-col justify-center min-h-[220px] sm:min-h-[280px] relative">
-              <label
-                id="uploadDropzone"
-                class="group relative flex flex-col items-center justify-center w-full h-full min-h-[220px] sm:min-h-[280px] panel-input cursor-pointer transition p-6 text-center"
-              >
-                <div class="space-y-3">
-                  <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mx-auto transition group-hover:scale-110 shadow-md">
-                    <svg class="w-6 h-6 fill-current text-emerald-400 animate-float" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <span class="block text-xs font-bold text-slate-200 group-hover:text-emerald-400 transition">
-                      Click to upload an image from your computer!
-                    </span>
-                    <span class="block text-[10px] text-slate-400 mt-1">Just upload; and wait for Sprout's engine to interpret.</span>
-                  </div>
+        <!-- Main Display / Viewport Area -->
+        <div class="glass-card p-5 flex flex-col gap-4 flex-1 justify-center relative overflow-hidden">
+          
+          <!-- Mode 1: File Upload Box -->
+          <div id="uploadSection" class="flex-1 flex flex-col justify-center">
+            <label
+              id="uploadDropzone"
+              class="group relative flex flex-col items-center justify-center w-full h-64 dropzone-frame rounded-2xl cursor-pointer p-6 text-center transition"
+            >
+              <div class="space-y-3">
+                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-pink-500/20 to-amber-500/20 border border-pink-500/30 flex items-center justify-center mx-auto text-pink-400 shadow-lg group-hover:scale-110 transition">
+                  <i class="fa-solid fa-leaf text-2xl animate-float"></i>
                 </div>
-                <input id="plantImage" type="file" accept="image/*" class="hidden" />
-              </label>
+                <div>
+                  <span class="block text-sm font-bold text-white group-hover:text-pink-400 transition">
+                    Choose or Drop Plant Image
+                  </span>
+                  <span class="block text-[11px] text-slate-400 mt-1">
+                    Supports JPG, PNG up to 10MB
+                  </span>
+                </div>
+              </div>
+              <input id="plantImage" type="file" accept="image/*" class="hidden" />
+            </label>
+          </div>
 
-              <div
-                id="previewContainer"
-                class="hidden absolute inset-0 overflow-hidden rounded-xl border border-slate-800/60 bg-slate-950/80 flex items-center justify-center shadow-inner group"
-              >
-                <img
-                  id="previewImage"
-                  class="h-full w-full object-contain rounded-xl"
-                  src=""
-                  alt="Captured specimen preview"
-                />
-                <button
-                  id="changePhotoBtn"
-                  class="absolute top-3 right-3 rounded-lg bg-slate-900/80 border border-slate-700/60 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 backdrop-blur-md hover:bg-slate-800 transition shadow-md group/btn"
-                >
-                  <i class="fa-solid fa-arrows-rotate mr-1 text-emerald-400 group-hover/btn:fa-spin"></i> Swap
+          <!-- Mode 2: Live Camera Viewport -->
+          <div id="cameraSection" class="hidden flex-1 flex-col justify-center">
+            <div class="relative w-full h-64 rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center">
+              <video id="cameraVideo" class="absolute inset-0 h-full w-full object-cover" autoplay playsinline muted></video>
+              <div id="cameraOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 p-4 text-center">
+                <i class="fa-solid fa-video-slash text-2xl text-slate-500 mb-2"></i>
+                <p class="text-xs font-semibold text-slate-300">Camera is off</p>
+                <button id="startCameraBtn" class="mt-3 px-4 py-2 rounded-xl btn-gradient text-xs font-bold text-white">
+                  Turn On Camera
                 </button>
               </div>
             </div>
+            <button id="capturePhotoBtn" class="mt-3 w-full py-2.5 rounded-xl btn-secondary-glass text-xs font-bold text-white flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-dot text-pink-500"></i>
+              <span>Take Snapshot</span>
+            </button>
           </div>
 
+          <!-- Photo Preview Container (Shared) -->
+          <div id="previewContainer" class="hidden relative w-full h-64 rounded-2xl overflow-hidden border border-pink-500/40 bg-slate-950">
+            <img id="previewImage" class="h-full w-full object-contain" src="" alt="Selected plant preview" />
+            <button
+              id="changePhotoBtn"
+              class="absolute top-3 right-3 rounded-full bg-slate-900/80 hover:bg-slate-900 text-slate-300 hover:text-white h-8 w-8 flex items-center justify-center text-xs transition border border-white/20 backdrop-blur-md"
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <!-- Results Summary Card -->
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-3">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-pink-400 block">Analysis Status</span>
+              <h3 id="speciesName" class="text-base font-bold text-white mt-0.5 truncate max-w-[200px]">
+                Waiting for photo
+              </h3>
+              <p id="pestStatus" class="text-[11px] text-slate-400 truncate max-w-[220px]">
+                Upload or capture a leaf picture
+              </p>
+            </div>
+            <div id="statusIcon" class="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-slate-400 text-sm flex-shrink-0">
+              <i class="fa-solid fa-seedling"></i>
+            </div>
+          </div>
+
+          <!-- Main CTA Action Button -->
           <button
             id="analyzeButton"
-            class="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-40 button-soft group"
-            aria-label="Submit image for analysis"
+            class="w-full py-3.5 rounded-xl btn-gradient text-xs font-extrabold uppercase tracking-widest text-white shadow-xl flex items-center justify-center gap-2"
           >
-            <i id="analyzeIcon" class="fa-solid fa-magnifying-glass mr-2 group-hover:fa-beat-fade"></i>
-            <span id="analyzeBtnText">Submit</span>
+            <i id="analyzeIcon" class="fa-solid fa-sparkles"></i>
+            <span id="analyzeBtnText">Identify Plant</span>
           </button>
-        </section>
+
+        </div>
       </main>
+
+      <!-- Minimal Bottom Navigation Footer -->
+      <footer class="mt-4 glass-card py-2.5 px-6 flex items-center justify-around text-slate-400 text-sm">
+        <button class="text-pink-500 flex flex-col items-center gap-0.5">
+          <i class="fa-solid fa-cube text-base"></i>
+          <span class="text-[9px] font-semibold tracking-wider">SCAN</span>
+        </button>
+        <button class="hover:text-slate-200 flex flex-col items-center gap-0.5 transition">
+          <i class="fa-solid fa-clock-rotate-left text-base"></i>
+          <span class="text-[9px] font-semibold tracking-wider">HISTORY</span>
+        </button>
+        <button class="hover:text-slate-200 flex flex-col items-center gap-0.5 transition" id="footerHelpBtn">
+          <i class="fa-solid fa-gear text-base"></i>
+          <span class="text-[9px] font-semibold tracking-wider">INFO</span>
+        </button>
+      </footer>
     </div>
 
     <script>
       window.addEventListener("DOMContentLoaded", () => {
-        const isMobileOrTablet = window.innerWidth <= 1024 || 'ontouchstart' in window;
-
-        // Initialize Vanta background with active mouse reaction controls
+        // Vanta background effect initialization with dark purple aesthetic
         let vantaEffect = null;
         try {
-          vantaEffect = VANTA.NET({
-            el: "#vanta-canvas",
-            mouseControls: false, // Disabled mouse tracking
-            touchControls: false, // Disabled touch tracking
-            gyroControls: false,  // Disabled device gyro tracking
-            minHeight: 200.00,
-            minWidth: 200.00,
-            scale: 1.00,
-            scaleMobile: 0.85,
-            color: 0x10b981,
-            backgroundColor: 0x0f172a,
-            points: isMobileOrTablet ? 8.00 : 12.00,
-            maxDistance: isMobileOrTablet ? 18.00 : 22.00,
-            spacing: isMobileOrTablet ? 18.00 : 15.00
-          });
+          if (typeof VANTA !== 'undefined') {
+            vantaEffect = VANTA.NET({
+              el: "#vanta-canvas",
+              mouseControls: true,
+              touchControls: true,
+              gyroControls: false,
+              minHeight: 200.00,
+              minWidth: 200.00,
+              scale: 1.00,
+              scaleMobile: 0.85,
+              color: 0x9333ea,
+              backgroundColor: 0x0b071e,
+              points: 9.00,
+              maxDistance: 20.00,
+              spacing: 16.00
+            });
+          }
         } catch (e) {
-          console.warn("Vanta background failed to load:", e);
+          console.warn("Vanta canvas fallback:", e);
         }
 
-        // Re-awaken Three.js animation when returning to tab or resizing
-        document.addEventListener("visibilitychange", () => {
-          if (!document.hidden && vantaEffect) {
-            vantaEffect.resize();
-          }
-        });
-
         window.addEventListener("resize", () => {
-          if (vantaEffect) {
-            vantaEffect.resize();
-          }
+          if (vantaEffect) vantaEffect.resize();
         });
 
-        // Fast Rotating Loader Screen
-        const loaderText = document.getElementById("loading-text");
+        // Dismiss Initial Loader
         const pageLoader = document.getElementById("pageLoader");
         const appContent = document.getElementById("appContent");
-
-        const phrases = [
-          "Initializing Sprout...",
-          "Preparing Engine...",
-          "Loading Neural Network..."
-        ];
-        let phraseIdx = 0;
-
-        const phraseTimer = setInterval(() => {
-          phraseIdx++;
-          if (phraseIdx >= phrases.length) {
-            clearInterval(phraseTimer);
-            return;
-          }
-          loaderText.style.opacity = "0";
-          setTimeout(() => {
-            loaderText.textContent = phrases[phraseIdx];
-            loaderText.style.opacity = "1";
-          }, 100);
-        }, 500);
 
         setTimeout(() => {
           pageLoader.style.opacity = "0";
           appContent.style.opacity = "1";
           setTimeout(() => pageLoader.remove(), 300);
-        }, 1200);
+        }, 600);
 
         // Help Modal Controls
         const openHelpBtn = document.getElementById("openHelpBtn");
+        const footerHelpBtn = document.getElementById("footerHelpBtn");
         const closeHelpBtn = document.getElementById("closeHelpBtn");
         const dismissHelpBtn = document.getElementById("dismissHelpBtn");
         const helpModal = document.getElementById("helpModal");
@@ -461,144 +459,96 @@
         }
 
         openHelpBtn.addEventListener("click", openModal);
+        footerHelpBtn.addEventListener("click", openModal);
         closeHelpBtn.addEventListener("click", closeModal);
         dismissHelpBtn.addEventListener("click", closeModal);
         helpModal.addEventListener("click", (e) => {
           if (e.target === helpModal) closeModal();
         });
 
-        // Hardware Accelerated Pointer Physics Restored
-        const cursorGlow = document.getElementById("cursor-glow");
-        const magneticButtons = document.querySelectorAll(".button-soft");
-        const tiltCards = document.querySelectorAll(".app-card");
+        // Tab Switching Logic (Upload vs Camera)
+        const tabUpload = document.getElementById("tabUpload");
+        const tabCamera = document.getElementById("tabCamera");
+        const uploadSection = document.getElementById("uploadSection");
+        const cameraSection = document.getElementById("cameraSection");
 
-        let lastPointerX = 0;
-        let lastPointerY = 0;
-        let isPointerActive = false;
-        let animFrameId = null;
+        tabUpload.addEventListener("click", () => {
+          tabUpload.classList.add("active");
+          tabCamera.classList.remove("active");
+          uploadSection.classList.remove("hidden");
+          cameraSection.classList.add("hidden");
+        });
 
-        function update3DPhysics() {
-          if (!isPointerActive) return;
+        tabCamera.addEventListener("click", () => {
+          tabCamera.classList.add("active");
+          tabUpload.classList.remove("active");
+          cameraSection.classList.remove("hidden");
+          uploadSection.classList.add("hidden");
+        });
 
-          cursorGlow.style.left = `${lastPointerX}px`;
-          cursorGlow.style.top = `${lastPointerY}px`;
-          cursorGlow.style.opacity = "1";
-
-          magneticButtons.forEach((btn) => {
-            const rect = btn.getBoundingClientRect();
-            const btnX = rect.left + rect.width / 2;
-            const btnY = rect.top + rect.height / 2;
-            const dist = Math.hypot(lastPointerX - btnX, lastPointerY - btnY);
-
-            if (dist < (isMobileOrTablet ? 60 : 80)) {
-              const pullX = (lastPointerX - btnX) * 0.2;
-              const pullY = (lastPointerY - btnY) * 0.2;
-              btn.style.transform = `translate3d(${pullX}px, ${pullY}px, 0) scale(1.02)`;
-            } else {
-              btn.style.transform = `translate3d(0px, 0px, 0) scale(1)`;
-            }
-          });
-
-          tiltCards.forEach((card) => {
-            const rect = card.getBoundingClientRect();
-            const cardX = rect.left + rect.width / 2;
-            const cardY = rect.top + rect.height / 2;
-            const dist = Math.hypot(lastPointerX - cardX, lastPointerY - cardY);
-
-            if (dist < (isMobileOrTablet ? 300 : 450)) {
-              const maxTilt = isMobileOrTablet ? 4 : 7;
-              const rotateX = ((lastPointerY - cardY) / rect.height) * -maxTilt;
-              const rotateY = ((lastPointerX - cardX) / rect.width) * maxTilt;
-              card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            } else {
-              card.style.transform = `perspective(800px) rotateX(0deg) rotateY(0deg)`;
-            }
-          });
-
-          animFrameId = null;
-        }
-
-        function handlePointerMove(clientX, clientY) {
-          lastPointerX = clientX;
-          lastPointerY = clientY;
-          isPointerActive = true;
-
-          if (!animFrameId) {
-            animFrameId = requestAnimationFrame(update3DPhysics);
-          }
-        }
-
-        window.addEventListener("mousemove", (e) => handlePointerMove(e.clientX, e.clientY));
-        window.addEventListener("touchmove", (e) => {
-          if (e.touches.length > 0) {
-            handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-          }
-        }, { passive: true });
-
-        const resetPhysics = () => {
-          isPointerActive = false;
-          cursorGlow.style.opacity = "0";
-          magneticButtons.forEach((btn) => (btn.style.transform = "translate3d(0,0,0) scale(1)"));
-          tiltCards.forEach((card) => (card.style.transform = "perspective(800px) rotateX(0) rotateY(0)"));
-        };
-
-        document.addEventListener("mouseleave", resetPhysics);
-        window.addEventListener("touchend", () => setTimeout(resetPhysics, 1000));
-
-        // Camera & File Processing Logic
-        const startCamera = document.getElementById("startCamera");
-        const capturePhoto = document.getElementById("capturePhoto");
+        // Camera & Image Handling
+        const startCameraBtn = document.getElementById("startCameraBtn");
+        const capturePhotoBtn = document.getElementById("capturePhotoBtn");
         const cameraVideo = document.getElementById("cameraVideo");
         const cameraOverlay = document.getElementById("cameraOverlay");
-        const cameraStatusText = document.getElementById("cameraStatusText");
         const plantImage = document.getElementById("plantImage");
+        const previewContainer = document.getElementById("previewContainer");
+        const previewImage = document.getElementById("previewImage");
+        const changePhotoBtn = document.getElementById("changePhotoBtn");
+        const uploadDropzone = document.getElementById("uploadDropzone");
+        const speciesName = document.getElementById("speciesName");
+        const pestStatus = document.getElementById("pestStatus");
         const analyzeButton = document.getElementById("analyzeButton");
         const analyzeIcon = document.getElementById("analyzeIcon");
         const analyzeBtnText = document.getElementById("analyzeBtnText");
-        const previewImage = document.getElementById("previewImage");
-        const previewContainer = document.getElementById("previewContainer");
-        const uploadDropzone = document.getElementById("uploadDropzone");
-        const changePhotoBtn = document.getElementById("changePhotoBtn");
-        const speciesName = document.getElementById("speciesName");
-        const pestStatus = document.getElementById("pestStatus");
+        const statusIcon = document.getElementById("statusIcon");
 
         let stream = null;
         let imageData = null;
 
-        async function startCameraStream() {
+        async function startCamera() {
           try {
             stream = await navigator.mediaDevices.getUserMedia({
               video: { facingMode: "environment" },
             });
             cameraVideo.srcObject = stream;
             cameraOverlay.classList.add("hidden");
-            cameraStatusText.textContent = "Live";
-            cameraStatusText.className = "text-emerald-400 font-bold";
           } catch (error) {
-            speciesName.textContent = "Hardware Error";
-            pestStatus.textContent = "Camera access denied. Please use the file upload card below.";
+            speciesName.textContent = "Camera Error";
+            pestStatus.textContent = "Unable to access device camera.";
           }
         }
 
-        function setPhotoPreview(dataUrl) {
+        function setPreview(dataUrl) {
           imageData = dataUrl;
           previewImage.src = imageData;
-          uploadDropzone.classList.add("hidden");
+          uploadSection.classList.add("hidden");
+          cameraSection.classList.add("hidden");
           previewContainer.classList.remove("hidden");
+          speciesName.textContent = "Ready to Identify";
+          pestStatus.textContent = "Click 'Identify Plant' button below";
+          statusIcon.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i>`;
         }
 
-        function clearPhotoPreview() {
+        function resetPreview() {
           imageData = null;
           previewImage.src = "";
           plantImage.value = "";
           previewContainer.classList.add("hidden");
-          uploadDropzone.classList.remove("hidden");
+          if (tabUpload.classList.contains("active")) {
+            uploadSection.classList.remove("hidden");
+          } else {
+            cameraSection.classList.remove("hidden");
+          }
+          speciesName.textContent = "Waiting for photo";
+          pestStatus.textContent = "Upload or capture a leaf picture";
+          statusIcon.innerHTML = `<i class="fa-solid fa-seedling text-slate-400"></i>`;
         }
 
-        function captureImage() {
+        function captureSnapshot() {
           if (!stream || !cameraVideo.videoWidth) {
-            speciesName.textContent = "Lenses Closed";
-            pestStatus.textContent = "Please click 'Open Lens' to activate camera preview first.";
+            speciesName.textContent = "Camera Off";
+            pestStatus.textContent = "Turn on the camera first";
             return;
           }
           const canvas = document.createElement("canvas");
@@ -606,35 +556,35 @@
           canvas.height = cameraVideo.videoHeight;
           const ctx = canvas.getContext("2d");
           ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-          setPhotoPreview(canvas.toDataURL("image/jpeg", 0.85));
+          setPreview(canvas.toDataURL("image/jpeg", 0.85));
         }
 
-        plantImage.addEventListener("change", (event) => {
-          const file = event.target.files[0];
+        startCameraBtn.addEventListener("click", startCamera);
+        capturePhotoBtn.addEventListener("click", captureSnapshot);
+
+        plantImage.addEventListener("change", (e) => {
+          const file = e.target.files[0];
           if (!file) return;
           const reader = new FileReader();
-          reader.onload = (e) => {
-            setPhotoPreview(e.target.result);
-          };
+          reader.onload = (event) => setPreview(event.target.result);
           reader.readAsDataURL(file);
         });
 
-        changePhotoBtn.addEventListener("click", () => {
-          clearPhotoPreview();
-        });
+        changePhotoBtn.addEventListener("click", resetPreview);
 
+        // Analyze Request
         analyzeButton.addEventListener("click", async () => {
           if (!imageData) {
-            speciesName.textContent = "Image Missing";
-            pestStatus.textContent = "Please capture or upload an image first.";
+            speciesName.textContent = "No Image Selected";
+            pestStatus.textContent = "Please upload or capture a photo first";
             return;
           }
 
           analyzeButton.disabled = true;
-          analyzeIcon.className = "fa-solid fa-spinner fa-spin mr-2";
+          analyzeIcon.className = "fa-solid fa-spinner fa-spin";
           analyzeBtnText.textContent = "Analyzing...";
-          speciesName.textContent = "Evaluating...";
-          pestStatus.textContent = "Running neural network classification...";
+          speciesName.textContent = "Processing Image...";
+          pestStatus.textContent = "Matching with Sprout AI database...";
 
           try {
             const response = await fetch(imageData);
@@ -654,24 +604,22 @@
               pestStatus.textContent = data.error;
             } else if (data.class) {
               speciesName.textContent = data.class;
-              const modelLabel = data.model_used || "AI Engine";
-              pestStatus.textContent = `Confidence: ${data.confidence} | Engine: ${modelLabel}`;
+              const confidence = data.confidence || "High";
+              pestStatus.textContent = `Confidence: ${confidence}`;
+              statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-pink-400"></i>`;
             } else {
-              speciesName.textContent = "Unknown Specimen";
-              pestStatus.textContent = "Sprout could not identify this plant. Please try a clearer photo.";
+              speciesName.textContent = "Unknown Plant";
+              pestStatus.textContent = "Try taking a clearer, closer photo.";
             }
           } catch (error) {
             speciesName.textContent = "Connection Error";
-            pestStatus.textContent = `API Request failed: ${error.message}`;
+            pestStatus.textContent = "Failed to reach server.";
           } finally {
             analyzeButton.disabled = false;
-            analyzeIcon.className = "fa-solid fa-magnifying-glass mr-2 group-hover:fa-beat-fade";
-            analyzeBtnText.textContent = "Submit";
+            analyzeIcon.className = "fa-solid fa-sparkles";
+            analyzeBtnText.textContent = "Identify Plant";
           }
         });
-
-        startCamera.addEventListener("click", startCameraStream);
-        capturePhoto.addEventListener("click", captureImage);
       });
     </script>
   </body>
