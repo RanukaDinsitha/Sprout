@@ -74,19 +74,20 @@
         right: -80px;
       }
 
-      /* Custom Loader */
-      .loader {
-        width: 32px;
-        height: 32px;
-        border: 3px solid rgba(16, 185, 129, 0.2);
-        border-top-color: #10b981;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
+      /* Enhanced Loader Pulse Animations */
+      @keyframes pulseGlow {
+        0%, 100% {
+          transform: scale(1);
+          box-shadow: 0 0 25px rgba(16, 185, 129, 0.3), inset 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        50% {
+          transform: scale(1.08);
+          box-shadow: 0 0 45px rgba(16, 185, 129, 0.6), inset 0 0 25px rgba(16, 185, 129, 0.4);
+        }
       }
 
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+      .loader-glow-ring {
+        animation: pulseGlow 2s ease-in-out infinite;
       }
 
       /* Emerald Glassmorphic Card Styling */
@@ -165,7 +166,7 @@
       }
 
       .animate-float {
-        animation: floatPulse 2.5s ease-in-out infinite;
+        animation: floatPulse 5s ease-in-out infinite;
       }
     </style>
   </head>
@@ -176,16 +177,36 @@
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
 
-    <!-- Initial Loading Screen -->
+    <!-- Enhanced Initial Loading Screen -->
     <div
       id="pageLoader"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 bg-opacity-95 backdrop-blur-md transition-opacity duration-300"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#040a08]/95 backdrop-blur-xl transition-opacity duration-500 p-6"
     >
-      <div class="flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-slate-900/80 px-6 py-4 shadow-2xl">
-        <div class="loader"></div>
-        <span class="text-xs font-semibold tracking-wide text-emerald-400">
-          Loading Sprout...
-        </span>
+      <div class="relative flex flex-col items-center max-w-xs w-full text-center">
+        <!-- Logo Badge with Glowing Outer Ring -->
+        <div class="relative mb-6">
+          <div class="absolute -inset-2 rounded-3xl bg-emerald-500/20 blur-xl"></div>
+          <div class="loader-glow-ring relative w-20 h-20 rounded-3xl glass-card flex items-center justify-center p-4 border border-emerald-500/40 shadow-2xl">
+            <img
+              src="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png"
+              class="h-full w-full object-contain animate-float"
+              alt="Sprout Logo"
+            />
+          </div>
+        </div>
+
+        <!-- Title & Subtitle -->
+        <h2 class="text-2xl font-black text-white tracking-wider uppercase leading-none">Sprout</h2>
+        <p id="loaderSubtext" class="text-xs font-semibold tracking-widest text-emerald-400 uppercase mt-2 h-4 transition-all duration-300">
+          Initializing Sprout AI...
+        </p>
+
+        <!-- Dynamic Progress Bar -->
+        <div class="w-full bg-slate-900/80 rounded-full h-1.5 mt-6 overflow-hidden border border-emerald-500/20 shadow-inner">
+          <div id="loaderProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full w-0 transition-all duration-100 ease-out"></div>
+        </div>
+
+        <span id="loaderPercent" class="text-[10px] font-mono font-bold text-slate-400 mt-2">0%</span>
       </div>
     </div>
 
@@ -245,7 +266,7 @@
     <!-- Main Expanded Container (Wider Layout) -->
     <div
       id="appContent"
-      class="relative z-10 flex flex-col justify-between w-full max-w-xl md:max-w-2xl my-auto opacity-0 transition-opacity duration-300"
+      class="relative z-10 flex flex-col justify-between w-full max-w-xl md:max-w-2xl my-auto opacity-0 transition-opacity duration-500"
     >
       <!-- Navigation Header -->
       <header class="flex items-center justify-between py-3 mb-4 px-2">
@@ -397,15 +418,45 @@
           if (vantaEffect) vantaEffect.resize();
         });
 
-        // Hide Page Loader
+        // Extended Animated Loading Screen Logic
         const pageLoader = document.getElementById("pageLoader");
         const appContent = document.getElementById("appContent");
+        const progressBar = document.getElementById("loaderProgressBar");
+        const loaderPercent = document.getElementById("loaderPercent");
+        const loaderSubtext = document.getElementById("loaderSubtext");
 
-        setTimeout(() => {
-          pageLoader.style.opacity = "0";
-          appContent.style.opacity = "1";
-          setTimeout(() => pageLoader.remove(), 300);
-        }, 500);
+        const statusPhrases = [
+          { time: 0, text: "Initializing Sprout AI..." },
+          { time: 800, text: "Loading Botanical Engine..." },
+          { time: 1600, text: "Preparing Interface..." },
+          { time: 2200, text: "Ready!" }
+        ];
+
+        let currentProgress = 0;
+        const totalDuration = 2500; // 2.5 seconds total loading duration
+        const intervalTime = 25;
+        const step = 100 / (totalDuration / intervalTime);
+
+        statusPhrases.forEach((phase) => {
+          setTimeout(() => {
+            if (loaderSubtext) loaderSubtext.textContent = phase.text;
+          }, phase.time);
+        });
+
+        const progressInterval = setInterval(() => {
+          currentProgress += step;
+          if (currentProgress >= 100) {
+            currentProgress = 100;
+            clearInterval(progressInterval);
+
+            // Fade out loader smoothly
+            pageLoader.style.opacity = "0";
+            appContent.style.opacity = "1";
+            setTimeout(() => pageLoader.remove(), 500);
+          }
+          if (progressBar) progressBar.style.width = `${currentProgress}%`;
+          if (loaderPercent) loaderPercent.textContent = `${Math.floor(currentProgress)}%`;
+        }, intervalTime);
 
         // Help Modal Logic
         const openHelpBtn = document.getElementById("openHelpBtn");
