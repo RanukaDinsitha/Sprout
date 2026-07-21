@@ -321,14 +321,14 @@
       window.addEventListener("DOMContentLoaded", () => {
         const isMobileOrTablet = window.innerWidth <= 1024 || 'ontouchstart' in window;
 
-        // Initialize Vanta background and store instance reference
+        // Initialize Vanta background with active mouse reaction controls
         let vantaEffect = null;
         try {
           vantaEffect = VANTA.NET({
             el: "#vanta-canvas",
-            mouseControls: true,
-            touchControls: true,
-            gyroControls: true,
+            mouseControls: true,  // Mouse reactions restored
+            touchControls: true,  // Touch controls restored
+            gyroControls: true,   // Gyro controls restored
             minHeight: 200.00,
             minWidth: 200.00,
             scale: 1.00,
@@ -387,7 +387,7 @@
           setTimeout(() => pageLoader.remove(), 300);
         }, 1200);
 
-        // Hardware Accelerated Pointer Physics
+        // Hardware Accelerated Pointer Physics Restored
         const cursorGlow = document.getElementById("cursor-glow");
         const magneticButtons = document.querySelectorAll(".button-soft");
         const tiltCards = document.querySelectorAll(".app-card");
@@ -495,7 +495,6 @@
             cameraStatusText.textContent = "Live";
             cameraStatusText.className = "text-emerald-400 font-bold";
           } catch (error) {
-            // Using in-app safe HTML overlay reporting instead of blocky native dialog windows
             speciesName.textContent = "Hardware Error";
             pestStatus.textContent = "Camera access denied. Please use the file upload card below.";
           }
@@ -563,20 +562,10 @@
             const formData = new FormData();
             formData.append("file", blob, "plant.jpg");
 
-            // Point to absolute tunnel domain when using fully static hosting architectures
-            // (e.g., https://slinky-hatching-reversal.ngrok-free.dev/predict)
-            const activePredictionEndpoint = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost" 
-              ? "/predict" 
-              : "https://slinky-hatching-reversal.ngrok-free.dev/predict";
-
-            const headers = {};
-            if (activePredictionEndpoint.includes("ngrok-free.dev")) {
-              headers["ngrok-skip-browser-warning"] = "69420";
-            }
+            const activePredictionEndpoint = "https://sproutboy.pythonanywhere.com/predict";
 
             const result = await fetch(activePredictionEndpoint, {
               method: "POST",
-              headers: headers,
               body: formData,
             });
             const data = await result.json();
@@ -598,7 +587,7 @@
           } finally {
             analyzeButton.disabled = false;
             analyzeIcon.className = "fa-solid fa-magnifying-glass mr-2 group-hover:fa-beat-fade";
-            analyzeBtnText.textContent = "Submit Specimen";
+            analyzeBtnText.textContent = "Submit";
           }
         });
 
