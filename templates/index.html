@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Sprout - Plant & Weed Identifier</title>
+    <title>Sprout</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,13 +16,8 @@
     <!-- Direct Tailwind CSS link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   
-    <!-- Three.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" 
-        integrity="sha512-y9wN9wshZ_W7FwzUuXby6coSzoosbK7DsyHn8Ld73XGfM1byN6wXatYpG4Yor/mXF1GvKIn0gWj0R0oM2ZshOA==" 
-        crossorigin="anonymous" 
-        referrerpolicy="no-referrer"></script>
-    
-    <!-- Vanta.js Net Effect Library -->
+    <!-- Fixed Three.js & Vanta.js CDN Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
     <style>
@@ -248,12 +243,12 @@
 
           <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
             <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">2</span>
-            <span>Capture or pick a clear plant leaf image.</span>
+            <span>Capture or pick a clear plant image.</span>
           </div>
 
           <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
             <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">3</span>
-            <span>Click <strong>"Identify Plant"</strong> for AI results.</span>
+            <span>Click <strong>"Identify Plant"</strong> for your results.</span>
           </div>
         </div>
 
@@ -283,7 +278,7 @@
           </div>
           <div>
             <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-wide leading-tight">SPROUT</h1>
-            <p class="text-[10px] sm:text-xs text-emerald-400 font-bold tracking-widest uppercase">Plant & Weed AI</p>
+            <p class="text-[10px] sm:text-xs text-emerald-400 font-bold tracking-widest uppercase">Plant identifier.</p>
           </div>
         </div>
 
@@ -323,10 +318,10 @@
               </div>
               <div>
                 <span class="block text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition">
-                  Choose or Drop Plant Image
+                  Select <i>by clicking</i> or Drop Plant Image
                 </span>
                 <span class="block text-xs text-slate-400 mt-1">
-                  Supports JPG, PNG up to 10MB
+                  Supports common image formats.
                 </span>
               </div>
             </div>
@@ -366,12 +361,12 @@
         <!-- Minimal Results Bar -->
         <div class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4">
           <div class="min-w-0 flex-1">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Analysis Status</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Status</span>
             <h3 id="speciesName" class="text-base font-bold text-white mt-0.5 truncate">
-              Waiting for photo
+              Waiting for your photo!
             </h3>
             <p id="pestStatus" class="text-xs text-slate-400 truncate mt-0.5">
-              Upload or capture a leaf picture
+              Upload or capture a picture of a plant and <b>Sprout</b> will tell you what it is.
             </p>
           </div>
           <div id="statusIcon" class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm flex-shrink-0">
@@ -429,8 +424,8 @@
         const loaderSubtext = document.getElementById("loaderSubtext");
 
         const statusPhrases = [
-          { time: 0, text: "Initializing Sprout AI..." },
-          { time: 800, text: "Loading Botanical Engine..." },
+          { time: 0, text: "Initializing Sprout..." },
+          { time: 800, text: "Loading Neural Networks..." },
           { time: 1600, text: "Preparing Interface..." },
           { time: 2200, text: "Ready!" }
         ];
