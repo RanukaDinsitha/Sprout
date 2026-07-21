@@ -55,7 +55,7 @@
         top: 0;
         left: 0;
         z-index: 0;
-        pointer-events: auto;
+        pointer-events: none;
         will-change: transform;
       }
 
@@ -326,9 +326,9 @@
         try {
           vantaEffect = VANTA.NET({
             el: "#vanta-canvas",
-            mouseControls: true,
-            touchControls: true,
-            gyroControls: true,
+            mouseControls: false, // Disabled mouse tracking
+            touchControls: false, // Disabled touch tracking
+            gyroControls: false,  // Disabled device gyro tracking
             minHeight: 200.00,
             minWidth: 200.00,
             scale: 1.00,
@@ -495,7 +495,6 @@
             cameraStatusText.textContent = "Live";
             cameraStatusText.className = "text-emerald-400 font-bold";
           } catch (error) {
-            // Using in-app safe HTML overlay reporting instead of blocky native dialog windows
             speciesName.textContent = "Hardware Error";
             pestStatus.textContent = "Camera access denied. Please use the file upload card below.";
           }
@@ -563,8 +562,6 @@
             const formData = new FormData();
             formData.append("file", blob, "plant.jpg");
 
-            // Point to absolute tunnel domain when using fully static hosting architectures
-            // (e.g., https://slinky-hatching-reversal.ngrok-free.dev/predict)
             const activePredictionEndpoint = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost" 
               ? "/predict" 
               : "https://slinky-hatching-reversal.ngrok-free.dev/predict";
