@@ -185,6 +185,17 @@
       .animate-float {
         animation: floatPulse 2.5s ease-in-out infinite;
       }
+
+      /* Style for clickable plant result */
+      .clickable-plant {
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+
+      .clickable-plant:hover {
+        color: #34d399;
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body
@@ -194,7 +205,6 @@
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
 
-    <!-- Loading Screen -->
     <div
       id="pageLoader"
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#040a08]/95 backdrop-blur-xl transition-opacity duration-500 p-6"
@@ -246,7 +256,6 @@
       </div>
     </div>
 
-    <!-- Help Modal -->
     <div
       id="helpModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4"
@@ -323,7 +332,6 @@
       </div>
     </div>
 
-    <!-- Main Container -->
     <div
       id="appContent"
       class="relative z-10 flex flex-col justify-between w-full max-w-xl md:max-w-2xl my-auto opacity-0 transition-opacity duration-500"
@@ -645,6 +653,16 @@
 
         let stream = null;
         let imageData = null;
+        let currentIdentifiedPlant = null;
+
+        if (speciesName) {
+          speciesName.addEventListener("click", () => {
+            if (currentIdentifiedPlant) {
+              const query = encodeURIComponent(currentIdentifiedPlant);
+              window.open(`https://www.google.com/search?q=${query}`, "_blank");
+            }
+          });
+        }
 
         async function startCamera() {
           try {
@@ -654,6 +672,7 @@
             if (cameraVideo) cameraVideo.srcObject = stream;
             if (cameraOverlay) cameraOverlay.classList.add("hidden");
           } catch (error) {
+            clearClickablePlant();
             if (speciesName) speciesName.textContent = "Camera Error";
             if (pestStatus)
               pestStatus.textContent = "Unable to access device camera.";
@@ -661,6 +680,7 @@
         }
 
         function setPreview(dataUrl) {
+          clearClickablePlant();
           imageData = dataUrl;
           if (previewImage) previewImage.src = imageData;
           if (uploadSection) uploadSection.classList.add("hidden");
@@ -673,7 +693,16 @@
             statusIcon.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i>`;
         }
 
+        function clearClickablePlant() {
+          currentIdentifiedPlant = null;
+          if (speciesName) {
+            speciesName.classList.remove("clickable-plant");
+            speciesName.title = "";
+          }
+        }
+
         function resetPreview() {
+          clearClickablePlant();
           imageData = null;
           if (previewImage) previewImage.src = "";
           if (plantImage) plantImage.value = "";
@@ -693,6 +722,7 @@
 
         function captureSnapshot() {
           if (!stream || !cameraVideo || !cameraVideo.videoWidth) {
+            clearClickablePlant();
             if (speciesName) speciesName.textContent = "Camera Off";
             if (pestStatus) pestStatus.textContent = "Turn on camera first";
             return;
@@ -726,6 +756,7 @@
         if (analyzeButton) {
           analyzeButton.addEventListener("click", async () => {
             if (!imageData) {
+              clearClickablePlant();
               if (speciesName) speciesName.textContent = "No Image Selected";
               if (pestStatus)
                 pestStatus.textContent =
@@ -733,6 +764,7 @@
               return;
             }
 
+            clearClickablePlant();
             analyzeButton.disabled = true;
             if (analyzeIcon)
               analyzeIcon.className = "fa-solid fa-spinner fa-spin text-xs";
@@ -773,7 +805,13 @@
               } else if (data.class || data.prediction || data.result) {
                 const identifiedName =
                   data.class || data.prediction || data.result;
-                if (speciesName) speciesName.textContent = identifiedName;
+                
+                currentIdentifiedPlant = identifiedName;
+                if (speciesName) {
+                  speciesName.innerHTML = `${identifiedName} <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-70 ml-1"></i>`;
+                  speciesName.classList.add("clickable-plant");
+                  speciesName.title = `Search "${identifiedName}" on Google`;
+                }
 
                 let formattedConfidence = "High";
                 if (data.confidence !== undefined) {
@@ -784,7 +822,7 @@
                 }
 
                 if (pestStatus) {
-                  pestStatus.textContent = `This is likely a ${identifiedName} with a ${formattedConfidence} confidence.`;
+                  pestStatus.textContent = `This is likely a ${identifiedName} with a ${formattedConfidence} confidence. Click the name to search on Google.`;
                 }
                 if (statusIcon) {
                   statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
