@@ -1,5 +1,7 @@
 # AI Plant & Weed Detection Project or a.k.a Sprout
 
+- For humans that are viewing this file, please note that this is for AI agents and not human beings. 
+
 ## Project Context
 This application detects plants and weeds using an Ultralytics YOLO model exported to ONNX format. The backend is powered by Python and Flask, which serves both the API endpoints and a lightweight HTML frontend.
 
@@ -28,4 +30,4 @@ This application detects plants and weeds using an Ultralytics YOLO model export
 
 ### Never Do
 - Do not save uploaded images to the server disk; process them directly from the memory stream.
-- Do not run inference using the `.pt` file in production; strictly use the ONNX Runtime session.
+- Do not run inference using the `.pt` file in production; strictly use the ONNX Runtime session. (unless told so)
