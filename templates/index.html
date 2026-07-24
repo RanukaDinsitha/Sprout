@@ -2,21 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Sprout</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png" />
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    <!-- Direct Tailwind CSS link -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
-    <!-- Fixed Three.js & Vanta.js CDN Libraries -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
@@ -31,11 +48,10 @@
       body {
         background-color: #06110d;
         color: #f1f5f9;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: "Plus Jakarta Sans", sans-serif;
         overflow-x: hidden;
       }
 
-      /* Background canvas */
       #vanta-canvas {
         width: 100vw;
         height: 100vh;
@@ -43,10 +59,9 @@
         top: 0;
         left: 0;
         z-index: 0;
-        pointer-events: none; /* Keeps background completely non-interactive */
+        pointer-events: none;
       }
 
-      /* Ambient Glowing Orbs */
       .bg-orb {
         position: fixed;
         border-radius: 50%;
@@ -72,15 +87,19 @@
         right: -80px;
       }
 
-      /* Enhanced Loader Pulse Animations */
       @keyframes pulseGlow {
-        0%, 100% {
+        0%,
+        100% {
           transform: scale(1);
-          box-shadow: 0 0 25px rgba(16, 185, 129, 0.3), inset 0 0 15px rgba(16, 185, 129, 0.2);
+          box-shadow:
+            0 0 25px rgba(16, 185, 129, 0.3),
+            inset 0 0 15px rgba(16, 185, 129, 0.2);
         }
         50% {
           transform: scale(1.08);
-          box-shadow: 0 0 45px rgba(16, 185, 129, 0.6), inset 0 0 25px rgba(16, 185, 129, 0.4);
+          box-shadow:
+            0 0 45px rgba(16, 185, 129, 0.6),
+            inset 0 0 25px rgba(16, 185, 129, 0.4);
         }
       }
 
@@ -88,7 +107,6 @@
         animation: pulseGlow 2s ease-in-out infinite;
       }
 
-      /* Emerald Glassmorphic Card Styling */
       .glass-card {
         background: rgba(12, 29, 22, 0.75);
         backdrop-filter: blur(24px);
@@ -98,7 +116,6 @@
         border-radius: 1.75rem;
       }
 
-      /* Emerald Accent Gradient Buttons */
       .btn-gradient {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
@@ -126,7 +143,6 @@
         border-color: rgba(255, 255, 255, 0.2);
       }
 
-      /* Minimal Tab Pill Styling */
       .pill-tab {
         background: rgba(255, 255, 255, 0.04);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -145,7 +161,6 @@
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
       }
 
-      /* Dropzone Frame */
       .dropzone-frame {
         border: 2px dashed rgba(16, 185, 129, 0.35);
         background: rgba(6, 17, 13, 0.5);
@@ -157,10 +172,14 @@
         background: rgba(16, 185, 129, 0.08);
       }
 
-      /* Interactive Floating Animation */
       @keyframes floatPulse {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-5px); }
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
       }
 
       .animate-float {
@@ -168,23 +187,28 @@
       }
     </style>
   </head>
-  <body class="min-h-screen text-slate-100 antialiased flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8">
-    
-    <!-- Static Background Elements -->
+  <body
+    class="min-h-screen text-slate-100 antialiased flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8"
+  >
     <div id="vanta-canvas"></div>
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
 
-    <!-- Enhanced Initial Loading Screen -->
+    <!-- Loading Screen -->
     <div
       id="pageLoader"
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#040a08]/95 backdrop-blur-xl transition-opacity duration-500 p-6"
     >
-      <div class="relative flex flex-col items-center max-w-xs w-full text-center">
-        <!-- Logo Badge with Glowing Outer Ring -->
+      <div
+        class="relative flex flex-col items-center max-w-xs w-full text-center"
+      >
         <div class="relative mb-6">
-          <div class="absolute -inset-2 rounded-3xl bg-emerald-500/20 blur-xl"></div>
-          <div class="loader-glow-ring relative w-20 h-20 rounded-3xl glass-card flex items-center justify-center p-4 border border-emerald-500/40 shadow-2xl">
+          <div
+            class="absolute -inset-2 rounded-3xl bg-emerald-500/20 blur-xl"
+          ></div>
+          <div
+            class="loader-glow-ring relative w-20 h-20 rounded-3xl glass-card flex items-center justify-center p-4 border border-emerald-500/40 shadow-2xl"
+          >
             <img
               src="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png"
               class="h-full w-full object-contain animate-float"
@@ -193,18 +217,32 @@
           </div>
         </div>
 
-        <!-- Title & Subtitle -->
-        <h2 class="text-2xl font-black text-white tracking-wider uppercase leading-none">Sprout</h2>
-        <p id="loaderSubtext" class="text-xs font-semibold tracking-widest text-emerald-400 uppercase mt-2 h-4 transition-all duration-300">
+        <h2
+          class="text-2xl font-black text-white tracking-wider uppercase leading-none"
+        >
+          Sprout
+        </h2>
+        <p
+          id="loaderSubtext"
+          class="text-xs font-semibold tracking-widest text-emerald-400 uppercase mt-2 h-4 transition-all duration-300"
+        >
           Initializing Sprout AI...
         </p>
 
-        <!-- Dynamic Progress Bar -->
-        <div class="w-full bg-slate-900/80 rounded-full h-1.5 mt-6 overflow-hidden border border-emerald-500/20 shadow-inner">
-          <div id="loaderProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full w-0 transition-all duration-100 ease-out"></div>
+        <div
+          class="w-full bg-slate-900/80 rounded-full h-1.5 mt-6 overflow-hidden border border-emerald-500/20 shadow-inner"
+        >
+          <div
+            id="loaderProgressBar"
+            class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full w-0 transition-all duration-100 ease-out"
+          ></div>
         </div>
 
-        <span id="loaderPercent" class="text-[10px] font-mono font-bold text-slate-400 mt-2">0%</span>
+        <span
+          id="loaderPercent"
+          class="text-[10px] font-mono font-bold text-slate-400 mt-2"
+          >0%</span
+        >
       </div>
     </div>
 
@@ -226,29 +264,53 @@
         </button>
 
         <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-base">
+          <div
+            class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-base"
+          >
             <i class="fa-solid fa-wand-magic-sparkles"></i>
           </div>
           <div>
             <h2 class="text-lg font-bold text-white">Quick Guide</h2>
-            <p class="text-xs text-slate-400">Simple steps to identify plants</p>
+            <p class="text-xs text-slate-400">
+              Simple steps to identify plants
+            </p>
           </div>
         </div>
 
         <div class="space-y-3.5 text-xs sm:text-sm text-slate-200">
-          <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
-            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">1</span>
-            <span>Choose <strong>Camera</strong> or tap <strong>Upload</strong>.</span>
+          <div
+            class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5"
+          >
+            <span
+              class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs"
+              >1</span
+            >
+            <span
+              >Choose <strong>Camera</strong> or tap
+              <strong>Upload</strong>.</span
+            >
           </div>
 
-          <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
-            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">2</span>
+          <div
+            class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5"
+          >
+            <span
+              class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs"
+              >2</span
+            >
             <span>Capture or pick a clear plant image.</span>
           </div>
 
-          <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
-            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">3</span>
-            <span>Click <strong>"Identify Plant"</strong> for your results.</span>
+          <div
+            class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5"
+          >
+            <span
+              class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs"
+              >3</span
+            >
+            <span
+              >Click <strong>"Identify Plant"</strong> for your results.</span
+            >
           </div>
         </div>
 
@@ -261,15 +323,16 @@
       </div>
     </div>
 
-    <!-- Main Expanded Container (Wider Layout) -->
+    <!-- Main Container -->
     <div
       id="appContent"
       class="relative z-10 flex flex-col justify-between w-full max-w-xl md:max-w-2xl my-auto opacity-0 transition-opacity duration-500"
     >
-      <!-- Navigation Header -->
       <header class="flex items-center justify-between py-3 mb-4 px-2">
         <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl glass-card flex items-center justify-center p-2 border border-emerald-500/30 shadow-lg">
+          <div
+            class="w-11 h-11 rounded-2xl glass-card flex items-center justify-center p-2 border border-emerald-500/30 shadow-lg"
+          >
             <img
               src="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png"
               class="h-full w-full object-contain"
@@ -277,8 +340,16 @@
             />
           </div>
           <div>
-            <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-wide leading-tight">SPROUT</h1>
-            <p class="text-[10px] sm:text-xs text-emerald-400 font-bold tracking-widest uppercase">Plant identifier.</p>
+            <h1
+              class="text-lg sm:text-xl font-extrabold text-white tracking-wide leading-tight"
+            >
+              SPROUT
+            </h1>
+            <p
+              class="text-[10px] sm:text-xs text-emerald-400 font-bold tracking-widest uppercase"
+            >
+              Plant identifier.
+            </p>
           </div>
         </div>
 
@@ -291,33 +362,43 @@
         </button>
       </header>
 
-      <!-- Main Content Card -->
-      <main class="glass-card p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden">
-        
-        <!-- Mode Switcher Pill -->
-        <div class="pill-tab grid grid-cols-2 text-xs sm:text-sm font-semibold text-slate-400">
-          <button id="tabUpload" class="pill-tab-btn py-2.5 text-center active flex items-center justify-center gap-2">
+      <main
+        class="glass-card p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden"
+      >
+        <div
+          class="pill-tab grid grid-cols-2 text-xs sm:text-sm font-semibold text-slate-400"
+        >
+          <button
+            id="tabUpload"
+            class="pill-tab-btn py-2.5 text-center active flex items-center justify-center gap-2"
+          >
             <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
             <span>Upload Photo</span>
           </button>
-          <button id="tabCamera" class="pill-tab-btn py-2.5 text-center flex items-center justify-center gap-2">
+          <button
+            id="tabCamera"
+            class="pill-tab-btn py-2.5 text-center flex items-center justify-center gap-2"
+          >
             <i class="fa-solid fa-camera text-sm"></i>
             <span>Live Camera</span>
           </button>
         </div>
 
-        <!-- Mode 1: File Upload Box -->
         <div id="uploadSection" class="flex flex-col justify-center">
           <label
             id="uploadDropzone"
             class="group relative flex flex-col items-center justify-center w-full h-72 sm:h-80 dropzone-frame rounded-2xl cursor-pointer p-6 text-center transition"
           >
             <div class="space-y-3">
-              <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-lg group-hover:scale-110 transition duration-300">
+              <div
+                class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-lg group-hover:scale-110 transition duration-300"
+              >
                 <i class="fa-solid fa-leaf text-2xl animate-float"></i>
               </div>
               <div>
-                <span class="block text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition">
+                <span
+                  class="block text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition"
+                >
                   Select <i>by clicking</i> or Drop Plant Image
                 </span>
                 <span class="block text-xs text-slate-400 mt-1">
@@ -325,31 +406,63 @@
                 </span>
               </div>
             </div>
-            <input id="plantImage" type="file" accept="image/*" class="hidden" />
+            <input
+              id="plantImage"
+              type="file"
+              accept="image/*"
+              class="hidden"
+            />
           </label>
         </div>
 
-        <!-- Mode 2: Live Camera Viewport -->
         <div id="cameraSection" class="hidden flex-col justify-center">
-          <div class="relative w-full h-72 sm:h-80 rounded-2xl overflow-hidden border border-emerald-500/20 bg-slate-950 flex items-center justify-center">
-            <video id="cameraVideo" class="absolute inset-0 h-full w-full object-cover" autoplay playsinline muted></video>
-            <div id="cameraOverlay" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 p-6 text-center">
-              <i class="fa-solid fa-video-slash text-2xl text-slate-500 mb-3"></i>
-              <p class="text-xs sm:text-sm font-medium text-slate-300">Camera is currently off</p>
-              <button id="startCameraBtn" class="mt-3 px-4 py-2 rounded-xl btn-gradient text-xs font-bold text-white shadow-md">
+          <div
+            class="relative w-full h-72 sm:h-80 rounded-2xl overflow-hidden border border-emerald-500/20 bg-slate-950 flex items-center justify-center"
+          >
+            <video
+              id="cameraVideo"
+              class="absolute inset-0 h-full w-full object-cover"
+              autoplay
+              playsinline
+              muted
+            ></video>
+            <div
+              id="cameraOverlay"
+              class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 p-6 text-center"
+            >
+              <i
+                class="fa-solid fa-video-slash text-2xl text-slate-500 mb-3"
+              ></i>
+              <p class="text-xs sm:text-sm font-medium text-slate-300">
+                Camera is currently off
+              </p>
+              <button
+                id="startCameraBtn"
+                class="mt-3 px-4 py-2 rounded-xl btn-gradient text-xs font-bold text-white shadow-md"
+              >
                 Turn On Camera
               </button>
             </div>
           </div>
-          <button id="capturePhotoBtn" class="mt-3 w-full py-2.5 rounded-xl btn-secondary-glass text-xs font-bold text-white flex items-center justify-center gap-2">
+          <button
+            id="capturePhotoBtn"
+            class="mt-3 w-full py-2.5 rounded-xl btn-secondary-glass text-xs font-bold text-white flex items-center justify-center gap-2"
+          >
             <i class="fa-solid fa-circle-dot text-emerald-400 text-xs"></i>
             <span>Take Snapshot</span>
           </button>
         </div>
 
-        <!-- Shared Image Preview Frame -->
-        <div id="previewContainer" class="hidden relative w-full h-72 sm:h-80 rounded-2xl overflow-hidden border border-emerald-500/40 bg-slate-950">
-          <img id="previewImage" class="h-full w-full object-contain" src="" alt="Plant preview" />
+        <div
+          id="previewContainer"
+          class="hidden relative w-full h-72 sm:h-80 rounded-2xl overflow-hidden border border-emerald-500/40 bg-slate-950"
+        >
+          <img
+            id="previewImage"
+            class="h-full w-full object-contain"
+            src=""
+            alt="Plant preview"
+          />
           <button
             id="changePhotoBtn"
             class="absolute top-3 right-3 rounded-full bg-slate-900/80 hover:bg-slate-900 text-slate-300 hover:text-white h-8 w-8 flex items-center justify-center text-xs transition border border-white/10 backdrop-blur-md"
@@ -358,23 +471,33 @@
           </button>
         </div>
 
-        <!-- Minimal Results Bar -->
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4">
+        <div
+          class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4"
+        >
           <div class="min-w-0 flex-1">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Status</span>
-            <h3 id="speciesName" class="text-base font-bold text-white mt-0.5 truncate">
+            <span
+              class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block"
+              >Status</span
+            >
+            <h3
+              id="speciesName"
+              class="text-base font-bold text-white mt-0.5 truncate"
+            >
               Waiting for your photo!
             </h3>
             <p id="pestStatus" class="text-xs text-slate-400 truncate mt-0.5">
-              Upload or capture a picture of a plant and <b>Sprout</b> will tell you what it is.
+              Upload or capture a picture of a plant and <b>Sprout</b> will tell
+              you what it is.
             </p>
           </div>
-          <div id="statusIcon" class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm flex-shrink-0">
+          <div
+            id="statusIcon"
+            class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm flex-shrink-0"
+          >
             <i class="fa-solid fa-seedling"></i>
           </div>
         </div>
 
-        <!-- Primary CTA Button -->
         <button
           id="analyzeButton"
           class="w-full py-3.5 rounded-xl btn-gradient text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-lg flex items-center justify-center gap-2"
@@ -382,30 +505,27 @@
           <i id="analyzeIcon" class="fa-solid fa-sparkles text-xs"></i>
           <span id="analyzeBtnText">Identify Plant</span>
         </button>
-
       </main>
     </div>
-
     <script>
       window.addEventListener("DOMContentLoaded", () => {
-        // Vanta background configuration with mouse Controls strictly OFF
         let vantaEffect = null;
         try {
-          if (typeof VANTA !== 'undefined') {
+          if (typeof VANTA !== "undefined") {
             vantaEffect = VANTA.NET({
               el: "#vanta-canvas",
-              mouseControls: false, // Disables mouse tracking completely
-              touchControls: false, // Disables touch tracking
+              mouseControls: false,
+              touchControls: false,
               gyroControls: false,
-              minHeight: 200.00,
-              minWidth: 200.00,
-              scale: 1.00,
+              minHeight: 200.0,
+              minWidth: 200.0,
+              scale: 1.0,
               scaleMobile: 0.85,
               color: 0x10b981,
               backgroundColor: 0x06110d,
-              points: 8.00,
-              maxDistance: 18.00,
-              spacing: 18.00
+              points: 8.0,
+              maxDistance: 18.0,
+              spacing: 18.0,
             });
           }
         } catch (e) {
@@ -416,7 +536,6 @@
           if (vantaEffect) vantaEffect.resize();
         });
 
-        // Extended Animated Loading Screen Logic
         const pageLoader = document.getElementById("pageLoader");
         const appContent = document.getElementById("appContent");
         const progressBar = document.getElementById("loaderProgressBar");
@@ -427,11 +546,11 @@
           { time: 0, text: "Initializing Sprout..." },
           { time: 800, text: "Loading Neural Networks..." },
           { time: 1600, text: "Preparing Interface..." },
-          { time: 2200, text: "Ready!" }
+          { time: 2200, text: "Ready!" },
         ];
 
         let currentProgress = 0;
-        const totalDuration = 2500; // 2.5 seconds total loading duration
+        const totalDuration = 2500;
         const intervalTime = 25;
         const step = 100 / (totalDuration / intervalTime);
 
@@ -447,16 +566,17 @@
             currentProgress = 100;
             clearInterval(progressInterval);
 
-            // Fade out loader smoothly
-            pageLoader.style.opacity = "0";
-            appContent.style.opacity = "1";
-            setTimeout(() => pageLoader.remove(), 500);
+            if (pageLoader) {
+              pageLoader.style.opacity = "0";
+              setTimeout(() => pageLoader.remove(), 500);
+            }
+            if (appContent) appContent.style.opacity = "1";
           }
           if (progressBar) progressBar.style.width = `${currentProgress}%`;
-          if (loaderPercent) loaderPercent.textContent = `${Math.floor(currentProgress)}%`;
+          if (loaderPercent)
+            loaderPercent.textContent = `${Math.floor(currentProgress)}%`;
         }, intervalTime);
 
-        // Help Modal Logic
         const openHelpBtn = document.getElementById("openHelpBtn");
         const closeHelpBtn = document.getElementById("closeHelpBtn");
         const dismissHelpBtn = document.getElementById("dismissHelpBtn");
@@ -464,45 +584,50 @@
         const helpModalCard = document.getElementById("helpModalCard");
 
         function openModal() {
+          if (!helpModal || !helpModalCard) return;
           helpModal.classList.remove("pointer-events-none", "opacity-0");
           helpModalCard.classList.remove("scale-95");
           helpModalCard.classList.add("scale-100");
         }
 
         function closeModal() {
+          if (!helpModal || !helpModalCard) return;
           helpModal.classList.add("opacity-0", "pointer-events-none");
           helpModalCard.classList.remove("scale-100");
           helpModalCard.classList.add("scale-95");
         }
 
-        openHelpBtn.addEventListener("click", openModal);
-        closeHelpBtn.addEventListener("click", closeModal);
-        dismissHelpBtn.addEventListener("click", closeModal);
-        helpModal.addEventListener("click", (e) => {
-          if (e.target === helpModal) closeModal();
-        });
+        if (openHelpBtn) openHelpBtn.addEventListener("click", openModal);
+        if (closeHelpBtn) closeHelpBtn.addEventListener("click", closeModal);
+        if (dismissHelpBtn)
+          dismissHelpBtn.addEventListener("click", closeModal);
+        if (helpModal) {
+          helpModal.addEventListener("click", (e) => {
+            if (e.target === helpModal) closeModal();
+          });
+        }
 
-        // Tab Navigation Logic
         const tabUpload = document.getElementById("tabUpload");
         const tabCamera = document.getElementById("tabCamera");
         const uploadSection = document.getElementById("uploadSection");
         const cameraSection = document.getElementById("cameraSection");
 
-        tabUpload.addEventListener("click", () => {
-          tabUpload.classList.add("active");
-          tabCamera.classList.remove("active");
-          uploadSection.classList.remove("hidden");
-          cameraSection.classList.add("hidden");
-        });
+        if (tabUpload && tabCamera) {
+          tabUpload.addEventListener("click", () => {
+            tabUpload.classList.add("active");
+            tabCamera.classList.remove("active");
+            if (uploadSection) uploadSection.classList.remove("hidden");
+            if (cameraSection) cameraSection.classList.add("hidden");
+          });
 
-        tabCamera.addEventListener("click", () => {
-          tabCamera.classList.add("active");
-          tabUpload.classList.remove("active");
-          cameraSection.classList.remove("hidden");
-          uploadSection.classList.add("hidden");
-        });
+          tabCamera.addEventListener("click", () => {
+            tabCamera.classList.add("active");
+            tabUpload.classList.remove("active");
+            if (cameraSection) cameraSection.classList.remove("hidden");
+            if (uploadSection) uploadSection.classList.add("hidden");
+          });
+        }
 
-        // Camera & Media Handlers
         const startCameraBtn = document.getElementById("startCameraBtn");
         const capturePhotoBtn = document.getElementById("capturePhotoBtn");
         const cameraVideo = document.getElementById("cameraVideo");
@@ -526,44 +651,50 @@
             stream = await navigator.mediaDevices.getUserMedia({
               video: { facingMode: "environment" },
             });
-            cameraVideo.srcObject = stream;
-            cameraOverlay.classList.add("hidden");
+            if (cameraVideo) cameraVideo.srcObject = stream;
+            if (cameraOverlay) cameraOverlay.classList.add("hidden");
           } catch (error) {
-            speciesName.textContent = "Camera Error";
-            pestStatus.textContent = "Unable to access device camera.";
+            if (speciesName) speciesName.textContent = "Camera Error";
+            if (pestStatus)
+              pestStatus.textContent = "Unable to access device camera.";
           }
         }
 
         function setPreview(dataUrl) {
           imageData = dataUrl;
-          previewImage.src = imageData;
-          uploadSection.classList.add("hidden");
-          cameraSection.classList.add("hidden");
-          previewContainer.classList.remove("hidden");
-          speciesName.textContent = "Ready to Identify";
-          pestStatus.textContent = "Click 'Identify Plant' button";
-          statusIcon.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i>`;
+          if (previewImage) previewImage.src = imageData;
+          if (uploadSection) uploadSection.classList.add("hidden");
+          if (cameraSection) cameraSection.classList.add("hidden");
+          if (previewContainer) previewContainer.classList.remove("hidden");
+          if (speciesName) speciesName.textContent = "Ready to Identify";
+          if (pestStatus)
+            pestStatus.textContent = "Click 'Identify Plant' button";
+          if (statusIcon)
+            statusIcon.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i>`;
         }
 
         function resetPreview() {
           imageData = null;
-          previewImage.src = "";
-          plantImage.value = "";
-          previewContainer.classList.add("hidden");
-          if (tabUpload.classList.contains("active")) {
-            uploadSection.classList.remove("hidden");
+          if (previewImage) previewImage.src = "";
+          if (plantImage) plantImage.value = "";
+          if (previewContainer) previewContainer.classList.add("hidden");
+
+          if (tabUpload && tabUpload.classList.contains("active")) {
+            if (uploadSection) uploadSection.classList.remove("hidden");
           } else {
-            cameraSection.classList.remove("hidden");
+            if (cameraSection) cameraSection.classList.remove("hidden");
           }
-          speciesName.textContent = "Waiting for photo";
-          pestStatus.textContent = "Upload or capture a leaf picture";
-          statusIcon.innerHTML = `<i class="fa-solid fa-seedling text-emerald-400"></i>`;
+          if (speciesName) speciesName.textContent = "Waiting for photo";
+          if (pestStatus)
+            pestStatus.textContent = "Upload or capture a leaf picture";
+          if (statusIcon)
+            statusIcon.innerHTML = `<i class="fa-solid fa-seedling text-emerald-400"></i>`;
         }
 
         function captureSnapshot() {
-          if (!stream || !cameraVideo.videoWidth) {
-            speciesName.textContent = "Camera Off";
-            pestStatus.textContent = "Turn on camera first";
+          if (!stream || !cameraVideo || !cameraVideo.videoWidth) {
+            if (speciesName) speciesName.textContent = "Camera Off";
+            if (pestStatus) pestStatus.textContent = "Turn on camera first";
             return;
           }
           const canvas = document.createElement("canvas");
@@ -574,67 +705,108 @@
           setPreview(canvas.toDataURL("image/jpeg", 0.85));
         }
 
-        startCameraBtn.addEventListener("click", startCamera);
-        capturePhotoBtn.addEventListener("click", captureSnapshot);
+        if (startCameraBtn)
+          startCameraBtn.addEventListener("click", startCamera);
+        if (capturePhotoBtn)
+          capturePhotoBtn.addEventListener("click", captureSnapshot);
 
-        plantImage.addEventListener("change", (e) => {
-          const file = e.target.files[0];
-          if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (event) => setPreview(event.target.result);
-          reader.readAsDataURL(file);
-        });
+        if (plantImage) {
+          plantImage.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => setPreview(event.target.result);
+            reader.readAsDataURL(file);
+          });
+        }
 
-        changePhotoBtn.addEventListener("click", resetPreview);
+        if (changePhotoBtn)
+          changePhotoBtn.addEventListener("click", resetPreview);
 
-        // API Prediction Integration
-        analyzeButton.addEventListener("click", async () => {
-          if (!imageData) {
-            speciesName.textContent = "No Image Selected";
-            pestStatus.textContent = "Please upload or capture a photo first";
-            return;
-          }
-
-          analyzeButton.disabled = true;
-          analyzeIcon.className = "fa-solid fa-spinner fa-spin text-xs";
-          analyzeBtnText.textContent = "Analyzing...";
-          speciesName.textContent = "Processing Image...";
-          pestStatus.textContent = "Matching with Sprout AI...";
-
-          try {
-            const response = await fetch(imageData);
-            const blob = await response.blob();
-            const formData = new FormData();
-            formData.append("file", blob, "plant.jpg");
-
-            const activePredictionEndpoint = "https://sproutboy.pythonanywhere.com/predict";
-            const result = await fetch(activePredictionEndpoint, {
-              method: "POST",
-              body: formData,
-            });
-            const data = await result.json();
-
-            if (data.error) {
-              speciesName.textContent = "Error";
-              pestStatus.textContent = data.error;
-            } else if (data.class) {
-              speciesName.textContent = data.class;
-              const confidence = data.confidence || "High";
-              pestStatus.textContent = `Confidence: ${confidence}`;
-              statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
-            } else {
-              speciesName.textContent = "Unknown Plant";
-              pestStatus.textContent = "Try taking a clearer, closer photo.";
+        if (analyzeButton) {
+          analyzeButton.addEventListener("click", async () => {
+            if (!imageData) {
+              if (speciesName) speciesName.textContent = "No Image Selected";
+              if (pestStatus)
+                pestStatus.textContent =
+                  "Please upload or capture a photo first";
+              return;
             }
-          } catch (error) {
-            speciesName.textContent = "Connection Error";
-            pestStatus.textContent = "Failed to reach server.";
-          } finally {
-            analyzeButton.disabled = false;
-            analyzeIcon.className = "fa-solid fa-sparkles text-xs";
-            analyzeBtnText.textContent = "Identify Plant";
-          }
-        });
+
+            analyzeButton.disabled = true;
+            if (analyzeIcon)
+              analyzeIcon.className = "fa-solid fa-spinner fa-spin text-xs";
+            if (analyzeBtnText) analyzeBtnText.textContent = "Analyzing...";
+            if (speciesName) speciesName.textContent = "Processing Image...";
+            if (pestStatus)
+              pestStatus.textContent = "Matching with Sprout's neural networks...";
+
+            try {
+              const response = await fetch(imageData);
+              const blob = await response.blob();
+              const formData = new FormData();
+              formData.append("file", blob, "plant.jpg");
+
+              const activePredictionEndpoint =
+                "https://sproutboy.pythonanywhere.com/predict";
+
+              const result = await fetch(activePredictionEndpoint, {
+                method: "POST",
+                body: formData,
+              });
+
+              if (!result.ok) {
+                const errText = await result.text();
+                if (speciesName)
+                  speciesName.textContent = `Server Error (${result.status})`;
+                if (pestStatus)
+                  pestStatus.textContent =
+                    errText || "Unexpected response from server.";
+                return;
+              }
+
+              const data = await result.json();
+
+              if (data.error) {
+                if (speciesName) speciesName.textContent = "Error";
+                if (pestStatus) pestStatus.textContent = data.error;
+              } else if (data.class || data.prediction || data.result) {
+                const identifiedName =
+                  data.class || data.prediction || data.result;
+                if (speciesName) speciesName.textContent = identifiedName;
+
+                let formattedConfidence = "High";
+                if (data.confidence !== undefined) {
+                  formattedConfidence =
+                    typeof data.confidence === "number"
+                      ? `${(data.confidence * 100).toFixed(1)}%`
+                      : String(data.confidence);
+                }
+
+                if (pestStatus) {
+                  pestStatus.textContent = `This is likely a ${identifiedName} with a ${formattedConfidence} confidence.`;
+                }
+                if (statusIcon) {
+                  statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                }
+              } else {
+                if (speciesName) speciesName.textContent = "Unknown Result";
+                if (pestStatus) pestStatus.textContent = JSON.stringify(data);
+              }
+            } catch (error) {
+              console.error(error);
+              if (speciesName) speciesName.textContent = "Connection Error";
+              if (pestStatus)
+                pestStatus.textContent =
+                  "Failed to reach server. Check CORS settings on the backend.";
+            } finally {
+              analyzeButton.disabled = false;
+              if (analyzeIcon)
+                analyzeIcon.className = "fa-solid fa-sparkles text-xs";
+              if (analyzeBtnText) analyzeBtnText.textContent = "Identify Plant";
+            }
+          });
+        }
       });
     </script>
   </body>
