@@ -186,6 +186,17 @@
       .animate-float {
         animation: floatPulse 2.5s ease-in-out infinite;
       }
+
+      /* Style for clickable plant result */
+      .clickable-plant {
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+
+      .clickable-plant:hover {
+        color: #34d399;
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body
@@ -195,7 +206,6 @@
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
 
-    <!-- Loading Screen -->
     <div
       id="pageLoader"
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#040a08]/95 backdrop-blur-xl transition-opacity duration-500 p-6"
@@ -247,7 +257,6 @@
       </div>
     </div>
 
-    <!-- Help Modal -->
     <div
       id="helpModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4"
@@ -324,7 +333,6 @@
       </div>
     </div>
 
-    <!-- Main Container -->
     <div
       id="appContent"
       class="relative z-10 flex flex-col justify-between w-full max-w-xl md:max-w-2xl my-auto opacity-0 transition-opacity duration-500"
@@ -710,6 +718,16 @@
 
         let stream = null;
         let imageData = null;
+        let currentIdentifiedPlant = null;
+
+        if (speciesName) {
+          speciesName.addEventListener("click", () => {
+            if (currentIdentifiedPlant) {
+              const query = encodeURIComponent(currentIdentifiedPlant);
+              window.open(`https://www.google.com/search?q=${query}`, "_blank");
+            }
+          });
+        }
 
         async function startCamera() {
           try {
@@ -719,6 +737,7 @@
             if (cameraVideo) cameraVideo.srcObject = stream;
             if (cameraOverlay) cameraOverlay.classList.add("hidden");
           } catch (error) {
+            clearClickablePlant();
             if (speciesName) speciesName.textContent = "Camera Error";
             if (pestStatus)
               pestStatus.textContent = "Unable to access device camera.";
@@ -726,6 +745,7 @@
         }
 
         function setPreview(dataUrl) {
+          clearClickablePlant();
           imageData = dataUrl;
           if (previewImage) previewImage.src = imageData;
           if (uploadSection) uploadSection.classList.add("hidden");
@@ -753,6 +773,7 @@
         }
 
         function resetPreview() {
+          clearClickablePlant();
           imageData = null;
           if (previewImage) previewImage.src = "";
           if (plantImage) plantImage.value = "";
@@ -774,6 +795,7 @@
 
         function captureSnapshot() {
           if (!stream || !cameraVideo || !cameraVideo.videoWidth) {
+            clearClickablePlant();
             if (speciesName) speciesName.textContent = "Camera Off";
             if (pestStatus) pestStatus.textContent = "Turn on camera first";
             return;
@@ -842,6 +864,7 @@
         if (analyzeButton) {
           analyzeButton.addEventListener("click", async () => {
             if (!imageData) {
+              clearClickablePlant();
               if (speciesName) speciesName.textContent = "No Image Selected";
               if (pestStatus)
                 pestStatus.textContent =
@@ -849,6 +872,7 @@
               return;
             }
 
+            clearClickablePlant();
             analyzeButton.disabled = true;
             if (analyzeIcon)
               analyzeIcon.className = "fa-solid fa-spinner fa-spin text-xs";
