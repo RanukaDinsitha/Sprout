@@ -187,7 +187,7 @@ def predict():
 
         # Pylance-safe PyTorch Tensor parsing for Top-1 and Top-2
         probs = result.probs.data
-        top2_values, top2_indices = probs.topk(2)
+        top2_values, top2_indices = probs.topk(2) # type: ignore
 
         top1_idx = int(top2_indices[0].item())
         top1_conf = float(top2_values[0].item())

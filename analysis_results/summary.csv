@@ -1,0 +1,2 @@
+model,species,images_tested,accuracy,average_confidence,average_inference_ms
+models/best.onnx,77,7700,0.9077922077922078,0.03281583087724428,13.855569001752883

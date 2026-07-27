@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      color="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Sprout</title>
 
@@ -187,7 +187,6 @@
         animation: floatPulse 2.5s ease-in-out infinite;
       }
 
-      /* Style for clickable plant result */
       .clickable-plant {
         cursor: pointer;
         transition: color 0.2s ease;
@@ -481,78 +480,45 @@
           </button>
         </div>
 
-        <!-- Status Card -->
+        <!-- Clean Status Card -->
         <div
-          class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3"
+          class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4"
         >
-          <div class="flex items-center justify-between gap-4">
-            <div class="min-w-0 flex-1">
-              <span
-                class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block"
-                >Status</span
-              >
-              <h3
-                id="speciesName"
-                class="text-base font-bold text-white mt-0.5 truncate"
-              >
-                Waiting for your photo!
-              </h3>
-              <p id="pestStatus" class="text-xs text-slate-400 truncate mt-0.5">
-                Upload or capture a picture of a plant and <b>Sprout</b> will tell
-                you what it is.
-              </p>
-            </div>
-            <div
-              id="statusIcon"
-              class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm flex-shrink-0"
+          <div class="min-w-0 flex-1">
+            <span
+              class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block"
+              >Status</span
             >
-              <i class="fa-solid fa-seedling"></i>
-            </div>
+            <h3
+              id="speciesName"
+              class="text-base font-bold text-white mt-0.5 truncate"
+            >
+              Waiting for your photo!
+            </h3>
+            <p id="pestStatus" class="text-xs text-slate-400 truncate mt-0.5">
+              Upload or capture a picture of a plant and <b>Sprout</b> will tell
+              you what it is.
+            </p>
           </div>
-
-          <!-- Dynamic Badges Container -->
-          <div id="metaBadges" class="hidden flex-wrap gap-2 pt-2 border-t border-white/10">
-            <!-- Endangerment Badge -->
-            <span
-              id="endangermentBadge"
-              class="hidden inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border"
-            >
-              <i class="fa-solid fa-shield-halved text-[10px]"></i>
-              <span id="endangermentText">Status Unknown</span>
-            </span>
-
-            <!-- Confidence Badge -->
-            <span
-              id="confidenceBadge"
-              class="hidden inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700"
-            >
-              <i class="fa-solid fa-chart-line text-[10px]"></i>
-              <span id="confidenceText">100% Match</span>
-            </span>
-
-            <!-- Pest Classification Badge -->
-            <span
-              id="pestBadge"
-              class="hidden inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-            >
-              <i class="fa-solid fa-leaf text-[10px]"></i>
-              <span id="pestBadgeText">Plant</span>
-            </span>
+          <div
+            id="statusIcon"
+            class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs flex-shrink-0"
+            title="Current AI status"
+          >
+            <i class="fa-solid fa-seedling"></i>
           </div>
-
-          <!-- Dynamic Keyword Tags -->
-          <div id="keywordsContainer" class="hidden flex-wrap gap-1.5 pt-1"></div>
         </div>
 
-        <!-- Summary Sentence / Description Card -->
+        <!-- Clean Summary Box (Sentence ONLY) -->
         <div
           id="extendedDetailsCard"
-          class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md"
+          class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-2"
         >
-          <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1.5 flex items-center gap-2">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
             <i class="fa-solid fa-circle-info"></i>
             <span>Plant Summary</span>
           </h4>
+
           <p id="extendedDetailsText" class="text-xs text-slate-300 leading-relaxed">
             --
           </p>
@@ -569,6 +535,13 @@
     </div>
 
     <script>
+      function clearClickablePlant() {
+        const speciesName = document.getElementById("speciesName");
+        if (speciesName) {
+          speciesName.classList.remove("clickable-plant");
+        }
+      }
+
       window.addEventListener("DOMContentLoaded", () => {
         let vantaEffect = null;
         try {
@@ -705,14 +678,6 @@
         const analyzeBtnText = document.getElementById("analyzeBtnText");
         const statusIcon = document.getElementById("statusIcon");
 
-        const metaBadges = document.getElementById("metaBadges");
-        const endangermentBadge = document.getElementById("endangermentBadge");
-        const endangermentText = document.getElementById("endangermentText");
-        const confidenceBadge = document.getElementById("confidenceBadge");
-        const confidenceText = document.getElementById("confidenceText");
-        const pestBadge = document.getElementById("pestBadge");
-        const pestBadgeText = document.getElementById("pestBadgeText");
-        const keywordsContainer = document.getElementById("keywordsContainer");
         const extendedDetailsCard = document.getElementById("extendedDetailsCard");
         const extendedDetailsText = document.getElementById("extendedDetailsText");
 
@@ -755,20 +720,12 @@
           if (pestStatus)
             pestStatus.textContent = "Click 'Identify Plant' button";
           if (statusIcon)
-            statusIcon.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i>`;
+            statusIcon.innerHTML = `<i class="fa-solid fa-check text-emerald-400 text-xs"></i>`;
 
           hideDetails();
         }
 
         function hideDetails() {
-          if (metaBadges) metaBadges.classList.add("hidden");
-          if (endangermentBadge) endangermentBadge.classList.add("hidden");
-          if (confidenceBadge) confidenceBadge.classList.add("hidden");
-          if (pestBadge) pestBadge.classList.add("hidden");
-          if (keywordsContainer) {
-            keywordsContainer.innerHTML = "";
-            keywordsContainer.classList.add("hidden");
-          }
           if (extendedDetailsCard) extendedDetailsCard.classList.add("hidden");
         }
 
@@ -788,7 +745,7 @@
           if (pestStatus)
             pestStatus.textContent = "Upload or capture a leaf picture";
           if (statusIcon)
-            statusIcon.innerHTML = `<i class="fa-solid fa-seedling text-emerald-400"></i>`;
+            statusIcon.innerHTML = `<i class="fa-solid fa-seedling text-emerald-400 text-xs"></i>`;
 
           hideDetails();
         }
@@ -896,6 +853,8 @@
                 body: formData,
               });
 
+              console.log(result);
+
               if (!result.ok) {
                 const errText = await result.text();
                 if (speciesName)
@@ -913,7 +872,6 @@
                 return;
               }
 
-              // Extract plant name
               const identifiedName =
                 data.class ||
                 data.prediction ||
@@ -921,9 +879,13 @@
                 data.name ||
                 "Identified Plant";
 
-              if (speciesName) speciesName.textContent = identifiedName;
+              currentIdentifiedPlant = identifiedName;
 
-              // Extract Confidence
+              if (speciesName) {
+                speciesName.textContent = identifiedName;
+                speciesName.classList.add("clickable-plant");
+              }
+
               let rawConfidence = data.confidence;
               let confidenceFormatted = null;
               if (rawConfidence !== undefined && rawConfidence !== null) {
@@ -941,76 +903,12 @@
               }
 
               if (statusIcon) {
-                statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+                statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>`;
               }
 
-              // Extract details from root or plant_details
               const detailsObj = data.plant_details || data;
 
-              let hasMetadata = false;
-
-              // 1. ENDANGERMENT STATUS
-              const isEndangered =
-                detailsObj.is_endangered !== undefined
-                  ? detailsObj.is_endangered
-                  : detailsObj.endangered;
-
-              if (isEndangered !== undefined && isEndangered !== null) {
-                hasMetadata = true;
-                if (endangermentBadge) {
-                  endangermentBadge.className =
-                    "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border";
-                  if (isEndangered === true || String(isEndangered).toLowerCase() === "true") {
-                    endangermentText.textContent = "Threatened / Endangered";
-                    endangermentBadge.classList.add(
-                      "bg-rose-500/10",
-                      "text-rose-400",
-                      "border-rose-500/30"
-                    );
-                  } else {
-                    endangermentText.textContent = "Not Endangered";
-                    endangermentBadge.classList.add(
-                      "bg-emerald-500/10",
-                      "text-emerald-400",
-                      "border-emerald-500/30"
-                    );
-                  }
-                  endangermentBadge.classList.remove("hidden");
-                }
-              }
-
-              // 2. CONFIDENCE
-              if (confidenceFormatted) {
-                hasMetadata = true;
-                if (confidenceText) confidenceText.textContent = confidenceFormatted;
-                if (confidenceBadge) confidenceBadge.classList.remove("hidden");
-              }
-
-              // 3. PEST CLASSIFICATION
-              const pestClass = detailsObj.pest_classification;
-              if (pestClass) {
-                hasMetadata = true;
-                if (pestBadgeText) pestBadgeText.textContent = pestClass;
-                if (pestBadge) pestBadge.classList.remove("hidden");
-              }
-
-              if (hasMetadata && metaBadges) {
-                metaBadges.classList.remove("hidden");
-              }
-
-              // 4. KEYWORDS / TAGS
-              const keywordsList = detailsObj.keywords;
-              if (Array.isArray(keywordsList) && keywordsList.length > 0 && keywordsContainer) {
-                keywordsContainer.innerHTML = keywordsList
-                  .map(
-                    (kw) =>
-                      `<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-white/5 border border-white/10 text-slate-300">${kw}</span>`
-                  )
-                  .join("");
-                keywordsContainer.classList.remove("hidden");
-              }
-
-              // 5. SHORT SENTENCE / DESCRIPTION
+              // Extract ONLY the sentence description
               const sentenceText =
                 detailsObj.sentence ||
                 detailsObj.short_sentence ||
@@ -1018,9 +916,11 @@
                 data.short_sentence ||
                 data.description;
 
-              if (sentenceText && extendedDetailsCard && extendedDetailsText) {
+              if (sentenceText && extendedDetailsText) {
                 extendedDetailsText.textContent = String(sentenceText);
-                extendedDetailsCard.classList.remove("hidden");
+                if (extendedDetailsCard) {
+                  extendedDetailsCard.classList.remove("hidden");
+                }
               }
 
             } catch (error) {
