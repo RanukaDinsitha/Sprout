@@ -899,8 +899,8 @@
 
               if (pestStatus) {
                 pestStatus.textContent = confidenceFormatted
-                  ? `Identified as ${identifiedName} (${confidenceFormatted}).`
-                  : `Identified as ${identifiedName}.`;
+                  ? `This plant is ${identifiedName} and with a confidence of ${confidenceFormatted}.`
+                  : `Identified as ${identifiedName}; unavailable to fetch confidence score.`;
               }
 
               if (statusIcon) {
