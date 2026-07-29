@@ -5,10 +5,9 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      color="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Sprout</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -532,6 +531,7 @@
           <i id="analyzeIcon" class="fa-solid fa-sparkles text-xs"></i>
           <span id="analyzeBtnText">Identify Plant</span>
         </button>
+        <p style="text-align: center; font-size: 10px; font-family: 'Plus Jakarta Sans', monospace, sans-serif;">This was created by Ranuka and Eliaseen; thank you for using! 💻🚀</p>
       </main>
     </div>
 
@@ -925,7 +925,7 @@
               }
 
             } catch (error) {
-              console.error("API Fetch Error:", error);
+              console.error("Error; the API fetch request failed:", error);
               if (speciesName) speciesName.textContent = "Connection Error";
               if (pestStatus)
                 pestStatus.textContent =
