@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="en">
-<!--   for you doubters a human did write this code! :3
- -->  <head>
+  <!--   for you doubters a human did write this code! :3
+ -->
+  <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -236,7 +237,7 @@
           id="loaderSubtext"
           class="text-xs font-semibold tracking-widest text-emerald-400 uppercase mt-2 h-4 transition-all duration-300"
         >
-          Initializing Sprout AI...
+          Initializing Sprout...
         </p>
 
         <div
@@ -514,12 +515,17 @@
           id="extendedDetailsCard"
           class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-2"
         >
-          <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+          <h4
+            class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2"
+          >
             <i class="fa-solid fa-circle-info"></i>
             <span>Plant Summary</span>
           </h4>
 
-          <p id="extendedDetailsText" class="text-xs text-slate-300 leading-relaxed">
+          <p
+            id="extendedDetailsText"
+            class="text-xs text-slate-300 leading-relaxed"
+          >
             --
           </p>
         </div>
@@ -531,7 +537,15 @@
           <i id="analyzeIcon" class="fa-solid fa-sparkles text-xs"></i>
           <span id="analyzeBtnText">Identify Plant</span>
         </button>
-        <p style="text-align: center; font-size: 10px; font-family: 'Plus Jakarta Sans', monospace, sans-serif;">This was created by Ranuka and Eliaseen; thank you for using! 💻🚀</p>
+        <p
+          style="
+            text-align: center;
+            font-size: 10px;
+            font-family: &quot;Plus Jakarta Sans&quot;, monospace, sans-serif;
+          "
+        >
+          This was created by Ranuka and Eliaseen; thank you for using! 💻🚀
+        </p>
       </main>
     </div>
 
@@ -679,8 +693,12 @@
         const analyzeBtnText = document.getElementById("analyzeBtnText");
         const statusIcon = document.getElementById("statusIcon");
 
-        const extendedDetailsCard = document.getElementById("extendedDetailsCard");
-        const extendedDetailsText = document.getElementById("extendedDetailsText");
+        const extendedDetailsCard = document.getElementById(
+          "extendedDetailsCard",
+        );
+        const extendedDetailsText = document.getElementById(
+          "extendedDetailsText",
+        );
 
         let stream = null;
         let imageData = null;
@@ -790,7 +808,7 @@
                 e.stopPropagation();
                 uploadDropzone.classList.add("drag-over");
               },
-              false
+              false,
             );
           });
 
@@ -802,7 +820,7 @@
                 e.stopPropagation();
                 uploadDropzone.classList.remove("drag-over");
               },
-              false
+              false,
             );
           });
 
@@ -837,7 +855,8 @@
             if (analyzeBtnText) analyzeBtnText.textContent = "Analyzing...";
             if (speciesName) speciesName.textContent = "Processing Image...";
             if (pestStatus)
-              pestStatus.textContent = "Matching with Sprout's neural networks...";
+              pestStatus.textContent =
+                "Matching with Sprout's neural networks...";
             hideDetails();
 
             try {
@@ -861,7 +880,8 @@
                 if (speciesName)
                   speciesName.textContent = `Server Error (${result.status})`;
                 if (pestStatus)
-                  pestStatus.textContent = errText || "Unexpected response from server.";
+                  pestStatus.textContent =
+                    errText || "Unexpected response from server.";
                 return;
               }
 
@@ -881,6 +901,9 @@
                 "Identified Plant";
 
               currentIdentifiedPlant = identifiedName;
+              plantSearchLink =
+                "https://www.google.com/search?q=" +
+                encodeURIComponent(identifiedName);
 
               if (speciesName) {
                 speciesName.textContent = identifiedName;
@@ -897,11 +920,9 @@
                 }
               }
 
-              if (pestStatus) {
-                pestStatus.textContent = confidenceFormatted
-                  ? `This plant is ${identifiedName} and with a confidence of ${confidenceFormatted}.`
-                  : `Identified as ${identifiedName}; unavailable to fetch confidence score.`;
-              }
+            pestStatus.innerHTML = confidenceFormatted
+              ? `This plant is <a href='${plantSearchLink}'>${identifiedName}</a> and with a confidence of ${confidenceFormatted}.`
+              : `Identified as <a href='${plantSearchLink}'>${identifiedName}</a>; unavailable to fetch confidence score.`;
 
               if (statusIcon) {
                 statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>`;
@@ -923,7 +944,6 @@
                   extendedDetailsCard.classList.remove("hidden");
                 }
               }
-
             } catch (error) {
               console.error("Error; the API fetch request failed:", error);
               if (speciesName) speciesName.textContent = "Connection Error";
