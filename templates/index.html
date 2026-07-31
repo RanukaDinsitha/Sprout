@@ -1076,8 +1076,8 @@
               }
               if (pestStatus) {
                 pestStatus.textContent = data.confidence
-                  ? `Confidence: ${(data.confidence * 100).toFixed(1)}%`
-                  : "Plant successfully identified!";
+                  ? `This plant is ${(speciesName.textContent)} with a confidence of ${(data.confidence)}`
+                  : "Plant has been successfully identified!";
               }
 
               if (data.summary || data.description) {

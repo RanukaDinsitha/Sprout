@@ -20,7 +20,7 @@ if CORS_ENABLED:
         CORS(app)
         print("Sprout: CORS activated.")
     except ImportError:
-        print("Sprout warning: flask_cors module not found. Run 'pip install flask-cors' to enable.")
+        print("Sprout warning: flask_cors module not found.")
 
 APP_DIR = Path(__file__).parent
 MODELS_DIR = APP_DIR / "models"
@@ -215,7 +215,6 @@ def predict():
                 "model_used": "Sprout Local Engine (High Conviction)"
             }), 200
 
-        # Rule B: Moderate conviction (30%–59%) with dominant margin over #2 (>= 0.12)
         elif top1_conf >= 0.30 and margin >= 0.12:
             return jsonify({
                 "class": predicted_class,
