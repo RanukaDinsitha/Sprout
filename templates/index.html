@@ -201,6 +201,20 @@
         color: #34d399;
         text-decoration: underline;
       }
+
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(16, 185, 129, 0.2);
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(16, 185, 129, 0.4);
+      }
     </style>
   </head>
   <body
@@ -261,6 +275,7 @@
       </div>
     </div>
 
+    <!-- Help Modal -->
     <div
       id="helpModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4"
@@ -337,6 +352,63 @@
       </div>
     </div>
 
+    <!-- History Modal / Drawer -->
+    <div
+      id="historyModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300 p-4"
+    >
+      <div
+        id="historyModalCard"
+        class="relative w-full max-w-lg glass-card p-6 sm:p-8 transition-transform duration-300 scale-95 flex flex-col max-h-[80vh]"
+      >
+        <button
+          id="closeHistoryBtn"
+          class="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition"
+          aria-label="Close history modal"
+        >
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+
+        <div class="flex items-center justify-between mb-4 pr-8">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-base"
+            >
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-white">Identification History</h2>
+              <p class="text-xs text-slate-400">Your recently identified plants</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          id="historyList"
+          class="space-y-3 overflow-y-auto custom-scrollbar my-2 pr-1 flex-1"
+        >
+          <!-- History Items populated dynamically -->
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+          <button
+            id="clearHistoryBtn"
+            class="text-xs text-rose-400 hover:text-rose-300 font-semibold transition flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Clear History</span>
+          </button>
+          <button
+            id="dismissHistoryBtn"
+            class="px-5 py-2 rounded-xl btn-gradient text-xs font-bold uppercase tracking-wider text-white"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Container -->
     <div
       id="appContent"
       class="relative z-10 flex flex-col justify-between w-full max-w-xl md:max-w-2xl my-auto opacity-0 transition-opacity duration-500"
@@ -366,13 +438,22 @@
           </div>
         </div>
 
-        <button
-          id="openHelpBtn"
-          class="w-10 h-10 rounded-full btn-secondary-glass flex items-center justify-center text-slate-300 hover:text-white transition"
-          title="Help & Info"
-        >
-          <i class="fa-solid fa-circle-question text-sm"></i>
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            id="openHistoryBtn"
+            class="w-10 h-10 rounded-full btn-secondary-glass flex items-center justify-center text-slate-300 hover:text-white transition"
+            title="Scan History"
+          >
+            <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+          </button>
+          <button
+            id="openHelpBtn"
+            class="w-10 h-10 rounded-full btn-secondary-glass flex items-center justify-center text-slate-300 hover:text-white transition"
+            title="Help & Info"
+          >
+            <i class="fa-solid fa-circle-question text-sm"></i>
+          </button>
+        </div>
       </header>
 
       <main
@@ -660,6 +741,94 @@
           });
         }
 
+        /* --- History Feature Logic --- */
+        const openHistoryBtn = document.getElementById("openHistoryBtn");
+        const closeHistoryBtn = document.getElementById("closeHistoryBtn");
+        const dismissHistoryBtn = document.getElementById("dismissHistoryBtn");
+        const historyModal = document.getElementById("historyModal");
+        const historyModalCard = document.getElementById("historyModalCard");
+        const historyList = document.getElementById("historyList");
+        const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
+        function openHistoryModal() {
+          if (!historyModal || !historyModalCard) return;
+          renderHistoryList();
+          historyModal.classList.remove("pointer-events-none", "opacity-0");
+          historyModalCard.classList.remove("scale-95");
+          historyModalCard.classList.add("scale-100");
+        }
+
+        function closeHistoryModal() {
+          if (!historyModal || !historyModalCard) return;
+          historyModal.classList.add("opacity-0", "pointer-events-none");
+          historyModalCard.classList.remove("scale-100");
+          historyModalCard.classList.add("scale-95");
+        }
+
+        function getHistory() {
+          try {
+            return JSON.parse(localStorage.getItem("sprout_history")) || [];
+          } catch (e) {
+            return [];
+          }
+        }
+
+        function saveToHistory(item) {
+          const history = getHistory();
+          history.unshift(item); // prepend newest
+          if (history.length > 20) history.pop(); // keep max 20 items
+          localStorage.setItem("sprout_history", JSON.stringify(history));
+        }
+
+        function clearHistory() {
+          localStorage.removeItem("sprout_history");
+          renderHistoryList();
+        }
+
+        function renderHistoryList() {
+          if (!historyList) return;
+          const history = getHistory();
+          if (history.length === 0) {
+            historyList.innerHTML = `
+              <div class="text-center py-8 text-slate-400">
+                <i class="fa-solid fa-seedling text-3xl mb-2 text-slate-600 block"></i>
+                <p class="text-xs">No plant scans in your history yet.</p>
+              </div>
+            `;
+            return;
+          }
+
+          historyList.innerHTML = history
+            .map(
+              (item) => `
+            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
+              ${
+                item.image
+                  ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
+                  : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
+              }
+              <div class="min-w-0 flex-1">
+                <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
+                <p class="text-[10px] text-slate-400 mt-0.5">${item.date}</p>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 hover:text-emerald-400"></i>
+            </div>
+          `
+            )
+            .join("");
+        }
+
+        if (openHistoryBtn) openHistoryBtn.addEventListener("click", openHistoryModal);
+        if (closeHistoryBtn) closeHistoryBtn.addEventListener("click", closeHistoryModal);
+        if (dismissHistoryBtn) dismissHistoryBtn.addEventListener("click", closeHistoryModal);
+        if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
+        if (historyModal) {
+          historyModal.addEventListener("click", (e) => {
+            if (e.target === historyModal) closeHistoryModal();
+          });
+        }
+        /* --- End History Logic --- */
+
         const tabUpload = document.getElementById("tabUpload");
         const tabCamera = document.getElementById("tabCamera");
         const uploadSection = document.getElementById("uploadSection");
@@ -877,8 +1046,6 @@
                 body: formData,
               });
 
-              console.log(result);
-
               if (!result.ok) {
                 const errText = await result.text();
                 if (speciesName)
@@ -905,55 +1072,44 @@
                 "Identified Plant";
 
               currentIdentifiedPlant = identifiedName;
-              plantSearchLink =
-                "https://www.google.com/search?q=" +
-                encodeURIComponent(identifiedName);
 
               if (speciesName) {
                 speciesName.textContent = identifiedName;
                 speciesName.classList.add("clickable-plant");
               }
-
-              let rawConfidence = data.confidence;
-              let confidenceFormatted = null;
-              if (rawConfidence !== undefined && rawConfidence !== null) {
-                if (typeof rawConfidence === "number") {
-                  confidenceFormatted = `${(rawConfidence * (rawConfidence <= 1 ? 100 : 1)).toFixed(1)}% Match`;
-                } else {
-                  confidenceFormatted = String(rawConfidence);
-                }
+              if (pestStatus) {
+                pestStatus.textContent = data.confidence
+                  ? `Confidence: ${(data.confidence * 100).toFixed(1)}%`
+                  : "Plant successfully identified!";
               }
 
-              pestStatus.innerHTML = confidenceFormatted
-                ? `This plant is <a href='${plantSearchLink}'>${identifiedName}</a> and with a confidence of ${confidenceFormatted}.`
-                : `Identified as <a href='${plantSearchLink}'>${identifiedName}</a>; unavailable to fetch confidence score.`;
-
-              if (statusIcon) {
-                statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>`;
-              }
-
-              const detailsObj = data.plant_details || data;
-
-              // Extract ONLY the sentence description
-              const sentenceText =
-                detailsObj.sentence ||
-                detailsObj.short_sentence ||
-                data.sentence ||
-                data.short_sentence ||
-                data.description;
-
-              if (sentenceText && extendedDetailsText) {
-                extendedDetailsText.textContent = String(sentenceText);
-                if (extendedDetailsCard) {
+              if (data.summary || data.description) {
+                if (extendedDetailsText)
+                  extendedDetailsText.textContent =
+                    data.summary || data.description;
+                if (extendedDetailsCard)
                   extendedDetailsCard.classList.remove("hidden");
-                }
               }
-            } catch (error) {
-              console.error("Error; the API fetch request failed:", error);
+
+              if (statusIcon)
+                statusIcon.innerHTML = `<i class="fa-solid fa-leaf text-emerald-400 text-xs"></i>`;
+
+              // Save scan to history
+              saveToHistory({
+                name: identifiedName,
+                date: new Date().toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                image: imageData,
+              });
+            } catch (err) {
               if (speciesName) speciesName.textContent = "Connection Error";
               if (pestStatus)
                 pestStatus.textContent =
-                  "Failed to reach server. Check CORS settings on the backend.";
+                  "Failed to connect to the prediction server.";
             } finally {
               analyzeButton.disabled = false;
               if (analyzeIcon)
