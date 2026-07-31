@@ -31,6 +31,12 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <script
+      src="https://cloudflare.com"
+      integrity="sha512-YmB7fX/3gXNfOndqN7k+Q5kM/VbHL6g2M+bHL6f2M+bHL6f2M+bHL6f2M+bHLw8WmWVb4m/VbHL6g2M+bHLw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
@@ -374,8 +380,12 @@
               <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
             <div>
-              <h2 class="text-lg font-bold text-white">Identification History</h2>
-              <p class="text-xs text-slate-400">Your recently identified plants</p>
+              <h2 class="text-lg font-bold text-white">
+                Identification History
+              </h2>
+              <p class="text-xs text-slate-400">
+                Your recently identified plants
+              </p>
             </div>
           </div>
         </div>
@@ -387,7 +397,9 @@
           <!-- History Items populated dynamically -->
         </div>
 
-        <div class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+        <div
+          class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center"
+        >
           <button
             id="clearHistoryBtn"
             class="text-xs text-rose-400 hover:text-rose-300 font-semibold transition flex items-center gap-1.5"
@@ -632,6 +644,9 @@
     </div>
 
     <script>
+      ort.env.wasm.wasmPaths =
+        "https://cdnjs.cloudflare.com/ajax/libs/onnxruntime-web/1.23.2/";
+
       function clearClickablePlant() {
         const speciesName = document.getElementById("speciesName");
         if (speciesName) {
@@ -738,7 +753,7 @@
           });
         }
 
-        /* --- History Feature Logic --- */
+        /* --- Local History Feature Logic --- */
         const openHistoryBtn = document.getElementById("openHistoryBtn");
         const closeHistoryBtn = document.getElementById("closeHistoryBtn");
         const dismissHistoryBtn = document.getElementById("dismissHistoryBtn");
@@ -764,38 +779,15 @@
 
         function getHistory() {
           try {
-            const rawHistory = JSON.parse(localStorage.getItem("sprout_history")) || [];
-            // Handle array strings directly from API history
-            return rawHistory.map((item) => {
-              if (typeof item === "string") {
-                return { name: item, date: "Recent Scan", image: null };
-              }
-              return item;
-            });
+            return JSON.parse(localStorage.getItem("sprout_history")) || [];
           } catch (e) {
             return [];
           }
         }
 
-        function saveToHistory(item, apiHistory = null) {
-          let history = [];
-          if (Array.isArray(apiHistory) && apiHistory.length > 0) {
-            // Synchronize with API history array directly
-            history = apiHistory.map((plantName) => {
-              if (typeof plantName === "string") {
-                return { name: plantName, date: "Recent Scan", image: null };
-              }
-              return plantName;
-            });
-            // Update latest scan with rich details (image, timestamp)
-            if (history.length > 0 && typeof item === "object") {
-              history[0] = { ...history[0], ...item };
-            }
-          } else {
-            history = getHistory();
-            history.unshift(item); // prepend newest
-          }
-          
+        function saveToHistory(item) {
+          let history = getHistory();
+          history.unshift(item); // prepend newest scan
           if (history.length > 20) history = history.slice(0, 20); // keep max 20 items
           localStorage.setItem("sprout_history", JSON.stringify(history));
         }
@@ -821,33 +813,37 @@
           historyList.innerHTML = history
             .map(
               (item) => `
-            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name || item)}', '_blank')">
+            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
               ${
                 item.image
-                  ? `<img src="${item.image}" alt="${item.name || item}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
+                  ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
                   : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
               }
               <div class="min-w-0 flex-1">
-                <h4 class="text-sm font-bold text-white truncate">${item.name || item}</h4>
+                <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
                 <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"}</p>
               </div>
               <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 hover:text-emerald-400"></i>
             </div>
-          `
+          `,
             )
             .join("");
         }
 
-        if (openHistoryBtn) openHistoryBtn.addEventListener("click", openHistoryModal);
-        if (closeHistoryBtn) closeHistoryBtn.addEventListener("click", closeHistoryModal);
-        if (dismissHistoryBtn) dismissHistoryBtn.addEventListener("click", closeHistoryModal);
-        if (clearHistoryBtn) clearHistoryBtn.addEventListener("click", clearHistory);
+        if (openHistoryBtn)
+          openHistoryBtn.addEventListener("click", openHistoryModal);
+        if (closeHistoryBtn)
+          closeHistoryBtn.addEventListener("click", closeHistoryModal);
+        if (dismissHistoryBtn)
+          dismissHistoryBtn.addEventListener("click", closeHistoryModal);
+        if (clearHistoryBtn)
+          clearHistoryBtn.addEventListener("click", clearHistory);
         if (historyModal) {
           historyModal.addEventListener("click", (e) => {
             if (e.target === historyModal) closeHistoryModal();
           });
         }
-        /* --- End History Logic --- */
+        /* --- End Local History Logic --- */
 
         const tabUpload = document.getElementById("tabUpload");
         const tabCamera = document.getElementById("tabCamera");
@@ -1101,7 +1097,7 @@
               }
               if (pestStatus) {
                 pestStatus.textContent = data.confidence
-                  ? `This plant is ${(speciesName.textContent)} with a confidence of ${(data.confidence)}`
+                  ? `This plant is ${speciesName.textContent} with a confidence of ${data.confidence}`
                   : "Plant has been successfully identified!";
               }
 
@@ -1116,20 +1112,17 @@
               if (statusIcon)
                 statusIcon.innerHTML = `<i class="fa-solid fa-leaf text-emerald-400 text-xs"></i>`;
 
-              // Save scan and sync history using API response array
-              saveToHistory(
-                {
-                  name: identifiedName,
-                  date: new Date().toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }),
-                  image: imageData,
-                },
-                data.plants_history || null
-              );
+              // Save scan strictly on-device in LocalStorage
+              saveToHistory({
+                name: identifiedName,
+                date: new Date().toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                image: imageData,
+              });
             } catch (err) {
               if (speciesName) speciesName.textContent = "Connection Error";
               if (pestStatus)
