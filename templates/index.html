@@ -8,6 +8,10 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
+    <meta
+      name="description"
+      content="Identify weeds instantly with Sprout. Snap a photo to get accurate botanical names, descriptions and more!"
+    />
     <title>Sprout</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -920,9 +924,9 @@
                 }
               }
 
-            pestStatus.innerHTML = confidenceFormatted
-              ? `This plant is <a href='${plantSearchLink}'>${identifiedName}</a> and with a confidence of ${confidenceFormatted}.`
-              : `Identified as <a href='${plantSearchLink}'>${identifiedName}</a>; unavailable to fetch confidence score.`;
+              pestStatus.innerHTML = confidenceFormatted
+                ? `This plant is <a href='${plantSearchLink}'>${identifiedName}</a> and with a confidence of ${confidenceFormatted}.`
+                : `Identified as <a href='${plantSearchLink}'>${identifiedName}</a>; unavailable to fetch confidence score.`;
 
               if (statusIcon) {
                 statusIcon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>`;
