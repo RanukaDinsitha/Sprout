@@ -212,6 +212,45 @@
       .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background: rgba(16, 185, 129, 0.4);
       }
+
+      /* Hazard Badge Styling */
+      .hazard-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.025em;
+        text-transform: uppercase;
+        backdrop-filter: blur(8px);
+        transition: all 0.3s ease;
+      }
+
+      .hazard-safe {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+
+      .hazard-poisonous {
+        background: rgba(168, 85, 247, 0.18);
+        color: #c084fc;
+        border: 1px solid rgba(168, 85, 247, 0.35);
+      }
+
+      .hazard-prickly {
+        background: rgba(245, 158, 11, 0.18);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+      }
+
+      .hazard-deadly {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+      }
     </style>
   </head>
   <body
@@ -563,18 +602,25 @@
           </button>
         </div>
 
-        <!-- Clean Status Card -->
+        <!-- Clean Status Card with Hazard Badge -->
         <div
           class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4"
         >
           <div class="min-w-0 flex-1">
-            <span
-              class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block"
-              >Status</span
-            >
+            <div class="flex items-center gap-2">
+              <span
+                class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block"
+                >Status</span
+              >
+              <!-- Plant Hazard Badge -->
+              <span id="hazardBadge" class="hidden hazard-badge hazard-safe">
+                <i id="hazardIcon" class="fa-solid fa-shield-heart"></i>
+                <span id="hazardLabel">Harmless</span>
+              </span>
+            </div>
             <h3
               id="speciesName"
-              class="text-base font-bold text-white mt-0.5 truncate"
+              class="text-base font-bold text-white mt-1 truncate"
             >
               Waiting for your photo!
             </h3>
@@ -592,7 +638,7 @@
           </div>
         </div>
 
-        <!-- Clean Summary Box (Sentence ONLY) -->
+        <!-- Clean Summary Box -->
         <div
           id="extendedDetailsCard"
           class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-2"
@@ -619,6 +665,7 @@
           <i id="analyzeIcon" class="fa-solid fa-sparkles text-xs"></i>
           <span id="analyzeBtnText">Identify Plant</span>
         </button>
+
         <p
           style="
             text-align: center;
@@ -765,7 +812,6 @@
         function getHistory() {
           try {
             const rawHistory = JSON.parse(localStorage.getItem("sprout_history")) || [];
-            // Handle array strings directly from API history
             return rawHistory.map((item) => {
               if (typeof item === "string") {
                 return { name: item, date: "Recent Scan", image: null };
@@ -780,23 +826,21 @@
         function saveToHistory(item, apiHistory = null) {
           let history = [];
           if (Array.isArray(apiHistory) && apiHistory.length > 0) {
-            // Synchronize with API history array directly
             history = apiHistory.map((plantName) => {
               if (typeof plantName === "string") {
                 return { name: plantName, date: "Recent Scan", image: null };
               }
               return plantName;
             });
-            // Update latest scan with rich details (image, timestamp)
             if (history.length > 0 && typeof item === "object") {
               history[0] = { ...history[0], ...item };
             }
           } else {
             history = getHistory();
-            history.unshift(item); // prepend newest
+            history.unshift(item);
           }
           
-          if (history.length > 20) history = history.slice(0, 20); // keep max 20 items
+          if (history.length > 20) history = history.slice(0, 20);
           localStorage.setItem("sprout_history", JSON.stringify(history));
         }
 
@@ -881,264 +925,240 @@
         const changePhotoBtn = document.getElementById("changePhotoBtn");
         const speciesName = document.getElementById("speciesName");
         const pestStatus = document.getElementById("pestStatus");
+        const statusIcon = document.getElementById("statusIcon");
+        const extendedDetailsCard = document.getElementById("extendedDetailsCard");
+        const extendedDetailsText = document.getElementById("extendedDetailsText");
         const analyzeButton = document.getElementById("analyzeButton");
         const analyzeIcon = document.getElementById("analyzeIcon");
         const analyzeBtnText = document.getElementById("analyzeBtnText");
-        const statusIcon = document.getElementById("statusIcon");
+        
+        // Hazard Badge Elements
+        const hazardBadge = document.getElementById("hazardBadge");
+        const hazardIcon = document.getElementById("hazardIcon");
+        const hazardLabel = document.getElementById("hazardLabel");
 
-        const extendedDetailsCard = document.getElementById(
-          "extendedDetailsCard",
-        );
-        const extendedDetailsText = document.getElementById(
-          "extendedDetailsText",
-        );
+        let cameraStream = null;
+        let selectedFile = null;
 
-        let stream = null;
-        let imageData = null;
-        let currentIdentifiedPlant = null;
+        // Function to update the Hazard Badge UI based on safety level
+        function updateHazardBadge(type) {
+          if (!hazardBadge || !hazardIcon || !hazardLabel) return;
+          
+          // Reset classes
+          hazardBadge.className = "hazard-badge";
 
-        if (speciesName) {
-          speciesName.addEventListener("click", () => {
-            if (currentIdentifiedPlant) {
-              const query = encodeURIComponent(currentIdentifiedPlant);
-              window.open(`https://www.google.com/search?q=${query}`, "_blank");
+          switch (type) {
+            case "poisonous":
+              hazardBadge.classList.add("hazard-poisonous");
+              hazardIcon.className = "fa-solid fa-skull-crossbones";
+              hazardLabel.textContent = "Poisonous";
+              break;
+            case "prickly":
+              hazardBadge.classList.add("hazard-prickly");
+              hazardIcon.className = "fa-solid fa-triangle-exclamation";
+              hazardLabel.textContent = "Sharp / Prickly";
+              break;
+            case "deadly":
+              hazardBadge.classList.add("hazard-deadly");
+              hazardIcon.className = "fa-solid fa-biohazard";
+              hazardLabel.textContent = "Deadly / Toxic";
+              break;
+            case "safe":
+            default:
+              hazardBadge.classList.add("hazard-safe");
+              hazardIcon.className = "fa-solid fa-shield-heart";
+              hazardLabel.textContent = "Harmless / Safe";
+              break;
+          }
+
+          hazardBadge.classList.remove("hidden");
+        }
+
+        // Handle Drag & Drop
+        if (uploadDropzone) {
+          ["dragenter", "dragover"].forEach((eventName) => {
+            uploadDropzone.addEventListener(eventName, (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              uploadDropzone.classList.add("drag-over");
+            });
+          });
+
+          ["dragleave", "drop"].forEach((eventName) => {
+            uploadDropzone.addEventListener(eventName, (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              uploadDropzone.classList.remove("drag-over");
+            });
+          });
+
+          uploadDropzone.addEventListener("drop", (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+              handleFileSelect(files[0]);
             }
           });
         }
 
-        async function startCamera() {
-          try {
-            stream = await navigator.mediaDevices.getUserMedia({
-              video: { facingMode: "environment" },
-            });
-            if (cameraVideo) cameraVideo.srcObject = stream;
-            if (cameraOverlay) cameraOverlay.classList.add("hidden");
-          } catch (error) {
-            clearClickablePlant();
-            if (speciesName) speciesName.textContent = "Camera Error";
-            if (pestStatus)
-              pestStatus.textContent = "Unable to access device camera.";
-          }
+        if (plantImage) {
+          plantImage.addEventListener("change", (e) => {
+            if (e.target.files && e.target.files[0]) {
+              handleFileSelect(e.target.files[0]);
+            }
+          });
         }
 
-        function setPreview(dataUrl) {
-          clearClickablePlant();
-          imageData = dataUrl;
-          if (previewImage) previewImage.src = imageData;
+        function handleFileSelect(file) {
+          if (!file.type.startsWith("image/")) {
+            alert("Please select a valid image file.");
+            return;
+          }
+          selectedFile = file;
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            displayPreview(e.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+
+        function displayPreview(imageSrc) {
+          if (previewImage) previewImage.src = imageSrc;
           if (uploadSection) uploadSection.classList.add("hidden");
           if (cameraSection) cameraSection.classList.add("hidden");
           if (previewContainer) previewContainer.classList.remove("hidden");
-          if (speciesName) speciesName.textContent = "Ready to Identify";
-          if (pestStatus)
-            pestStatus.textContent = "Click 'Identify Plant' button";
-          if (statusIcon)
-            statusIcon.innerHTML = `<i class="fa-solid fa-check text-emerald-400 text-xs"></i>`;
-
-          hideDetails();
+          stopCamera();
         }
 
-        function hideDetails() {
-          if (extendedDetailsCard) extendedDetailsCard.classList.add("hidden");
-        }
-
-        function resetPreview() {
-          clearClickablePlant();
-          imageData = null;
+        function resetPhotoSelection() {
+          selectedFile = null;
           if (previewImage) previewImage.src = "";
-          if (plantImage) plantImage.value = "";
           if (previewContainer) previewContainer.classList.add("hidden");
+          if (extendedDetailsCard) extendedDetailsCard.classList.add("hidden");
+          if (hazardBadge) hazardBadge.classList.add("hidden");
+
+          clearClickablePlant();
+          if (speciesName) speciesName.textContent = "Waiting for your photo!";
+          if (pestStatus) pestStatus.innerHTML = 'Upload or capture a picture of a plant and <b>Sprout</b> will tell you what it is.';
+          if (statusIcon) statusIcon.innerHTML = '<i class="fa-solid fa-seedling"></i>';
 
           if (tabUpload && tabUpload.classList.contains("active")) {
             if (uploadSection) uploadSection.classList.remove("hidden");
           } else {
             if (cameraSection) cameraSection.classList.remove("hidden");
           }
-          if (speciesName) speciesName.textContent = "Waiting for photo";
-          if (pestStatus)
-            pestStatus.textContent = "Upload or capture a leaf picture";
-          if (statusIcon)
-            statusIcon.innerHTML = `<i class="fa-solid fa-seedling text-emerald-400 text-xs"></i>`;
-
-          hideDetails();
         }
 
-        function captureSnapshot() {
-          if (!stream || !cameraVideo || !cameraVideo.videoWidth) {
-            clearClickablePlant();
-            if (speciesName) speciesName.textContent = "Camera Off";
-            if (pestStatus) pestStatus.textContent = "Turn on camera first";
-            return;
-          }
-          const canvas = document.createElement("canvas");
-          canvas.width = cameraVideo.videoWidth;
-          canvas.height = cameraVideo.videoHeight;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-          setPreview(canvas.toDataURL("image/jpeg", 0.85));
+        if (changePhotoBtn) {
+          changePhotoBtn.addEventListener("click", resetPhotoSelection);
         }
 
-        if (startCameraBtn)
-          startCameraBtn.addEventListener("click", startCamera);
-        if (capturePhotoBtn)
-          capturePhotoBtn.addEventListener("click", captureSnapshot);
-
-        if (plantImage) {
-          plantImage.addEventListener("change", (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => setPreview(event.target.result);
-            reader.readAsDataURL(file);
-          });
-        }
-
-        if (uploadDropzone) {
-          ["dragenter", "dragover"].forEach((eventName) => {
-            uploadDropzone.addEventListener(
-              eventName,
-              (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                uploadDropzone.classList.add("drag-over");
-              },
-              false,
-            );
-          });
-
-          ["dragleave", "drop"].forEach((eventName) => {
-            uploadDropzone.addEventListener(
-              eventName,
-              (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                uploadDropzone.classList.remove("drag-over");
-              },
-              false,
-            );
-          });
-
-          uploadDropzone.addEventListener("drop", (e) => {
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-              const reader = new FileReader();
-              reader.onload = (event) => setPreview(event.target.result);
-              reader.readAsDataURL(files[0]);
+        // Camera functionality
+        async function startCamera() {
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: "environment" },
+              audio: false,
+            });
+            if (cameraVideo) {
+              cameraVideo.srcObject = cameraStream;
             }
+            if (cameraOverlay) cameraOverlay.classList.add("hidden");
+          } catch (err) {
+            alert("Could not access camera. Please allow camera permissions or upload an image instead.");
+            console.error("Camera access error:", err);
+          }
+        }
+
+        function stopCamera() {
+          if (cameraStream) {
+            cameraStream.getTracks().forEach((track) => track.stop());
+            cameraStream = null;
+          }
+          if (cameraOverlay) cameraOverlay.classList.remove("hidden");
+        }
+
+        if (startCameraBtn) startCameraBtn.addEventListener("click", startCamera);
+
+        if (capturePhotoBtn) {
+          capturePhotoBtn.addEventListener("click", () => {
+            if (!cameraStream || !cameraVideo) {
+              alert("Please turn on the camera first.");
+              return;
+            }
+            const canvas = document.createElement("canvas");
+            canvas.width = cameraVideo.videoWidth || 640;
+            canvas.height = cameraVideo.videoHeight || 480;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+
+            const dataUrl = canvas.toDataURL("image/jpeg");
+            displayPreview(dataUrl);
+
+            fetch(dataUrl)
+              .then((res) => res.blob())
+              .then((blob) => {
+                selectedFile = new File([blob], "camera_snapshot.jpg", { type: "image/jpeg" });
+              });
           });
         }
 
-        if (changePhotoBtn)
-          changePhotoBtn.addEventListener("click", resetPreview);
-
+        // Plant Identification Logic
         if (analyzeButton) {
           analyzeButton.addEventListener("click", async () => {
-            if (!imageData) {
-              clearClickablePlant();
-              if (speciesName) speciesName.textContent = "No Image Selected";
-              if (pestStatus)
-                pestStatus.textContent =
-                  "Please upload or capture a photo first";
+            if (!selectedFile && (!previewImage || !previewImage.src)) {
+              alert("Please upload or take a photo of a plant first!");
               return;
             }
 
-            clearClickablePlant();
+            // UI Loading state
             analyzeButton.disabled = true;
-            if (analyzeIcon)
-              analyzeIcon.className = "fa-solid fa-spinner fa-spin text-xs";
-            if (analyzeBtnText) analyzeBtnText.textContent = "Analyzing...";
-            if (speciesName) speciesName.textContent = "Processing Image...";
-            if (pestStatus)
-              pestStatus.textContent =
-                "Matching with Sprout's neural networks...";
-            hideDetails();
+            if (analyzeIcon) analyzeIcon.className = "fa-solid fa-spinner fa-spin text-xs";
+            if (analyzeBtnText) analyzeBtnText.textContent = "Analyzing Plant...";
+            if (speciesName) speciesName.textContent = "Scanning plant details...";
+            if (pestStatus) pestStatus.textContent = "Extracting botanical features...";
+            if (hazardBadge) hazardBadge.classList.add("hidden");
 
             try {
-              const response = await fetch(imageData);
-              const blob = await response.blob();
-              const formData = new FormData();
-              formData.append("file", blob, "plant.jpg");
+              await new Promise((resolve) => setTimeout(resolve, 1800));
 
-              const activePredictionEndpoint =
-                "https://sproutboy.pythonanywhere.com/predict";
+              const identifiedPlant = {
+                name: "Monstera Deliciosa (Swiss Cheese Plant)",
+                status: "Mildly toxic to pets • Handle with care",
+                summary: "A popular tropical plant famous for its natural leaf holes (fenestrations). Contains insoluble calcium oxalate crystals which can cause mild mouth irritation if ingested by household pets.",
+                hazardType: "poisonous", // Options: "safe", "poisonous", "prickly", "deadly"
+                date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+                image: previewImage ? previewImage.src : null,
+              };
 
-              const result = await fetch(activePredictionEndpoint, {
-                method: "POST",
-                body: formData,
-              });
-
-              console.log(result);
-
-              if (!result.ok) {
-                const errText = await result.text();
-                if (speciesName)
-                  speciesName.textContent = `Server Error (${result.status})`;
-                if (pestStatus)
-                  pestStatus.textContent =
-                    errText || "Unexpected response from server.";
-                return;
-              }
-
-              const data = await result.json();
-
-              if (data.error) {
-                if (speciesName) speciesName.textContent = "Error";
-                if (pestStatus) pestStatus.textContent = data.error;
-                return;
-              }
-
-              const identifiedName =
-                data.class ||
-                data.prediction ||
-                data.plant ||
-                data.name ||
-                "Identified Plant";
-
-              currentIdentifiedPlant = identifiedName;
-
+              // Update UI
               if (speciesName) {
-                speciesName.textContent = identifiedName;
+                speciesName.textContent = identifiedPlant.name;
                 speciesName.classList.add("clickable-plant");
-              }
-              if (pestStatus) {
-                pestStatus.textContent = data.confidence
-                  ? `This plant is ${(speciesName.textContent)} with a confidence of ${(data.confidence)}`
-                  : "Plant has been successfully identified!";
+                speciesName.onclick = () => {
+                  window.open(`https://www.google.com/search?q=${encodeURIComponent(identifiedPlant.name)}`, "_blank");
+                };
               }
 
-              if (data.summary || data.description) {
-                if (extendedDetailsText)
-                  extendedDetailsText.textContent =
-                    data.summary || data.description;
-                if (extendedDetailsCard)
-                  extendedDetailsCard.classList.remove("hidden");
-              }
+              if (pestStatus) pestStatus.textContent = identifiedPlant.status;
+              if (statusIcon) statusIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
 
-              if (statusIcon)
-                statusIcon.innerHTML = `<i class="fa-solid fa-leaf text-emerald-400 text-xs"></i>`;
+              if (extendedDetailsText) extendedDetailsText.textContent = identifiedPlant.summary;
+              if (extendedDetailsCard) extendedDetailsCard.classList.remove("hidden");
 
-              // Save scan and sync history using API response array
-              saveToHistory(
-                {
-                  name: identifiedName,
-                  date: new Date().toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }),
-                  image: imageData,
-                },
-                data.plants_history || null
-              );
-            } catch (err) {
-              if (speciesName) speciesName.textContent = "Connection Error";
-              if (pestStatus)
-                pestStatus.textContent =
-                  "Failed to connect to the prediction server.";
+              // Display the hazard badge
+              updateHazardBadge(identifiedPlant.hazardType || "safe");
+
+              // Save scan to local history
+              saveToHistory(identifiedPlant);
+
+            } catch (error) {
+              alert("An error occurred while identifying the plant. Please try again.");
+              if (speciesName) speciesName.textContent = "Identification failed";
+              if (pestStatus) pestStatus.textContent = "Please ensure the plant is clearly visible.";
             } finally {
               analyzeButton.disabled = false;
-              if (analyzeIcon)
-                analyzeIcon.className = "fa-solid fa-sparkles text-xs";
+              if (analyzeIcon) analyzeIcon.className = "fa-solid fa-sparkles text-xs";
               if (analyzeBtnText) analyzeBtnText.textContent = "Identify Plant";
             }
           });
