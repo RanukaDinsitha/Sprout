@@ -1017,6 +1017,7 @@
           reader.readAsDataURL(file);
         }
 
+
         function displayPreview(imageSrc) {
           if (previewImage) previewImage.src = imageSrc;
           if (uploadSection) uploadSection.classList.add("hidden");
@@ -1141,6 +1142,8 @@
 
               const apiData = await response.json();
 
+              console.log(apiData);
+
               // Flexibly parse backend JSON fields
               const plantName = apiData.class || apiData.plant_name || apiData.name || apiData.label || "Unknown Plant";
               
@@ -1153,7 +1156,7 @@
                 confidence = probVal <= 1 ? `${(probVal * 100).toFixed(1)}%` : `${probVal.toFixed(1)}%`;
               }
 
-              const summary = apiData.summary || apiData.description || apiData.details || `Plant categorized as ${plantName}.`;
+              const summary = apiData.summary || apiData.description || apiData.details || `${apiData.sentence}.`;
               const hazardType = apiData.hazardType || apiData.hazard || "safe";
 
               const identifiedPlant = {
@@ -1172,7 +1175,7 @@
                 speciesName.onclick = () => window.open(`https://www.google.com/search?q=${encodeURIComponent(identifiedPlant.name)}`, '_blank');
               }
               if (pestStatus) {
-                pestStatus.textContent = `Identified with ${identifiedPlant.confidence} confidence`;
+                pestStatus.textContent = `The plant is ${identifiedPlant.name} with a confidence of ${identifiedPlant.confidence}!`;
               }
 
               if (extendedDetailsText) {
