@@ -854,24 +854,52 @@
             return;
           }
 
-          historyList.innerHTML = history
-            .map(
-              (item) => `
-            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
-              ${
-                item.image
-                  ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
-                  : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
-              }
-              <div class="min-w-0 flex-1">
-                <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
-                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"}</p>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 hover:text-emerald-400"></i>
-            </div>
-          `,
-            )
-            .join("");
+          historyList.textContent = "";
+          history.forEach((item) => {
+            const row = document.createElement("div");
+            row.className =
+              "flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition cursor-pointer";
+            row.addEventListener("click", () => {
+              window.open(`https://www.google.com/search?q=${encodeURIComponent(item.name || "")}`, "_blank");
+            });
+
+            if (item.image) {
+              const img = document.createElement("img");
+              img.src = item.image;
+              img.alt = item.name || "Plant image";
+              img.className = "w-12 h-12 object-cover rounded-lg border border-emerald-500/20";
+              row.appendChild(img);
+            } else {
+              const fallback = document.createElement("div");
+              fallback.className =
+                "w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400";
+              const leafIcon = document.createElement("i");
+              leafIcon.className = "fa-solid fa-leaf";
+              fallback.appendChild(leafIcon);
+              row.appendChild(fallback);
+            }
+
+            const textWrap = document.createElement("div");
+            textWrap.className = "min-w-0 flex-1";
+
+            const title = document.createElement("h4");
+            title.className = "text-sm font-bold text-white truncate";
+            title.textContent = item.name || "";
+
+            const date = document.createElement("p");
+            date.className = "text-[10px] text-slate-400 mt-0.5";
+            date.textContent = item.date || "Recent Scan";
+
+            textWrap.appendChild(title);
+            textWrap.appendChild(date);
+            row.appendChild(textWrap);
+
+            const arrowIcon = document.createElement("i");
+            arrowIcon.className = "fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 hover:text-emerald-400";
+            row.appendChild(arrowIcon);
+
+            historyList.appendChild(row);
+          });
         }
 
         if (openHistoryBtn)
