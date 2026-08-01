@@ -1,7 +1,7 @@
 # Sprout
 [![The Logo of the Sprout App](https://i.postimg.cc/6p1YxRms/12450-removebg-preview-(1).png)](https://postimg.cc/ZWprr9mj)
 
-Sprout is a handy little—and lite—app which determines plant species based on photos.
+Sprout is a handy little—and lite/offline—app which determines plant species based on photos.
 The images for this project were <b>removed</b> due to heavy weight <i>although some reminants may exist in previous commits</i>, if you wish to have the image dataset, please send one of the creators an email.
 
 ![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white)
