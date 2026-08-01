@@ -12,6 +12,27 @@ const CACHE_NAME = "sprout-onnx-model-v1";
 const MODEL_URL =
   "https://github.com/RanukaDinsitha/Sprout/raw/refs/heads/main/models/best.onnx";
 
+async function createSession(modelBuffer) {
+  const providerCandidates = [
+    ["webgpu", "webgl", "wasm"],
+    ["webgl", "wasm"],
+    ["wasm"],
+  ];
+
+  let lastError = null;
+  for (const providers of providerCandidates) {
+    try {
+      return await ort.InferenceSession.create(modelBuffer, {
+        executionProviders: providers,
+      });
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("Unable to create an ONNX inference session.");
+}
+
 // Download or load the cached model from CacheStorage
 async function initOfflineModel() {
   try {
@@ -47,10 +68,8 @@ async function initOfflineModel() {
 
     const modelBuffer = await response.arrayBuffer();
 
-    // Initialize inference session using WebGPU, WebGL, or WASM
-    session = await ort.InferenceSession.create(modelBuffer, {
-      executionProviders: ["webgpu", "webgl", "wasm"],
-    });
+    // Initialize inference session using the best available browser runtime
+    session = await createSession(modelBuffer);
 
     postMessage({ type: "READY" });
   } catch (err) {
@@ -81,11 +100,15 @@ self.onmessage = async function (e) {
     try {
       const startTime = performance.now();
 
-      // Formulate 1x1x28x28 Float32 Tensor for local model
-      const inputTensor = new ort.Tensor("float32", Float32Array.from(data), [
-        1, 1, 28, 28,
+      // Formulate 1x3x224x224 Float32 Tensor for the ONNX model
+      const inputArray = Array.isArray(data) ? data : Array.from(data);
+      const inputTensor = new ort.Tensor("float32", new Float32Array(inputArray), [
+        1,
+        3,
+        224,
+        224,
       ]);
-      const feeds = { Input3: inputTensor };
+      const feeds = { images: inputTensor };
 
       const results = await session.run(feeds);
       const endTime = performance.now();
