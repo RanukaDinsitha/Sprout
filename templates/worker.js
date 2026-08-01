@@ -8,9 +8,89 @@ ort.env.wasm.wasmPaths =
   "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
 
 let session = null;
+let classNames = [];
 const CACHE_NAME = "sprout-onnx-model-v1";
 const MODEL_URL =
   "https://github.com/RanukaDinsitha/Sprout/raw/refs/heads/main/models/best.onnx";
+const MODEL_CLASS_NAMES = [
+  "Annual poa",
+  "Black nightshade",
+  "Blackberry",
+  "Bracken",
+  "Broad-leaved dock",
+  "Broad-leaved fleabane",
+  "Broad-leaved plantain",
+  "Broom",
+  "Californian thistle",
+  "Cape weed",
+  "Catsear",
+  "Chickweed",
+  "Cleavers",
+  "Clustered dock",
+  "Couch",
+  "Creeping buttercup",
+  "Creeping oxalis",
+  "Creeping speedwell",
+  "Daisy",
+  "Dandelion",
+  "Fiddle dock",
+  "Field speedwell",
+  "Galinsoga",
+  "Giant buttercup",
+  "Gorse",
+  "Great bindweed",
+  "Groundsel",
+  "Hairy buttercup",
+  "Hawkbit",
+  "Hawksbeard",
+  "Hedge mustard",
+  "Hemlock",
+  "Hydrocotyle",
+  "Ivy",
+  "Mallow",
+  "Manuka",
+  "Mouse-ear hawkweed",
+  "Musky storksbill",
+  "Narrow-leaved plantain",
+  "Nettle",
+  "Nodding thistle",
+  "Old man's beard",
+  "Onehunga weed",
+  "Oxeye daisy",
+  "Parsley dropwort",
+  "Parsley piert",
+  "Paspalum",
+  "Pennyroyal",
+  "Pink shamrock",
+  "Ragwort",
+  "Red dead-nettle",
+  "Redroot",
+  "Scarlet pimpernel",
+  "Scotch thistle",
+  "Scrambling fumitory",
+  "Scrambling speedwell",
+  "Selfheal",
+  "Sheep's sorrel",
+  "Shepherd's purse",
+  "Sow thistle",
+  "Spurrey",
+  "Staggerweed",
+  "Stinking mayweed",
+  "Suckling clover",
+  "Sweet brier",
+  "Tauhinu",
+  "Tradescantia",
+  "Turf speedwell",
+  "Twin cress",
+  "Water pepper",
+  "White clover",
+  "Wild radish",
+  "Wild turnip",
+  "Willow weed",
+  "Winged thistle",
+  "Wireweed",
+  "Yarrow",
+];
 
 async function createSession(modelBuffer) {
   const providerCandidates = [
@@ -115,11 +195,22 @@ self.onmessage = async function (e) {
 
       const outputKey = Object.keys(results)[0];
       const output = Array.from(results[outputKey].data);
+      const confidenceValues = output.map((value) => Number(value));
+      const topIndex = confidenceValues.reduce(
+        (bestIndex, value, index, array) => {
+          return value > array[bestIndex] ? index : bestIndex;
+        },
+        0,
+      );
+      const topConfidence = confidenceValues[topIndex];
+      const predictedName =
+        classNames[topIndex] || MODEL_CLASS_NAMES[topIndex] || `Class ${topIndex}`;
 
       postMessage({
         type: "RESULT",
         data: {
-          output: output.slice(0, 5),
+          name: predictedName,
+          confidence: topConfidence,
           duration: endTime - startTime,
         },
       });

@@ -1085,7 +1085,7 @@
             font-size: 10px;
             font-family: 'Plus Jakarta Sans', monospace, sans-serif;
           ">
-        This was created by <a href="https://github.com/RanukaDinsitha" target="_blank" class="text-emerald-400 hover:text-emerald-300 underline">Ranuka</a> and <a href="https://github.com/lambo-camper" target="_blank" class="text-emerald-400 hover:text-emerald-300 underline">Eliaseen</a>; thank you for using! 💻🚀
+        This was created by <a href="https://github.com/RanukaDinsitha" target="_blank" class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline">Ranuka</a> and support by <a href="https://github.com/lambo-camper" target="_blank" class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline">Eliaseen</a>; thank you for using! 💻🚀
       </p>
     </main>
   </div>
@@ -1644,10 +1644,13 @@
       }
 
       function handleOfflineResult(data) {
+        const confidencePercent = data.confidence
+          ? `${(Number(data.confidence) * 100).toFixed(1)}%`
+          : "High";
         const identifiedPlant = {
-          name: "Offline Plant Scan",
-          confidence: "High",
-          summary: `Completed local ONNX inference in ${data.duration.toFixed(1)}ms using your device’s browser runtime.`,
+          name: data.name || "Offline Plant Scan",
+          confidence: confidencePercent,
+          summary: `Identified plant in ${data.duration.toFixed(1)}ms using your device’s browser runtime; unable to fetch description in offline mode`,
           hazardType: "safe",
           date: new Date().toLocaleDateString("en-US", {
             month: "short",
@@ -1668,7 +1671,7 @@
             );
         }
         if (pestStatus) {
-          pestStatus.textContent = `Offline analysis complete in ${data.duration.toFixed(1)}ms.`;
+          pestStatus.textContent = `Offline prediction: ${identifiedPlant.name} (${identifiedPlant.confidence}).`;
         }
         if (extendedDetailsText) {
           extendedDetailsText.textContent = identifiedPlant.summary;
