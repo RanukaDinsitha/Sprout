@@ -11,7 +11,7 @@ let session = null;
 let classNames = [];
 const CACHE_NAME = "sprout-onnx-model-v1";
 const MODEL_URL =
-  "https://github.com/RanukaDinsitha/Sprout/raw/refs/heads/main/models/best.onnx";
+  "https://raw.githubusercontent.com/RanukaDinsitha/Sprout/main/models/best.onnx";
 const MODEL_CLASS_NAMES = [
   "Annual poa",
   "Black nightshade",
