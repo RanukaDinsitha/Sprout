@@ -1,0 +1,52 @@
+# This workflow performs a Codacy security scan on the Pest Identifying App
+# to check HTML, CSS, and client-side JavaScript for vulnerabilities.
+name: Sprout - Codacy Scan!
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '**.html'
+      - '**.css'
+      - '**.js'
+      - 'src/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**.html'
+      - '**.css'
+      - '**.js'
+      - 'src/**'
+  schedule:
+    # Runs every Sunday at 8:00 PM (vulnerability review before the work week)
+    - cron: '0 20 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  codacy-security-scan:
+    permissions:
+      contents: read       # Allows actions/checkout to fetch your HTML/JS code
+      security-events: write # Allows uploading security alerts to your GitHub Security tab
+      actions: read        # Required if your pest app repository is private
+    name: HTML Pest App Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Pest App Code
+        uses: actions/checkout@v4
+
+      - name: Run Codacy Analysis CLI
+        uses: codacy/codacy-analysis-cli-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          verbose: true
+          output: results.sarif
+          format: sarif
+          gh-code-scanning-compat: true
+          max-allowed-issues: 2147483647
+
+      - name: Upload Pest App Scan Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
