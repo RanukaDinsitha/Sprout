@@ -1,4 +1,4 @@
-# This workflow performs a Codacy security scan on the Pest Identifying App
+# This workflow performs a Codacy security scan on Sprout
 # to check HTML, CSS, and client-side JavaScript for vulnerabilities.
 name: Sprout - Codacy Scan!
 
