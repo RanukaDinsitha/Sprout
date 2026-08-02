@@ -12,6 +12,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet" />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=room_service" />
 
   <link rel="icon" type="image/png"
     href="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png" />
@@ -562,12 +564,13 @@
       text-decoration: underline;
     }
 
-    .fidget-spinner {
+    .status-bell {
       position: relative;
-      width: 1.95rem;
-      height: 1.95rem;
+      width: 1.6rem;
+      height: 1.6rem;
       border: none;
       background: transparent;
+      color: #fef3c7;
       padding: 0;
       display: grid;
       place-items: center;
@@ -576,143 +579,35 @@
       overflow: visible;
     }
 
-    .fidget-spinner:hover {
+    .status-bell:hover {
       transform: scale(1.05);
       filter: brightness(1.05);
     }
 
-    .fidget-spinner:focus-visible {
+    .status-bell:focus-visible {
       outline: 2px solid #10b981;
       outline-offset: 3px;
-      border-radius: 50%;
+      border-radius: 9999px;
     }
 
-    /* The molded plastic chassis of a real toy spinner */
-    .fidget-spinner-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      background: #10b981;
-      /* High-quality plastic green body */
-      box-shadow:
-        inset 0 2px 4px rgba(255, 255, 255, 0.4),
-        /* Top gloss highlight */
-        inset 0 -3px 4px rgba(4, 120, 87, 0.6),
-        /* Bottom plastic bevel shadow */
-        0 4px 6px rgba(0, 0, 0, 0.2);
-      /* Clean drop shadow onto desk */
-      border: none;
+    .status-bell .material-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+      color: #fef3c7;
     }
 
-    /* Flat, raised finger cap in the dead center */
-    .fidget-spinner-body {
-      position: absolute;
-      inset: 0.585rem;
-      border-radius: 50%;
-      background: #0f766e;
-      /* Slightly darker teal-green for the center cap contrast */
-      box-shadow:
-        inset 0 -1.5px 2px rgba(0, 0, 0, 0.4),
-        0 1.5px 3px rgba(0, 0, 0, 0.35);
-      z-index: 3;
+    .status-bell.is-ringing {
+      animation: bellPulse 0.25s ease-in-out 2;
     }
 
-    /* Stripped out the micro-cap to use as a center indentation pin */
-    .fidget-spinner-cap {
-      position: absolute;
-      width: 0.18rem;
-      height: 0.18rem;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.25);
-      /* Center pinch indentation */
-      z-index: 4;
-    }
-
-    /* Wide plastic arm that realistically nests metal skateboard bearings */
-    .fidget-spinner-arm {
-      position: absolute;
-      width: 0.62rem;
-      /* Made wider to mimic molded toy plastic arms */
-      height: 0.62rem;
-      /* Circular outer arm loops */
-      top: 50%;
-      left: 50%;
-      border-radius: 50%;
-      background: #10b981;
-      /* Matches main plastic body */
-      box-shadow:
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.4),
-        0 3px 5px rgba(0, 0, 0, 0.15);
-      z-index: 1;
-    }
-
-    /* Realistic 3-Piece Skateboard Bearing Ring (The metal shield) */
-    .fidget-spinner-arm::before {
-      content: '';
-      position: absolute;
-      inset: 0.1rem;
-      border-radius: 50%;
-      background: #94a3b8;
-      /* Steel color of the bearing face */
-      border: 1.5px solid #475569;
-      /* Dark outer steel race ring */
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
-    }
-
-    /* The dark inner bearing center hole */
-    .fidget-spinner-arm::after {
-      content: '';
-      position: absolute;
-      inset: 0.22rem;
-      border-radius: 50%;
-      background: #1e293b;
-      /* Open center hole of the outer bearing weight */
-    }
-
-    /* Precision positional rotation around the exact physical center */
-    .fidget-spinner-arm.arm-1 {
-      transform: translate(-50%, -50%) translateY(-0.55rem) rotate(0deg);
-    }
-
-    .fidget-spinner-arm.arm-2 {
-      transform: translate(-50%, -50%) rotate(120deg) translateY(-0.55rem);
-    }
-
-    .fidget-spinner-arm.arm-3 {
-      transform: translate(-50%, -50%) rotate(240deg) translateY(-0.55rem);
-    }
-
-    .fidget-spinner.is-spinning {
-      animation: spinSpinner 0.4s linear infinite;
-      /* Sped up rotation for reality */
-    }
-
-    /* Removed shaky artificial arm wobbling to simulate balanced premium steel bearings */
-    .fidget-spinner.is-spinning .fidget-spinner-arm {
-      animation: none;
-    }
-
-    @keyframes spinSpinner {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes armWobble {
-
+    @keyframes bellPulse {
       0%,
       100% {
-        opacity: 0.95;
-        transform: translate(-50%, -100%) rotate(var(--arm-rotation, 0deg)) scale(1);
+        transform: scale(1);
       }
 
       50% {
-        opacity: 1;
-        transform: translate(-50%, -100%) rotate(calc(var(--arm-rotation, 0deg) + 12deg)) scale(1.05);
+        transform: scale(1.08);
       }
     }
 
@@ -1049,14 +944,9 @@
         <div id="statusIcon"
           class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs flex-shrink-0"
           title="Current AI status">
-          <button id="statusFidgetSpinner" class="fidget-spinner" type="button" aria-label="Toggle fidget spinner"
-            title="Click to spin">
-            <span class="fidget-spinner-ring"></span>
-            <span class="fidget-spinner-arm arm-1" style="--arm-rotation: 0deg"></span>
-            <span class="fidget-spinner-arm arm-2" style="--arm-rotation: 120deg"></span>
-            <span class="fidget-spinner-arm arm-3" style="--arm-rotation: 240deg"></span>
-            <span class="fidget-spinner-body"></span>
-            <span class="fidget-spinner-cap"></span>
+          <button id="statusFidgetSpinner" class="status-bell" type="button" aria-label="Ring bell"
+            title="Press me!">
+            <span class="material-symbols-outlined material-icon">room_service</span>
           </button>
         </div>
       </div>
@@ -1087,7 +977,7 @@
           ">
         This was created by <a href="https://github.com/RanukaDinsitha" target="_blank" class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline">Ranuka</a> and support by <a href="https://github.com/lambo-camper" target="_blank" class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline">Eliaseen</a>; thank you for using! 💻🚀
       </p>
-    </main>
+    </main>f
   </div>
 
   <script>
@@ -1101,12 +991,52 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       const statusFidgetSpinner = document.getElementById("statusFidgetSpinner");
-      if (statusFidgetSpinner) {
-        statusFidgetSpinner.addEventListener("click", () => {
-          statusFidgetSpinner.classList.toggle("is-spinning");
-          const isSpinning = statusFidgetSpinner.classList.contains("is-spinning");
-          statusFidgetSpinner.setAttribute("aria-pressed", String(isSpinning));
+      let audioContext = null;
+
+      function playBellChime() {
+        if (!statusFidgetSpinner) return;
+
+        if (!audioContext) {
+          const AudioCtor = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtor) return;
+          audioContext = new AudioCtor();
+        }
+
+        if (audioContext.state === "suspended") {
+          audioContext.resume().catch(() => {});
+        }
+
+        const now = audioContext.currentTime;
+        const baseFreq = 420 + Math.random() * 180;
+        const notes = [
+          baseFreq,
+          baseFreq * (1.25 + Math.random() * 0.1),
+          baseFreq * (1.6 + Math.random() * 0.12),
+        ];
+
+        notes.forEach((freq, index) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.type = index === 0 ? "triangle" : "sine";
+          oscillator.frequency.setValueAtTime(freq, now + index * 0.04);
+          gainNode.gain.setValueAtTime(0.0001, now + index * 0.04);
+          gainNode.gain.exponentialRampToValueAtTime(0.05 + Math.random() * 0.02, now + index * 0.04 + 0.015);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.04 + 0.18);
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.start(now + index * 0.04);
+          oscillator.stop(now + index * 0.04 + 0.2);
         });
+
+        statusFidgetSpinner.classList.remove("is-ringing");
+        void statusFidgetSpinner.offsetWidth;
+        statusFidgetSpinner.classList.add("is-ringing");
+        statusFidgetSpinner.setAttribute("aria-pressed", "true");
+      }
+
+      if (statusFidgetSpinner) {
+        statusFidgetSpinner.addEventListener("click", playBellChime);
 
         statusFidgetSpinner.addEventListener("keydown", (event) => {
           if (event.key === "Enter" || event.key === " ") {
