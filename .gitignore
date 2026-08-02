@@ -15,6 +15,7 @@ wellington_pests
 dataset_prepared
 what-to-do.txt
 key.txt
+.TODO
 
 # Distribution / packaging
 .Python
