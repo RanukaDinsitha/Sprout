@@ -1632,8 +1632,8 @@
 
         function getLocation() {
           const locationOptions = {
-            enableHighAccuracy: true, 
-            timeout: 10000, 
+            enableHighAccuracy: true,
+            timeout: 10000,
             maximumAge: 0, // Strictly requests fresh data, no cached locations
           };
 
@@ -1761,6 +1761,24 @@
           });
         }
 
+        async function sendLocationData(lat, lon) {
+          const url = "https://sproutboy.pythonanywhere.com/location";
+          const payload = { lat: lat, lon: lon };
+            try {
+              const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload), 
+              });
+
+              const result = await response.json();
+              console.log("Success:", result);
+            } catch (error) {
+              console.error("Error sending data:", error);
+            }
+        }
         // Helper: Convert Preview Image into Float32 Array for the ONNX model
         async function extractImageData() {
           const size = 224;
@@ -1844,7 +1862,7 @@
           dataConfPrompt = confirm(
             "Do you want to allow Sprout to access your location for better plant identification? You can always change this later in your browser settings.",
           );
-          if (dataConfPrompt == true){
+          if (dataConfPrompt == true) {
             getLocation(); // Request location once on button click
           }
           analyzeButton.addEventListener("click", async () => {
