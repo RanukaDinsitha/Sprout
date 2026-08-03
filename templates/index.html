@@ -38,12 +38,27 @@
       referrerpolicy="no-referrer"
     />
 
+    <!-- Leaflet CSS for Map -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
     <!-- Official Tailwind CDN Script -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Canvas Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+
+    <!-- Leaflet JS for Map -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
 
     <style>
       * {
@@ -698,11 +713,16 @@
         border: 1px solid rgba(239, 68, 68, 0.4);
       }
 
-      /* Size Estimator Button Active Styles */
-      .size-btn.active {
-        border-color: #10b981 !important;
-        background: rgba(16, 185, 129, 0.2) !important;
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+      /* Dark theme customizations for Leaflet map popups */
+      .leaflet-popup-content-wrapper {
+        background: rgba(12, 29, 22, 0.95) !important;
+        color: #f1f5f9 !important;
+        border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        backdrop-filter: blur(10px);
+        border-radius: 12px !important;
+      }
+      .leaflet-popup-tip {
+        background: rgba(12, 29, 22, 0.95) !important;
       }
     </style>
   </head>
@@ -809,7 +829,7 @@
               >3</span
             >
             <span
-              >Click <strong>"Identify Plant"</strong> for your results.</span
+              >Click <strong>"Identify Plant"</strong> for your results and view it on the map!</span
             >
           </div>
         </div>
@@ -1127,41 +1147,30 @@
           </p>
         </div>
 
-        <!-- Size Estimator Section -->
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3">
+        <!-- NEW: Plant Location Map Card -->
+        <div
+          id="mapCard"
+          class="bg-emerald-950/20 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3"
+        >
           <div class="flex items-center justify-between">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-              <i class="fa-solid fa-ruler-vertical"></i>
-              <span>Size Estimator</span>
+            <h4
+              class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2"
+            >
+              <i class="fa-solid fa-map-location-dot"></i>
+              <span>Plant Discoveries Map</span>
             </h4>
-            <span id="selectedSizeLabel" class="text-[11px] font-semibold text-slate-400">None selected</span>
-          </div>
-          <div class="grid grid-cols-3 gap-2">
             <button
-              type="button"
-              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
-              data-size="Small (under 10cm)"
+              id="toggleMapBtn"
+              class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition"
             >
-              <span>🟢</span>
-              <span>Small <span class="text-[10px] text-slate-400 block sm:inline">(< 10cm)</span></span>
-            </button>
-            <button
-              type="button"
-              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
-              data-size="Medium (knee high)"
-            >
-              <span>🟡</span>
-              <span>Medium <span class="text-[10px] text-slate-400 block sm:inline">(knee high)</span></span>
-            </button>
-            <button
-              type="button"
-              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
-              data-size="Large (taller than a human)"
-            >
-              <span>🔴</span>
-              <span>Large <span class="text-[10px] text-slate-400 block sm:inline">(> human)</span></span>
+              Hide Map
             </button>
           </div>
+
+          <div
+            id="map"
+            class="w-full h-60 rounded-xl overflow-hidden border border-emerald-500/20 bg-slate-900"
+          ></div>
         </div>
 
         <button
@@ -1207,23 +1216,6 @@
       }
 
       window.addEventListener("DOMContentLoaded", () => {
-        // Size Estimator Logic
-        let loggedPlantSize = null;
-        const sizeBtns = document.querySelectorAll(".size-btn");
-        const selectedSizeLabel = document.getElementById("selectedSizeLabel");
-
-        sizeBtns.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            sizeBtns.forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-            loggedPlantSize = btn.getAttribute("data-size");
-            if (selectedSizeLabel) {
-              selectedSizeLabel.textContent = loggedPlantSize;
-              selectedSizeLabel.classList.replace("text-slate-400", "text-emerald-400");
-            }
-          });
-        });
-
         const statusFidgetSpinner = document.getElementById(
           "statusFidgetSpinner",
         );
@@ -1525,7 +1517,7 @@
               }
               <div class="min-w-0 flex-1">
                 <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
-                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"} ${item.size ? `• Size: ${item.size}` : ''}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"}</p>
               </div>
               <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 hover:text-emerald-400"></i>
             </div>
@@ -1547,6 +1539,85 @@
             if (e.target === historyModal) closeHistoryModal();
           });
         }
+
+        // --- MAP INTEGRATION INITIALIZATION ---
+        let map = null;
+        let userLocation = null;
+        let plantMarkers = [];
+
+        function initMap() {
+          const mapContainer = document.getElementById("map");
+          if (!mapContainer || map) return;
+
+          // Default fallback coords (e.g. London / General default if no location yet)
+          const defaultLat = 51.505;
+          const defaultLng = -0.09;
+
+          map = L.map("map").setView([defaultLat, defaultLng], 13);
+
+          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "© OpenStreetMap",
+          }).addTo(map);
+
+          loadExistingPlantMarkers();
+        }
+
+        function addPlantMarkerToMap(plantItem, lat, lng) {
+          if (!map) initMap();
+          if (!map) return;
+
+          const leafletLat = lat || (userLocation ? userLocation.lat : 51.505);
+          const leafletLng = lng || (userLocation ? userLocation.lng : -0.09);
+
+          const leafIcon = L.divIcon({
+            html: `<div style="background-color: #10b981; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-leaf text-xs"></i></div>`,
+            className: "custom-plant-pin",
+            iconSize: [30, 30],
+            iconAnchor: [15, 15],
+          });
+
+          const popupContent = `
+            <div style="font-family: 'Plus Jakarta Sans', sans-serif; text-align: center; min-width: 130px;">
+              ${plantItem.image ? `<img src="${plantItem.image}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" />` : ""}
+              <h5 style="margin: 0; font-size: 13px; font-weight: 700; color: #10b981;">${plantItem.name}</h5>
+              <p style="margin: 3px 0 0; font-size: 10px; color: #94a3b8;">${plantItem.date || "Just now"}</p>
+            </div>
+          `;
+
+          const marker = L.marker([leafletLat, leafletLng], { icon: leafIcon })
+            .addTo(map)
+            .bindPopup(popupContent);
+
+          plantMarkers.push(marker);
+          map.setView([leafletLat, leafletLng], 14);
+        }
+
+        function loadExistingPlantMarkers() {
+          const history = getHistory();
+          history.forEach((item) => {
+            if (item.lat && item.lng) {
+              addPlantMarkerToMap(item, item.lat, item.lng);
+            }
+          });
+        }
+
+        const toggleMapBtn = document.getElementById("toggleMapBtn");
+        const mapContainerEl = document.getElementById("map");
+        if (toggleMapBtn && mapContainerEl) {
+          toggleMapBtn.addEventListener("click", () => {
+            if (mapContainerEl.classList.contains("hidden")) {
+              mapContainerEl.classList.remove("hidden");
+              toggleMapBtn.textContent = "Hide Map";
+              if (map) map.invalidateSize();
+            } else {
+              mapContainerEl.classList.add("hidden");
+              toggleMapBtn.textContent = "Show Map";
+            }
+          });
+        }
+
+        initMap();
 
         // Tab Controller
         const tabUpload = document.getElementById("tabUpload");
@@ -1624,7 +1695,7 @@
             default:
               hazardBadge.classList.add("hazard-safe");
               hazardIcon.className = "fa-solid fa-shield-heart";
-              hazardLabel.textContent = "Unable to identify";
+              hazardLabel.textContent = "Harmless / Safe";
               break;
           }
 
@@ -1692,28 +1763,28 @@
 
         function getLocation() {
           const locationOptions = {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0, // Strictly requests fresh data, no cached locations
+            enableHighAccuracy: true, 
+            timeout: 10000, 
+            maximumAge: 0,
           };
 
-          // 2. Success callback (runs exactly once)
           function handleSingleLocation(position) {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
+            userLocation = { lat: lat, lng: lon };
             console.log(
               `Saved precise location once - Lat: ${lat}, Lon: ${lon}`,
             );
 
-            // Save to your database, localStorage, or state manager here
+            if (map) {
+              map.setView([lat, lon], 13);
+            }
           }
 
-          // 3. Error handling
           function handleLocationError(error) {
             console.error(`Error (${error.code}): ${error.message}`);
           }
 
-          // 4. Request the single location on page load
           if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
               handleSingleLocation,
@@ -1722,21 +1793,11 @@
             );
           } else {
             console.log("Geolocation is not supported by this browser.");
-            alert(
-              "Geolocation is not supported by this browser. Please enable location services.",
-            );
           }
         }
 
         function resetPhotoSelection() {
           selectedFile = null;
-          loggedPlantSize = null;
-          sizeBtns.forEach((b) => b.classList.remove("active"));
-          if (selectedSizeLabel) {
-            selectedSizeLabel.textContent = "None selected";
-            selectedSizeLabel.classList.replace("text-emerald-400", "text-slate-400");
-          }
-
           if (previewImage) previewImage.src = "";
           if (previewContainer) previewContainer.classList.add("hidden");
           if (extendedDetailsCard) extendedDetailsCard.classList.add("hidden");
@@ -1747,23 +1808,6 @@
           if (pestStatus)
             pestStatus.innerHTML =
               "Upload or capture a picture of a plant and <b>Sprout</b> will tell you what it is.";
-          if (statusIcon)
-            statusIcon.innerHTML = `
-              <button
-                id="statusFidgetSpinner"
-                class="fidget-spinner"
-                type="button"
-                aria-label="Toggle fidget spinner"
-                title="Click to spin"
-              >
-                <span class="fidget-spinner-ring"></span>
-                <span class="fidget-spinner-arm arm-1" style="--arm-rotation: 0deg"></span>
-                <span class="fidget-spinner-arm arm-2" style="--arm-rotation: 120deg"></span>
-                <span class="fidget-spinner-arm arm-3" style="--arm-rotation: 240deg"></span>
-                <span class="fidget-spinner-body"></span>
-                <span class="fidget-spinner-cap"></span>
-              </button>
-            `;
 
           if (tabUpload && tabUpload.classList.contains("active")) {
             if (uploadSection) uploadSection.classList.remove("hidden");
@@ -1828,24 +1872,6 @@
           });
         }
 
-        async function sendLocationData(lat, lon) {
-          const url = "https://sproutboy.pythonanywhere.com/location";
-          const payload = { lat: lat, lon: lon };
-            try {
-              const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload), 
-              });
-
-              const result = await response.json();
-              console.log("Success:", result);
-            } catch (error) {
-              console.error("Error sending data:", error);
-            }
-        }
         // Helper: Convert Preview Image into Float32 Array for the ONNX model
         async function extractImageData() {
           const size = 224;
@@ -1889,7 +1915,6 @@
             confidence: confidencePercent,
             summary: `Identified plant in ${data.duration.toFixed(1)}ms using your device’s browser runtime; unable to fetch description in offline mode`,
             hazardType: "safe",
-            size: loggedPlantSize,
             date: new Date().toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -1897,6 +1922,8 @@
               minute: "2-digit",
             }),
             image: previewImage ? previewImage.src : null,
+            lat: userLocation ? userLocation.lat : null,
+            lng: userLocation ? userLocation.lng : null,
           };
 
           if (speciesName) {
@@ -1919,6 +1946,7 @@
 
           updateHazardBadge(identifiedPlant.hazardType);
           saveToHistory(identifiedPlant);
+          addPlantMarkerToMap(identifiedPlant);
 
           if (analyzeButton) analyzeButton.disabled = false;
           if (analyzeIcon)
@@ -1927,12 +1955,13 @@
         }
 
         if (analyzeButton) {
-          dataConfPrompt = confirm(
-            "Do you want to allow Sprout to access your location for better plant identification? You can always change this later in your browser settings.",
+          let dataConfPrompt = confirm(
+            "Do you want to allow Sprout to access your location for better plant identification and map pinning?",
           );
-          if (dataConfPrompt == true) {
-            getLocation(); // Request location once on button click
+          if (dataConfPrompt == true){
+            getLocation();
           }
+
           analyzeButton.addEventListener("click", async () => {
             if (!selectedFile && (!previewImage || !previewImage.src)) {
               alert("Please upload or take a photo of a plant first!");
@@ -1982,10 +2011,6 @@
                 });
                 formData.append("file", file);
                 formData.append("image", file);
-              }
-
-              if (loggedPlantSize) {
-                formData.append("size", loggedPlantSize);
               }
 
               const response = await fetch(
@@ -2039,7 +2064,6 @@
                 confidence: confidence,
                 summary: summary,
                 hazardType: hazardType,
-                size: loggedPlantSize,
                 date: new Date().toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
@@ -2047,6 +2071,8 @@
                   minute: "2-digit",
                 }),
                 image: previewImage ? previewImage.src : null,
+                lat: userLocation ? userLocation.lat : null,
+                lng: userLocation ? userLocation.lng : null,
               };
 
               if (speciesName) {
@@ -2070,6 +2096,7 @@
 
               updateHazardBadge(identifiedPlant.hazardType);
               saveToHistory(identifiedPlant);
+              addPlantMarkerToMap(identifiedPlant);
             } catch (err) {
               console.error("Identification Error:", err);
               if (speciesName)
