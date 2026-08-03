@@ -697,6 +697,13 @@
         color: #f87171;
         border: 1px solid rgba(239, 68, 68, 0.4);
       }
+
+      /* Size Estimator Button Active Styles */
+      .size-btn.active {
+        border-color: #10b981 !important;
+        background: rgba(16, 185, 129, 0.2) !important;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+      }
     </style>
   </head>
 
@@ -1120,6 +1127,43 @@
           </p>
         </div>
 
+        <!-- Size Estimator Section -->
+        <div class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+              <i class="fa-solid fa-ruler-vertical"></i>
+              <span>Size Estimator</span>
+            </h4>
+            <span id="selectedSizeLabel" class="text-[11px] font-semibold text-slate-400">None selected</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
+              data-size="Small (under 10cm)"
+            >
+              <span>🟢</span>
+              <span>Small <span class="text-[10px] text-slate-400 block sm:inline">(< 10cm)</span></span>
+            </button>
+            <button
+              type="button"
+              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
+              data-size="Medium (knee high)"
+            >
+              <span>🟡</span>
+              <span>Medium <span class="text-[10px] text-slate-400 block sm:inline">(knee high)</span></span>
+            </button>
+            <button
+              type="button"
+              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
+              data-size="Large (taller than a human)"
+            >
+              <span>🔴</span>
+              <span>Large <span class="text-[10px] text-slate-400 block sm:inline">(> human)</span></span>
+            </button>
+          </div>
+        </div>
+
         <button
           id="analyzeButton"
           class="w-full py-3.5 rounded-xl btn-gradient text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-lg flex items-center justify-center gap-2"
@@ -1151,7 +1195,6 @@
           >; thank you for using! 💻🚀
         </p>
       </main>
-      f
     </div>
 
     <script>
@@ -1164,6 +1207,23 @@
       }
 
       window.addEventListener("DOMContentLoaded", () => {
+        // Size Estimator Logic
+        let loggedPlantSize = null;
+        const sizeBtns = document.querySelectorAll(".size-btn");
+        const selectedSizeLabel = document.getElementById("selectedSizeLabel");
+
+        sizeBtns.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            sizeBtns.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            loggedPlantSize = btn.getAttribute("data-size");
+            if (selectedSizeLabel) {
+              selectedSizeLabel.textContent = loggedPlantSize;
+              selectedSizeLabel.classList.replace("text-slate-400", "text-emerald-400");
+            }
+          });
+        });
+
         const statusFidgetSpinner = document.getElementById(
           "statusFidgetSpinner",
         );
@@ -1465,7 +1525,7 @@
               }
               <div class="min-w-0 flex-1">
                 <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
-                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"} ${item.size ? `• Size: ${item.size}` : ''}</p>
               </div>
               <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 hover:text-emerald-400"></i>
             </div>
@@ -1670,6 +1730,13 @@
 
         function resetPhotoSelection() {
           selectedFile = null;
+          loggedPlantSize = null;
+          sizeBtns.forEach((b) => b.classList.remove("active"));
+          if (selectedSizeLabel) {
+            selectedSizeLabel.textContent = "None selected";
+            selectedSizeLabel.classList.replace("text-emerald-400", "text-slate-400");
+          }
+
           if (previewImage) previewImage.src = "";
           if (previewContainer) previewContainer.classList.add("hidden");
           if (extendedDetailsCard) extendedDetailsCard.classList.add("hidden");
@@ -1822,6 +1889,7 @@
             confidence: confidencePercent,
             summary: `Identified plant in ${data.duration.toFixed(1)}ms using your device’s browser runtime; unable to fetch description in offline mode`,
             hazardType: "safe",
+            size: loggedPlantSize,
             date: new Date().toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -1916,6 +1984,10 @@
                 formData.append("image", file);
               }
 
+              if (loggedPlantSize) {
+                formData.append("size", loggedPlantSize);
+              }
+
               const response = await fetch(
                 "https://sproutboy.pythonanywhere.com/predict",
                 {
@@ -1967,6 +2039,7 @@
                 confidence: confidence,
                 summary: summary,
                 hazardType: hazardType,
+                size: loggedPlantSize,
                 date: new Date().toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
