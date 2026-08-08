@@ -2540,7 +2540,7 @@
               );
           }
           if (pestStatus) {
-            pestStatus.textContent = `Offline prediction: ${identifiedPlant.name} (${identifiedPlant.confidence}).`;
+            pestStatus.textContent = `The engine identified the photo as a ${identifiedPlant.name} with a ${identifiedPlant.confidence} confidence rate.`;
           }
           if (extendedDetailsText) {
             extendedDetailsText.textContent = identifiedPlant.summary;
@@ -2713,7 +2713,7 @@
               }
               if (pestStatus) {
                 const categoryLabel = category ? ` — ${category}` : "";
-                pestStatus.textContent = `${identifiedPlant.name}${categoryLabel} (${identifiedPlant.confidence} confidence)`;
+                pestStatus.textContent = `Sprout's engine identified the plant as ${identifiedPlant.name} it is a ${categoryLabel} and confidence is ${identifiedPlant.confidence}.`;
               }
 
               // Set summary and HTML treatment/control fields explicitly on the UI
