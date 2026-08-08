@@ -38,27 +38,21 @@
       referrerpolicy="no-referrer"
     />
 
-    <!-- Leaflet CSS for Map -->
+    <!-- MapLibre GL CSS -->
     <link
       rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
+      href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.0.0/dist/maplibre-gl.css"
     />
 
     <!-- Official Tailwind CDN Script -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- MapLibre GL JS -->
+    <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.0.0/dist/maplibre-gl.js"></script>
+
     <!-- Canvas Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
-
-    <!-- Leaflet JS for Map -->
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
 
     <style>
       * {
@@ -747,16 +741,85 @@
         border: 1px solid rgba(239, 68, 68, 0.4);
       }
 
-      /* Dark theme customizations for Leaflet map popups */
-      .leaflet-popup-content-wrapper {
-        background: rgba(12, 29, 22, 0.95) !important;
-        color: #f1f5f9 !important;
-        border: 1px solid rgba(16, 185, 129, 0.3) !important;
-        backdrop-filter: blur(10px);
-        border-radius: 12px !important;
+      /* Weed vs Plant Badge Styling */
+      .badge-weed {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.4);
       }
-      .leaflet-popup-tip {
-        background: rgba(12, 29, 22, 0.95) !important;
+
+      .badge-plant {
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.4);
+      }
+
+      /* Dark theme for MapLibre GL popups */
+      .maplibregl-popup-content {
+        background: rgba(12, 29, 22, 0.97) !important;
+        color: #f1f5f9 !important;
+        border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        backdrop-filter: blur(12px);
+        border-radius: 14px !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+        padding: 0 !important;
+      }
+      .maplibregl-popup-tip { display: none; }
+      .maplibregl-popup-close-button {
+        color: #94a3b8 !important;
+        top: 8px !important;
+        right: 10px !important;
+        font-size: 18px !important;
+        background: none !important;
+        padding: 0 6px !important;
+      }
+      .maplibregl-popup-close-button:hover { color: #10b981 !important; }
+      .maplibregl-ctrl-attrib { display: none; }
+
+      /* Map modal sizing */
+      #mapModal .map-modal-card {
+        width: min(100%, 44rem);
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+      }
+      #plantMap {
+        flex: 1;
+        min-height: 0;
+        border-radius: 0 0 1.5rem 1.5rem;
+      }
+
+      /* History tab buttons */
+      .hist-tab-btn {
+        padding: 0.4rem 1.1rem;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        transition: all 0.2s;
+        color: #94a3b8;
+        background: transparent;
+      }
+      .hist-tab-btn.active {
+        background: rgba(16,185,129,0.18);
+        color: #34d399;
+        border: 1px solid rgba(16,185,129,0.35);
+      }
+
+      /* Pulse animation for new map pin */
+      @keyframes pinPulse {
+        0%   { transform: scale(1);   opacity: 1; }
+        70%  { transform: scale(2.2); opacity: 0; }
+        100% { transform: scale(2.2); opacity: 0; }
+      }
+      .pin-pulse {
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        background: rgba(16,185,129,0.4);
+        animation: pinPulse 1.6s ease-out infinite;
+        pointer-events: none;
       }
     </style>
   </head>
@@ -863,7 +926,7 @@
               >3</span
             >
             <span
-              >Click <strong>"Identify Plant"</strong> for your results and view it on the map!</span
+              >Click <strong>"Identify Plant"</strong> to see your results and save them to your history!</span
             >
           </div>
         </div>
@@ -907,6 +970,14 @@
               </p>
             </div>
           </div>
+          <button
+            id="openAllMapBtn"
+            class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition ml-auto mr-10"
+            title="View all on map"
+          >
+            <i class="fa-solid fa-map-location-dot text-xs"></i>
+            <span>Map</span>
+          </button>
         </div>
 
         <div
@@ -934,6 +1005,29 @@
       </div>
     </div>
 
+    <!-- Map Modal -->
+    <div id="mapModal" class="modal-overlay p-4" style="z-index:60;">
+      <div class="map-modal-card glass-card transition-transform duration-300 scale-95 relative overflow-hidden" id="mapModalCard">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 pt-5 pb-3 flex-shrink-0">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm">
+              <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-white leading-tight" id="mapModalTitle">Plant Sighting Map</h2>
+              <p class="text-[10px] text-slate-400" id="mapModalSubtitle">All identified locations</p>
+            </div>
+          </div>
+          <button id="closeMapBtn" class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+        <!-- Map -->
+        <div id="plantMap" style="height: 520px;"></div>
+      </div>
+    </div>
+
     <div id="locationPromptOverlay" class="modal-overlay p-4">
       <div
         id="locationPromptCard"
@@ -946,8 +1040,7 @@
           Optional location access
         </h2>
         <p id="locationPromptBody" class="mt-3 text-sm text-slate-300 leading-6">
-          Share your location to improve plant suggestions. You can still use the
-          app without it.
+          Share your location to view where you identified your plants and help our local councils remove weeds.
         </p>
         <div class="consent-actions mt-6 justify-center">
           <button
@@ -1219,16 +1312,22 @@
           </button>
         </div>
 
-        <!-- Status Card with Hazard Badge -->
+        <!-- Status Card with Hazard Badge & Weed/Plant Classification Badge -->
         <div
           class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4"
         >
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span
                 class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block"
                 >Status</span
               >
+              <!-- Plant vs Weed Badge -->
+              <span id="plantTypeBadge" class="hidden hazard-badge badge-plant">
+                <i id="plantTypeIcon" class="fa-solid fa-seedling text-xs"></i>
+                <span id="plantTypeLabel">PLANT</span>
+              </span>
+              <!-- Hazard Badge -->
               <span id="hazardBadge" class="hidden hazard-badge hazard-safe">
                 <i id="hazardIcon" class="fa-solid fa-shield-heart"></i>
                 <span id="hazardLabel">Harmless</span>
@@ -1264,10 +1363,10 @@
           </div>
         </div>
 
-        <!-- Plant Summary Details -->
+        <!-- Plant Summary Details & Treatment/Control Section on UI Card -->
         <div
           id="extendedDetailsCard"
-          class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-2"
+          class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3"
         >
           <h4
             class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2"
@@ -1282,71 +1381,24 @@
           >
             --
           </p>
-        </div>
 
-        <!-- Size Estimator Section -->
-        <div
-          class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3"
-        >
-          <div class="flex items-center justify-between">
-            <h4
-              class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2"
-            >
-              <i class="fa-solid fa-ruler-vertical"></i>
-              <span>Size Estimator</span>
-            </h4>
-            <span
-              id="selectedSizeLabel"
-              class="text-[11px] font-semibold text-slate-400"
-              >None selected</span
-            >
-          </div>
-          <div class="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
-              data-size="Small (under 10cm)"
-            >
-              <span>🟢</span>
-              <span
-                >Small
-                <span class="text-[10px] text-slate-400 block sm:inline"
-                  >(< 10cm)</span
-                ></span
-              >
-            </button>
-            <button
-              type="button"
-              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
-              data-size="Medium (knee high)"
-            >
-              <span>🟡</span>
-              <span
-                >Medium
-                <span class="text-[10px] text-slate-400 block sm:inline"
-                  >(knee high)</span
-                ></span
-              >
-            </button>
-            <button
-              type="button"
-              class="size-btn btn-secondary-glass py-2 px-3 rounded-xl text-xs font-medium text-slate-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 transition text-center"
-              data-size="Large (taller than a human)"
-            >
-              <span>🔴</span>
-              <span
-                >Large
-                <span class="text-[10px] text-slate-400 block sm:inline"
-                  >(> human)</span
-                ></span
-              >
-            </button>
+          <!-- Integrated HTML Treatment Section -->
+          <div id="treatmentSection" class="hidden border-t border-white/10 pt-2.5 mt-1">
+            <h5 class="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-kit-medical text-xs"></i>
+              <span>Treatment & Care</span>
+            </h5>
+            <p id="treatmentText" class="text-xs text-slate-300 leading-relaxed">--</p>
           </div>
 
-          <div
-            id="map"
-            class="w-full h-60 rounded-xl overflow-hidden border border-emerald-500/20 bg-slate-900"
-          ></div>
+          <!-- Integrated HTML Control / Removal Section -->
+          <div id="controlSection" class="hidden border-t border-white/10 pt-2.5 mt-1">
+            <h5 class="text-[11px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5 mb-1">
+              <i class="fa-solid fa-hand-holding-hand text-xs"></i>
+              <span>Control & Removal</span>
+            </h5>
+            <p id="controlText" class="text-xs text-slate-300 leading-relaxed">--</p>
+          </div>
         </div>
 
         <button
@@ -1361,7 +1413,7 @@
           style="
             text-align: center;
             font-size: 10px;
-            font-family: &quot;Plus Jakarta Sans&quot;, monospace, sans-serif;
+            font-family: 'Plus Jakarta Sans', monospace, sans-serif;
           "
         >
           This was created by
@@ -1392,26 +1444,6 @@
       }
 
       window.addEventListener("DOMContentLoaded", () => {
-        // Size Estimator Logic
-        let loggedPlantSize = null;
-        const sizeBtns = document.querySelectorAll(".size-btn");
-        const selectedSizeLabel = document.getElementById("selectedSizeLabel");
-
-        sizeBtns.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            sizeBtns.forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-            loggedPlantSize = btn.getAttribute("data-size");
-            if (selectedSizeLabel) {
-              selectedSizeLabel.textContent = loggedPlantSize;
-              selectedSizeLabel.classList.replace(
-                "text-slate-400",
-                "text-emerald-400",
-              );
-            }
-          });
-        });
-
         const statusFidgetSpinner = document.getElementById(
           "statusFidgetSpinner",
         );
@@ -1708,18 +1740,39 @@
 
           historyList.innerHTML = history
             .map(
-              (item) => `
-            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
-              ${
-                item.image
-                  ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
-                  : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
-              }
-              <div class="min-w-0 flex-1">
-                <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
-                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"} ${item.size ? `• Size: ${item.size}` : ""}</p>
+              (item, idx) => `
+            <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition">
+              <div class="flex-shrink-0 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
+                ${
+                  item.image
+                    ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
+                    : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
+                }
               </div>
-              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400 hover:text-emerald-400"></i>
+              <div class="min-w-0 flex-1 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
+                <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
+                <p class="text-[10px] text-slate-400 mt-0.5">${item.date || "Recent Scan"}</p>
+                ${
+                  item.lat && item.lng
+                    ? `<p class="text-[10px] text-emerald-400/80 mt-0.5"><i class="fa-solid fa-location-dot text-[9px]"></i> ${Number(item.lat).toFixed(4)}, ${Number(item.lng).toFixed(4)}</p>`
+                    : `<p class="text-[10px] text-slate-600 mt-0.5"><i class="fa-solid fa-location-dot text-[9px]"></i> No location</p>`
+                }
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                ${item.lat && item.lng
+                  ? `<button
+                      class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 flex items-center justify-center transition"
+                      title="View on map"
+                      onclick="openSinglePlantMap(${idx})"
+                    >
+                      <i class="fa-solid fa-map-location-dot text-xs"></i>
+                    </button>`
+                  : `<div class="w-8 h-8 flex items-center justify-center text-slate-700" title="No location data"><i class="fa-solid fa-location-slash text-xs"></i></div>`
+                }
+                <button class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-emerald-400 flex items-center justify-center transition" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')" title="Search plant">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                </button>
+              </div>
             </div>
           `,
             )
@@ -1740,84 +1793,202 @@
           });
         }
 
-        // --- MAP INTEGRATION INITIALIZATION ---
-        let map = null;
-        let userLocation = null;
-        let plantMarkers = [];
+        // MAP MODAL
+        let sproutMap = null;
+        let sproutMapInitialized = false;
 
-        function initMap() {
-          const mapContainer = document.getElementById("map");
-          if (!mapContainer || map) return;
+        const mapModal    = document.getElementById("mapModal");
+        const mapModalCard= document.getElementById("mapModalCard");
+        const mapModalTitle= document.getElementById("mapModalTitle");
+        const mapModalSub = document.getElementById("mapModalSubtitle");
+        const closeMapBtn = document.getElementById("closeMapBtn");
+        const openAllMapBtn = document.getElementById("openAllMapBtn");
 
-          // Default fallback coords (e.g. London / General default if no location yet)
-          const defaultLat = 51.505;
-          const defaultLng = -0.09;
+        function openMapModal(focusItem) {
+          if (!mapModal) return;
+          mapModal.classList.add("active");
+          setTimeout(() => {
+            mapModalCard.classList.remove("scale-95");
+            mapModalCard.classList.add("scale-100");
+          }, 10);
 
-          map = L.map("map").setView([defaultLat, defaultLng], 13);
+          setTimeout(() => {
+            initSproutMap();
+            const history = getHistory();
+            const geoItems = history.filter(h => h.lat && h.lng);
 
-          L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: "© OpenStreetMap",
-          }).addTo(map);
-
-          loadExistingPlantMarkers();
-        }
-
-        function addPlantMarkerToMap(plantItem, lat, lng) {
-          if (!map) initMap();
-          if (!map) return;
-
-          const leafletLat = lat || (userLocation ? userLocation.lat : 51.505);
-          const leafletLng = lng || (userLocation ? userLocation.lng : -0.09);
-
-          const leafIcon = L.divIcon({
-            html: `<div style="background-color: #10b981; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.5);"><i class="fa-solid fa-leaf text-xs"></i></div>`,
-            className: "custom-plant-pin",
-            iconSize: [30, 30],
-            iconAnchor: [15, 15],
-          });
-
-          const popupContent = `
-            <div style="font-family: 'Plus Jakarta Sans', sans-serif; text-align: center; min-width: 130px;">
-              ${plantItem.image ? `<img src="${plantItem.image}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" />` : ""}
-              <h5 style="margin: 0; font-size: 13px; font-weight: 700; color: #10b981;">${plantItem.name}</h5>
-              <p style="margin: 3px 0 0; font-size: 10px; color: #94a3b8;">${plantItem.date || "Just now"}</p>
-            </div>
-          `;
-
-          const marker = L.marker([leafletLat, leafletLng], { icon: leafIcon })
-            .addTo(map)
-            .bindPopup(popupContent);
-
-          plantMarkers.push(marker);
-          map.setView([leafletLat, leafletLng], 14);
-        }
-
-        function loadExistingPlantMarkers() {
-          const history = getHistory();
-          history.forEach((item) => {
-            if (item.lat && item.lng) {
-              addPlantMarkerToMap(item, item.lat, item.lng);
-            }
-          });
-        }
-
-        const toggleMapBtn = document.getElementById("toggleMapBtn");
-        const mapContainerEl = document.getElementById("map");
-        if (toggleMapBtn && mapContainerEl) {
-          toggleMapBtn.addEventListener("click", () => {
-            if (mapContainerEl.classList.contains("hidden")) {
-              mapContainerEl.classList.remove("hidden");
-              toggleMapBtn.textContent = "Hide Map";
-              if (map) map.invalidateSize();
+            if (focusItem) {
+              mapModalTitle.textContent = focusItem.name;
+              mapModalSub.textContent   = `${Number(focusItem.lat).toFixed(5)}, ${Number(focusItem.lng).toFixed(5)}`;
             } else {
-              mapContainerEl.classList.add("hidden");
-              toggleMapBtn.textContent = "Show Map";
+              mapModalTitle.textContent = "Plant Sighting Map";
+              mapModalSub.textContent   = `${geoItems.length} location${geoItems.length !== 1 ? "s" : ""} recorded`;
+            }
+
+            populateMapMarkers(history, focusItem);
+          }, 100);
+        }
+
+        function closeMapModal() {
+          if (!mapModal) return;
+          mapModalCard.classList.remove("scale-100");
+          mapModalCard.classList.add("scale-95");
+          setTimeout(() => { mapModal.classList.remove("active"); }, 220);
+        }
+
+        function initSproutMap() {
+          if (sproutMapInitialized) {
+            sproutMap.resize();
+            return;
+          }
+          sproutMap = new maplibregl.Map({
+            container: "plantMap",
+            style: "https://tiles.openfreemap.org/styles/liberty",
+            center: [174.7645, -36.8509],
+            zoom: 5,
+          });
+
+          sproutMap.on("load", () => {
+            sproutMap.addSource("plants", {
+              type: "geojson",
+              data: { type: "FeatureCollection", features: [] },
+            });
+
+            sproutMap.addLayer({
+              id: "plants-circle",
+              type: "circle",
+              source: "plants",
+              paint: {
+                "circle-radius": 14,
+                "circle-color": "#10b981",
+                "circle-stroke-width": 2.5,
+                "circle-stroke-color": "#fff",
+                "circle-opacity": 0.92,
+              },
+            });
+
+            sproutMap.addLayer({
+              id: "plants-label",
+              type: "symbol",
+              source: "plants",
+              layout: {
+                "text-field": "🌿",
+                "text-size": 14,
+                "text-allow-overlap": true,
+              },
+            });
+
+            sproutMap.on("click", "plants-circle", (e) => {
+              const props = e.features[0].properties;
+              const coords = e.features[0].geometry.coordinates.slice();
+              const imgHtml = props.image
+                ? `<img src="${props.image}" style="width:100%;height:90px;object-fit:cover;border-radius:10px 10px 0 0;display:block;" />`
+                : "";
+              const confHtml = props.confidence
+                ? `<span style="background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.3);border-radius:999px;padding:1px 8px;font-size:9px;font-weight:700;letter-spacing:.04em;">${props.confidence}</span>`
+                : "";
+              const popupHtml = `
+                <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:170px;max-width:210px;border-radius:14px;overflow:hidden;">
+                  ${imgHtml}
+                  <div style="padding:10px 13px 12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
+                      <h5 style="margin:0;font-size:13px;font-weight:800;color:#10b981;line-height:1.2;">${props.name}</h5>
+                      ${confHtml}
+                    </div>
+                    <p style="margin:0 0 3px;font-size:10px;color:#94a3b8;">
+                      <i class="fa-solid fa-calendar-days" style="margin-right:3px;"></i>${props.date || "Recent Scan"}
+                    </p>
+                    <p style="margin:0;font-size:10px;color:#64748b;">
+                      <i class="fa-solid fa-location-dot" style="margin-right:3px;color:#10b981;"></i>${Number(coords[1]).toFixed(5)}, ${Number(coords[0]).toFixed(5)}
+                    </p>
+                  </div>
+                </div>`;
+              new maplibregl.Popup({ maxWidth: "220px" })
+                .setLngLat(coords)
+                .setHTML(popupHtml)
+                .addTo(sproutMap);
+            });
+
+            sproutMap.on("mouseenter", "plants-circle", () => {
+              sproutMap.getCanvas().style.cursor = "pointer";
+            });
+            sproutMap.on("mouseleave", "plants-circle", () => {
+              sproutMap.getCanvas().style.cursor = "";
+            });
+
+            sproutMapInitialized = true;
+            if (window._pendingMapData) {
+              const { history, focusItem } = window._pendingMapData;
+              window._pendingMapData = null;
+              _applyMapMarkers(history, focusItem);
             }
           });
         }
 
-        initMap();
+        function _applyMapMarkers(history, focusItem) {
+          const geoItems = history.filter(h => h.lat && h.lng);
+          const features = geoItems.map(item => ({
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [Number(item.lng), Number(item.lat)] },
+            properties: {
+              name: item.name,
+              confidence: item.confidence || null,
+              date: item.date || "Recent Scan",
+              image: item.image || null,
+            },
+          }));
+
+          sproutMap.getSource("plants").setData({
+            type: "FeatureCollection",
+            features,
+          });
+
+          if (features.length === 0) return;
+
+          if (focusItem && focusItem.lat && focusItem.lng) {
+            sproutMap.flyTo({ center: [Number(focusItem.lng), Number(focusItem.lat)], zoom: 15 });
+          } else if (features.length === 1) {
+            sproutMap.flyTo({ center: features[0].geometry.coordinates, zoom: 14 });
+          } else {
+            const lngs = features.map(f => f.geometry.coordinates[0]);
+            const lats = features.map(f => f.geometry.coordinates[1]);
+            sproutMap.fitBounds(
+              [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+              { padding: 50, maxZoom: 14 }
+            );
+          }
+        }
+
+        function populateMapMarkers(history, focusItem) {
+          if (!sproutMapInitialized || !sproutMap.getSource("plants")) {
+            window._pendingMapData = { history, focusItem };
+            return;
+          }
+          _applyMapMarkers(history, focusItem);
+        }
+
+        window.openSinglePlantMap = function(idx) {
+          const history = getHistory();
+          const item = history[idx];
+          if (!item) return;
+          closeHistoryModal();
+          setTimeout(() => openMapModal(item), 250);
+        };
+
+        if (openAllMapBtn) {
+          openAllMapBtn.addEventListener("click", () => {
+            closeHistoryModal();
+            setTimeout(() => openMapModal(null), 250);
+          });
+        }
+        if (closeMapBtn) closeMapBtn.addEventListener("click", closeMapModal);
+        if (mapModal) {
+          mapModal.addEventListener("click", (e) => {
+            if (e.target === mapModal) closeMapModal();
+          });
+        }
+
+        let userLocation = null;
 
         // Tab Controller
         const tabUpload = document.getElementById("tabUpload");
@@ -1859,6 +2030,10 @@
         const extendedDetailsText = document.getElementById(
           "extendedDetailsText",
         );
+        const treatmentSection = document.getElementById("treatmentSection");
+        const treatmentText = document.getElementById("treatmentText");
+        const controlSection = document.getElementById("controlSection");
+        const controlText = document.getElementById("controlText");
         const analyzeButton = document.getElementById("analyzeButton");
         const analyzeIcon = document.getElementById("analyzeIcon");
         const analyzeBtnText = document.getElementById("analyzeBtnText");
@@ -1866,6 +2041,10 @@
         const hazardBadge = document.getElementById("hazardBadge");
         const hazardIcon = document.getElementById("hazardIcon");
         const hazardLabel = document.getElementById("hazardLabel");
+
+        const plantTypeBadge = document.getElementById("plantTypeBadge");
+        const plantTypeIcon = document.getElementById("plantTypeIcon");
+        const plantTypeLabel = document.getElementById("plantTypeLabel");
 
         const consentOverlay = document.getElementById("consentOverlay");
         const consentTitle = document.getElementById("consentTitle");
@@ -1992,7 +2171,7 @@
             consentTitle.textContent = "Agree to identify your plant";
             consentBody.textContent =
               message ||
-              "Sprout needs your permission before it can analyze a photo. Location is optional and will not be required for identification.";
+              "This app uses experimental technology. Your image will be sent to a server for processing, and results may not always be accurate. By pressing 'Yes', you consent to this process.";
             consentStatusText.textContent = "Location stays optional.";
           }
         }
@@ -2033,7 +2212,7 @@
           consentDeclineBtn.addEventListener("click", handleConsentDecline);
         }
 
-        const loaderTimer = setTimeout(() => {
+        setTimeout(() => {
           if (pageLoader) {
             pageLoader.style.opacity = "0";
             pageLoader.style.display = "none";
@@ -2070,11 +2249,30 @@
             default:
               hazardBadge.classList.add("hazard-safe");
               hazardIcon.className = "fa-solid fa-shield-heart";
-              hazardLabel.textContent = "Unable to identify.";
+              hazardLabel.textContent = "Harmless / Low Risk";
               break;
           }
 
           hazardBadge.classList.remove("hidden");
+        }
+
+        function updatePlantTypeBadge(category) {
+          if (!plantTypeBadge || !plantTypeIcon || !plantTypeLabel) return;
+
+          const catLower = (category || "").toLowerCase();
+          const isWeed = catLower.includes("weed") || catLower.includes("pest") || catLower.includes("invasive");
+
+          if (isWeed) {
+            plantTypeBadge.className = "hazard-badge badge-weed";
+            plantTypeIcon.className = "fa-solid fa-ban text-xs";
+            plantTypeLabel.textContent = "WEED";
+          } else {
+            plantTypeBadge.className = "hazard-badge badge-plant";
+            plantTypeIcon.className = "fa-solid fa-seedling text-xs";
+            plantTypeLabel.textContent = "PLANT";
+          }
+
+          plantTypeBadge.classList.remove("hidden");
         }
 
         if (uploadDropzone && plantImage) {
@@ -2151,13 +2349,6 @@
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             userLocation = { lat: lat, lng: lon };
-            console.log(
-              `Saved precise location once - Lat: ${lat}, Lon: ${lon}`,
-            );
-
-            if (map) {
-              map.setView([lat, lon], 13);
-            }
           }
 
           function handleLocationError(error) {
@@ -2171,7 +2362,6 @@
               locationOptions,
             );
           } else {
-            console.log("Geolocation is not supported by this browser.");
             showMessageModal({
               title: "Location optional",
               message: "Geolocation is not available here, but identification can still continue without it.",
@@ -2182,20 +2372,14 @@
 
         function resetPhotoSelection() {
           selectedFile = null;
-          loggedPlantSize = null;
-          sizeBtns.forEach((b) => b.classList.remove("active"));
-          if (selectedSizeLabel) {
-            selectedSizeLabel.textContent = "None selected";
-            selectedSizeLabel.classList.replace(
-              "text-emerald-400",
-              "text-slate-400",
-            );
-          }
 
           if (previewImage) previewImage.src = "";
           if (previewContainer) previewContainer.classList.add("hidden");
           if (extendedDetailsCard) extendedDetailsCard.classList.add("hidden");
           if (hazardBadge) hazardBadge.classList.add("hidden");
+          if (plantTypeBadge) plantTypeBadge.classList.add("hidden");
+          if (treatmentSection) treatmentSection.classList.add("hidden");
+          if (controlSection) controlSection.classList.add("hidden");
 
           clearClickablePlant();
           if (speciesName) speciesName.textContent = "Waiting for your photo!";
@@ -2274,25 +2458,25 @@
           });
         }
 
-        async function sendLocationData(lat, lon) {
+        async function sendLocationData(lat, lng, itemName) {
           const url = "https://sproutboy.pythonanywhere.com/location";
-          const payload = { lat: lat, lon: lon };
+          const payload = { item_name: itemName || "Unknown Plant", lat: lat, lng: lng };
           try {
             const response = await fetch(url, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "Authorization": "Basic " + btoa("sprout:1667"),
               },
               body: JSON.stringify(payload),
             });
-
             const result = await response.json();
-            console.log("Success:", result);
+            console.log("Location saved:", result);
           } catch (error) {
-            console.error("Error sending data:", error);
+            console.error("Error sending location:", error);
           }
         }
-        // Helper: Convert Preview Image into Float32 Array for the ONNX model
+
         async function extractImageData() {
           const size = 224;
           const canvas = document.createElement("canvas");
@@ -2364,9 +2548,9 @@
               extendedDetailsCard.classList.remove("hidden");
           }
 
+          updatePlantTypeBadge(data.category || "Plant");
           updateHazardBadge(identifiedPlant.hazardType);
           saveToHistory(identifiedPlant);
-          addPlantMarkerToMap(identifiedPlant);
 
           if (analyzeButton) analyzeButton.disabled = false;
           if (analyzeIcon)
@@ -2376,13 +2560,15 @@
 
         if (analyzeButton) {
           analyzeButton.addEventListener("click", async () => {
-            const savedConsent = window.sessionStorage.getItem(consentStateKey);
+            const savedConsent = window.sessionStorage.setItem
+              ? window.sessionStorage.getItem(consentStateKey)
+              : null;
             if (savedConsent !== "accepted") {
               pendingIdentificationAfterConsent = true;
               if (consentOverlay) {
                 showConsentOverlay(
                   "prompt",
-                  "Please agree to continue identifying a plant. Location remains optional.",
+                  "This app uses experimental technology and is not to be used alone. You are responsible for the choices you make.",
                 );
               }
               return;
@@ -2399,6 +2585,9 @@
             if (pestStatus)
               pestStatus.textContent = "Extracting botanical features...";
             if (hazardBadge) hazardBadge.classList.add("hidden");
+            if (plantTypeBadge) plantTypeBadge.classList.add("hidden");
+            if (treatmentSection) treatmentSection.classList.add("hidden");
+            if (controlSection) controlSection.classList.add("hidden");
 
             if (isOfflineMode) {
               if (!isWorkerReady) {
@@ -2450,8 +2639,6 @@
 
               const apiData = await response.json();
 
-              console.log(apiData);
-
               const plantName =
                 apiData.class ||
                 apiData.plant_name ||
@@ -2473,14 +2660,31 @@
                     ? `${(probVal * 100).toFixed(1)}%`
                     : `${probVal.toFixed(1)}%`;
               }
+              
+              const category = apiData.category || "";
+              const toxicity = apiData.toxicity || "";
+              const poisonType = apiData.poison_type || "";
+              const symptoms = apiData.symptoms || "";
+              const treatment = apiData.treatment || "";
+              const control = apiData.control || "";
 
-              const summary =
-                apiData.summary ||
-                apiData.description ||
-                apiData.details ||
-                apiData.sentence ||
-                "No detailed summary available for this species.";
-              const hazardType = apiData.hazardType || apiData.hazard || "safe";
+              let summaryParts = [];
+              if (category) summaryParts.push(`Category: ${category}.`);
+              if (toxicity && toxicity !== "N/A") summaryParts.push(`Toxicity: ${toxicity}.`);
+              if (poisonType && poisonType !== "N/A") summaryParts.push(`Poison type: ${poisonType}.`);
+              if (symptoms && symptoms !== "N/A") summaryParts.push(`Symptoms: ${symptoms}.`);
+
+              const summary = apiData.summary || apiData.description || (summaryParts.length > 0 ? summaryParts.join(" ") : "No detailed summary available for this species.");
+
+              let hazardType = "safe";
+              const toxLower = toxicity.toLowerCase();
+              if (toxLower.includes("highly toxic") || toxLower.includes("deadly")) {
+                hazardType = "deadly";
+              } else if (toxLower.includes("toxic") || toxLower.includes("poisonous")) {
+                hazardType = "poisonous";
+              } else if (toxLower.includes("irritant") || toxLower.includes("mildly")) {
+                hazardType = "prickly";
+              }
 
               const identifiedPlant = {
                 name: plantName,
@@ -2508,25 +2712,41 @@
                   );
               }
               if (pestStatus) {
-                pestStatus.textContent = `The plant is ${identifiedPlant.name} with a confidence of ${identifiedPlant.confidence}!`;
+                const categoryLabel = category ? ` — ${category}` : "";
+                pestStatus.textContent = `${identifiedPlant.name}${categoryLabel} (${identifiedPlant.confidence} confidence)`;
               }
 
+              // Set summary and HTML treatment/control fields explicitly on the UI
               if (extendedDetailsText) {
                 extendedDetailsText.textContent = identifiedPlant.summary;
                 if (extendedDetailsCard)
                   extendedDetailsCard.classList.remove("hidden");
               }
 
+              if (treatment && treatment !== "N/A" && treatmentText) {
+                treatmentText.textContent = treatment;
+                treatmentSection.classList.remove("hidden");
+              }
+
+              if (control && control !== "N/A" && controlText) {
+                controlText.textContent = control;
+                controlSection.classList.remove("hidden");
+              }
+
+              updatePlantTypeBadge(category);
               updateHazardBadge(identifiedPlant.hazardType);
               saveToHistory(identifiedPlant);
-              addPlantMarkerToMap(identifiedPlant);
+
+              if (userLocation) {
+                sendLocationData(userLocation.lat, userLocation.lng, plantName);
+              }
             } catch (err) {
               console.error("Identification Error:", err);
               if (speciesName)
                 speciesName.textContent = "Identification Failed";
               if (pestStatus)
                 pestStatus.textContent =
-                  "Unable to process the image locally right now. Please try again or switch back to offline mode.";
+                  "Unable to process the image right now. Please try again or switch back to offline mode.";
             } finally {
               analyzeButton.disabled = false;
               if (analyzeIcon)
