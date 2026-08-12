@@ -1423,7 +1423,7 @@
             class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline"
             >Ranuka</a
           >
-          and support by
+          and
           <a
             href="https://github.com/lambo-camper"
             target="_blank"
@@ -2520,11 +2520,19 @@
           const totalPixels = size * size;
           const float32Array = new Float32Array(3 * totalPixels);
 
+          // ImageNet mean/std — must match the training script's
+          // T.Normalize(...) values, or the model's predictions are
+          // effectively meaningless. This was missing before.
+          const MEAN = [0.485, 0.456, 0.406];
+          const STD = [0.229, 0.224, 0.225];
+
           for (let i = 0; i < imgData.length; i += 4) {
             const pixelIndex = i / 4;
-            float32Array[pixelIndex] = imgData[i] / 255.0;
-            float32Array[totalPixels + pixelIndex] = imgData[i + 1] / 255.0;
-            float32Array[2 * totalPixels + pixelIndex] = imgData[i + 2] / 255.0;
+            float32Array[pixelIndex] = (imgData[i] / 255.0 - MEAN[0]) / STD[0];
+            float32Array[totalPixels + pixelIndex] =
+              (imgData[i + 1] / 255.0 - MEAN[1]) / STD[1];
+            float32Array[2 * totalPixels + pixelIndex] =
+              (imgData[i + 2] / 255.0 - MEAN[2]) / STD[2];
           }
 
           return Array.from(float32Array);
@@ -2654,7 +2662,19 @@
               );
 
               if (!response.ok) {
-                throw new Error(`Server returned HTTP ${response.status}`);
+                let bodyText = "";
+                try {
+                  bodyText = await response.text();
+                } catch (e) {
+                  // ignore
+                }
+                console.error(
+                  `Predict request failed: HTTP ${response.status}`,
+                  bodyText,
+                );
+                throw new Error(
+                  `Server returned HTTP ${response.status}${bodyText ? ` — ${bodyText.slice(0, 200)}` : ""}`,
+                );
               }
 
               const apiData = await response.json();
@@ -2687,7 +2707,7 @@
               const toxicity = apiData.toxicity || "";
               const poisonType = apiData.poison_type || "";
               const symptoms = apiData.symptoms || "";
-              const treatment = apiData.treatment || "";
+              const treatment = apiData.poison_treatment || "";
               const control = apiData.control || "";
 
               let summaryParts = [];
@@ -2767,8 +2787,7 @@
               if (speciesName)
                 speciesName.textContent = "Identification Failed";
               if (pestStatus)
-                pestStatus.textContent =
-                  "Unable to process the image right now. Please try again or switch back to offline mode.";
+                pestStatus.textContent = `Unable to process the image right now (${err.message || "unknown error"}). Please try again or switch back to offline mode.`;
             } finally {
               analyzeButton.disabled = false;
               if (analyzeIcon)
