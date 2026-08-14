@@ -9,7 +9,7 @@ ort.env.wasm.wasmPaths =
 
 let session = null;
 let classNames = [];
-const CACHE_NAME = "sprout-model";
+const CACHE_NAME = "sprout-16-model";
 const MODEL_URL =
   "https://raw.githubusercontent.com/RanukaDinsitha/Sprout/main/models/best.onnx";
 const MODEL_CLASS_NAMES = [
