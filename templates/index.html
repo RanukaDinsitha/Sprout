@@ -23,14 +23,34 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=room_service"
     />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('#audioButton').click(function() {
+          var audio = $('#buttonClick')[0]; 
+          var button = $(this);
+
+          if (audio.paused) {
+            audio.play();
+            button.text('Pause');
+          } else {
+            audio.pause();
+            button.text('Play');
+          }
+        });
+      });
+    </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js"
+      integrity="sha512-8LENNbXmzI/Gbj+OwXmqR6V4QaUAw0/porPzy1+dQoJqC0JPHedWoe0DDOTL2uHA5XXJyIsPtiMHH86pVlay6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <link
       rel="icon"
       type="image/png"
       href="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png"
     />
 
-    <!-- FontAwesome Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -38,19 +58,15 @@
       referrerpolicy="no-referrer"
     />
 
-    <!-- MapLibre GL CSS -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.0.0/dist/maplibre-gl.css"
     />
 
-    <!-- Official Tailwind CDN Script -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- MapLibre GL JS -->
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.0.0/dist/maplibre-gl.js"></script>
 
-    <!-- Canvas Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
 
@@ -696,6 +712,7 @@
           -webkit-transform: rotate(0deg);
           transform: rotate(0deg);
         }
+
         100% {
           -webkit-transform: rotate(360deg);
           transform: rotate(360deg);
@@ -707,6 +724,7 @@
           -webkit-transform: rotate(0deg);
           transform: rotate(0deg);
         }
+
         100% {
           -webkit-transform: rotate(360deg);
           transform: rotate(360deg);
@@ -717,6 +735,7 @@
         padding: 40px;
         text-align: center;
       }
+
       /* Modal Display Controls */
       .modal-overlay {
         display: none;
@@ -833,9 +852,11 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
         padding: 0 !important;
       }
+
       .maplibregl-popup-tip {
         display: none;
       }
+
       .maplibregl-popup-close-button {
         color: #94a3b8 !important;
         top: 8px !important;
@@ -844,9 +865,11 @@
         background: none !important;
         padding: 0 6px !important;
       }
+
       .maplibregl-popup-close-button:hover {
         color: #10b981 !important;
       }
+
       .maplibregl-ctrl-attrib {
         display: none;
       }
@@ -858,6 +881,7 @@
         display: flex;
         flex-direction: column;
       }
+
       #plantMap {
         flex: 1;
         min-height: 0;
@@ -876,6 +900,7 @@
         color: #94a3b8;
         background: transparent;
       }
+
       .hist-tab-btn.active {
         background: rgba(16, 185, 129, 0.18);
         color: #34d399;
@@ -888,15 +913,18 @@
           transform: scale(1);
           opacity: 1;
         }
+
         70% {
           transform: scale(2.2);
           opacity: 0;
         }
+
         100% {
           transform: scale(2.2);
           opacity: 0;
         }
       }
+
       .pin-pulse {
         position: absolute;
         inset: -4px;
@@ -915,7 +943,6 @@
     <div class="bg-orb bg-orb-1"></div>
     <div class="bg-orb bg-orb-2"></div>
 
-    <!-- Page Loading Screen -->
     <div
       id="pageLoader"
       class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#040a08]/95 backdrop-blur-xl transition-opacity duration-500 p-6"
@@ -927,8 +954,7 @@
           <div
             class="absolute -inset-2 rounded-3xl bg-emerald-500/20 blur-xl"
           ></div>
-
-          <!-- Typewriter Loader Component -->
+          <audio id="buttonClick" src="https://github.com/RanukaDinsitha/Quickly/raw/refs/heads/main/sounds/button.mp3"></audio>
           <div class="typewriter my-4">
             <div class="slide"><i></i></div>
             <div class="paper"></div>
@@ -950,7 +976,6 @@
       </div>
     </div>
 
-    <!-- Help Modal -->
     <div id="helpModal" class="modal-overlay p-4">
       <div
         id="helpModalCard"
@@ -1260,19 +1285,76 @@
             />
           </div>
           <div>
-            <h1
-              class="text-lg sm:text-xl font-extrabold text-white tracking-wide leading-tight"
-            >
-              SPROUT
-            </h1>
-            <p
-              class="text-[10px] sm:text-xs text-emerald-400 font-bold tracking-widest uppercase"
-            >
-              Plant aid
-            </p>
+            <div class="flex flex-col items-start">
+              <h1
+                class="text-lg sm:text-xl font-extrabold text-white tracking-wide leading-tight"
+              >
+                SPROUT
+              </h1>
+              <div id="scroll-container" class="-mt-[2px]">
+                <div id="scroll-list" class="leading-none">
+                  <div
+                    class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none"
+                  >
+                    Thanks for using! 🙌
+                  </div>
+                  <div
+                    class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none"
+                  >
+                    Polishing... 🧹
+                  </div>
+                  <div
+                    class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none"
+                  >
+                    Sprout waves! 🍃
+                  </div>
+                  <div
+                    class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none"
+                  >
+                    You are awesome! 🙃
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <style>
+          #scroll-container {
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+          }
 
+          .scroll-item {
+            height: 30px;
+            line-height: 30px;
+          }
+        </style>
+        <script>
+          $(document).ready(function () {
+            let currentIndex = 0;
+            const itemHeight = 30;
+            const $scrollList = $("#scroll-list");
+            const totalItems = $(".scroll-item").length;
+
+            setInterval(function () {
+              currentIndex++;
+
+              if (currentIndex >= totalItems) {
+                currentIndex = 0;
+              }
+
+              const moveAmount = -(currentIndex * itemHeight);
+
+              $scrollList.animate(
+                {
+                  "margin-top": moveAmount + "px",
+                },
+                500,
+              );
+            }, 5000);
+          });
+        </script>
         <div class="flex items-center gap-3">
           <!-- Switch for Online/Offline -->
           <div
@@ -1335,7 +1417,6 @@
             <span>Live Camera</span>
           </button>
         </div>
-
         <div id="uploadSection" class="flex flex-col justify-center">
           <div
             id="uploadDropzone"
@@ -1535,7 +1616,7 @@
         </div>
 
         <button
-          id="analyzeButton"
+          id="analyzeButton" id="audioButton"
           class="w-full py-3.5 rounded-xl btn-gradient text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-lg flex items-center justify-center gap-2"
         >
           <i id="analyzeIcon" class="fa-solid fa-sparkles text-xs"></i>
@@ -1554,6 +1635,7 @@
             href="https://github.com/RanukaDinsitha"
             target="_blank"
             class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline"
+            id="playSound"
             >Ranuka</a
           >
           and
@@ -1561,6 +1643,7 @@
             href="https://github.com/lambo-camper"
             target="_blank"
             class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline"
+            id="playSound"
             >Eliaseen</a
           >; thank you for using! 🌱💻
         </p>
@@ -1568,6 +1651,41 @@
     </div>
 
     <script>
+      $(document).ready(function () {
+        $("#playSound").on("click", function () {
+          const audioCtx = new (
+            window.AudioContext || window.webkitAudioContext
+          )();
+
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          const waveforms = ["sine", "square", "sawtooth", "triangle"];
+          const randomWaveform =
+            waveforms[Math.floor(Math.random() * waveforms.length)];
+          const randomFrequency =
+            Math.floor(Math.random() * (1200 - 200 + 1)) + 200;
+
+          oscillator.type = randomWaveform;
+          oscillator.frequency.setValueAtTime(
+            randomFrequency,
+            audioCtx.currentTime,
+          );
+
+          gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(
+            0.0001,
+            audioCtx.currentTime + 0.5,
+          );
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          oscillator.start();
+          oscillator.stop(audioCtx.currentTime + 0.5);
+        });
+      });
+
       function clearClickablePlant() {
         const speciesName = document.getElementById("speciesName");
         if (speciesName) {
@@ -1723,36 +1841,6 @@
           return "./worker.js";
         }
 
-        async function initOfflineWorker() {
-          if (!worker) {
-            const workerScript = await resolveWorkerScript();
-            worker = new Worker(workerScript);
-            worker.onmessage = (e) => {
-              const { type, message, data } = e.data;
-              if (type === "STATUS") {
-                if (pestStatus) pestStatus.textContent = message;
-              } else if (type === "READY") {
-                isWorkerReady = true;
-                if (pestStatus)
-                  pestStatus.textContent =
-                    "Offline model ready. You can identify plants without a network connection.";
-              } else if (type === "RESULT") {
-                handleOfflineResult(data);
-              } else if (type === "ERROR") {
-                showMessageModal({
-                  title: "Offline issue",
-                  message:
-                    message ||
-                    "The offline model could not finish the request.",
-                  iconClass: "fa-solid fa-triangle-exclamation",
-                });
-              }
-            };
-          }
-          worker.postMessage({ type: "INIT_OFFLINE" });
-        }
-
-        // 1. Initialise the switching text variables globally or above the event handler
         const words = [
           "Thanks for your patience! ⏳",
           "Just a second now...⏱️",
@@ -1762,7 +1850,6 @@
         let index = 0;
         let textRotationInterval = null;
 
-        // 2. Create the Tailwind DOM elements ONCE (hidden by default)
         const $loaderContainer = $("<div>")
           .attr("id", "dynamic-loader-text")
           .addClass(
@@ -1776,93 +1863,115 @@
           .text(words[index]);
 
         $loaderContainer.append($rotatingText);
-
-        // Append this text container inside your existing #loading element
         $("#loading").append($loaderContainer);
-
-        // Hide any static initial loader overlay on script start
         $("#loadingOverlay").hide();
 
-        // 3. Handle Web Worker Messages
-        worker.onmessage = function (event) {
-          const message = event.data;
-
-          if (message.type === "PROGRESS") {
-            const downloadProgress = message.value;
-
-            // Task starts (0.5 progress)
-            if (downloadProgress === 0.5) {
-              // Inject the backdrop overlay if it doesn't exist
-              if ($("#page-overlay").length === 0) {
-                $("body").append('<div id="page-overlay"></div>');
-                $("#page-overlay").css({
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  background: "rgba(0, 0, 0, 0.4)",
-                  "z-index": 99999,
-                  cursor: "not-allowed",
-                });
-              }
-
-              // Show the main loading box and show/reset our custom text
-              $("#loading").fadeIn();
-              $loaderContainer.removeClass("hidden");
-              $rotatingText
-                .text(words[0])
-                .removeClass("opacity-0")
-                .addClass("opacity-100");
-              index = 0;
-
-              // Start the text loop safely (only if it isn't already running)
-              if (!textRotationInterval) {
-                textRotationInterval = setInterval(function () {
-                  $rotatingText
-                    .removeClass("opacity-100")
-                    .addClass("opacity-0");
-
-                  setTimeout(function () {
-                    index = (index + 1) % words.length;
-                    $rotatingText
-                      .text(words[index])
-                      .removeClass("opacity-0")
-                      .addClass("opacity-100");
-                  }, 300);
-                }, 2500);
-              }
-
-              // Task finishes (1.0 progress)
-            } else if (downloadProgress === 1.0) {
-              // Clear interval loop to prevent memory leaks and ghost text updates
-              if (textRotationInterval) {
-                clearInterval(textRotationInterval);
-                textRotationInterval = null;
-              }
-
-              // Tear down visual elements
-              $("#page-overlay").remove();
-              $loaderContainer.addClass("hidden");
-              $("#loading").fadeOut();
-            }
+        async function initOfflineWorker() {
+          if (worker) {
+            worker.postMessage({ type: "INIT_OFFLINE" });
+            return;
           }
-        };
 
-        offlineToggle.addEventListener("change", (e) => {
+          const workerScript = await resolveWorkerScript();
+          worker = new Worker(workerScript);
+
+          worker.onmessage = (e) => {
+            const { type, message, data, value } = e.data;
+
+            if (type === "STATUS") {
+              if (pestStatus) $(pestStatus).text(message);
+            } else if (type === "READY") {
+              isWorkerReady = true;
+              if (pestStatus)
+                $(pestStatus).text(
+                  "Offline model ready. You can identify plants without a network connection.",
+                );
+            } else if (type === "RESULT") {
+              handleOfflineResult(data);
+            } else if (type === "ERROR") {
+              showMessageModal({
+                title: "Offline issue",
+                message:
+                  message || "The offline model could not finish the request.",
+                iconClass: "fa-solid fa-triangle-exclamation",
+              });
+            } else if (type === "PROGRESS") {
+              const downloadProgress = value;
+
+              if (downloadProgress === 0.5) {
+                if ($("#page-overlay").length === 0) {
+                  $("body").append('<div id="page-overlay"></div>');
+                  $("#page-overlay").css({
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    background: "rgba(0, 0, 0, 0.4)",
+                    "z-index": 99999,
+                    cursor: "not-allowed",
+                  });
+                }
+                $("#loading").fadeIn();
+                $loaderContainer.removeClass("hidden");
+                $rotatingText
+                  .text(words[0])
+                  .removeClass("opacity-0")
+                  .addClass("opacity-100");
+                index = 0;
+
+                if (!textRotationInterval) {
+                  textRotationInterval = setInterval(function () {
+                    $rotatingText
+                      .removeClass("opacity-100")
+                      .addClass("opacity-0");
+                    setTimeout(function () {
+                      index = (index + 1) % words.length;
+                      $rotatingText
+                        .text(words[index])
+                        .removeClass("opacity-0")
+                        .addClass("opacity-100");
+                    }, 300);
+                  }, 2500);
+                }
+              } else if (downloadProgress === 1.0) {
+                if (textRotationInterval) {
+                  clearInterval(textRotationInterval);
+                  textRotationInterval = null;
+                }
+                $("#page-overlay").remove();
+                $loaderContainer.addClass("hidden");
+                $("#loading").fadeOut();
+              }
+            }
+          };
+
+          worker.postMessage({ type: "INIT_OFFLINE" });
+        }
+
+        // UI Event Listener
+        $(offlineToggle).on("change", (e) => {
           isOfflineMode = e.target.checked;
+          const $modeIcon = $(modeIcon);
+          const $modeLabel = $(modeLabel);
+
           if (isOfflineMode) {
-            modeIcon.className = "fa-solid fa-wifi-slash text-amber-400";
-            modeLabel.textContent = "Offline";
-            modeLabel.classList.replace("text-slate-300", "text-amber-400");
+            $modeIcon.attr("class", "fa-solid fa-wifi-slash text-amber-400");
+            $modeLabel
+              .text("Offline")
+              .removeClass("text-slate-300")
+              .addClass("text-amber-400");
             initOfflineWorker();
           } else {
-            modeIcon.className = "fa-solid fa-wifi text-emerald-400";
-            modeLabel.textContent = "Online";
-            modeLabel.classList.replace("text-amber-400", "text-slate-300");
+            $modeIcon.attr("class", "fa-solid fa-wifi text-emerald-400");
+            $modeLabel
+              .text("Online")
+              .removeClass("text-amber-400")
+              .addClass("text-slate-300");
             if (pestStatus)
-              pestStatus.innerHTML =
-                "Offline mode is now inactive. Switch back on when you want local inference.";
+              $(pestStatus).html(
+                "Offline mode is now inactive. Switch back on when you want local inference.",
+              );
           }
         });
 
@@ -2418,7 +2527,6 @@
             appContent.style.pointerEvents = "auto";
           }
         }
-
         if (locationAllowBtn) {
           locationAllowBtn.addEventListener("click", () => {
             if ("geolocation" in navigator) {
@@ -2900,7 +3008,7 @@
             if (plantTypeBadge) plantTypeBadge.classList.add("hidden");
             if (treatmentSection) treatmentSection.classList.add("hidden");
             if (controlSection) controlSection.classList.add("hidden");
-            if (!isWorkerReady) {
+            if (!isWorkerReady && analyzeButton.disabled == false) {
               showMessageModal({
                 title: "Still warming up",
                 message:
