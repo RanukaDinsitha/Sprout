@@ -1734,6 +1734,7 @@
 
       // UI Event Listener
       $(offlineToggle).on("change", (e) => {
+        new Audio('https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3').play();
         isOfflineMode = e.target.checked;
         const $modeIcon = $(modeIcon);
         const $modeLabel = $(modeLabel);
