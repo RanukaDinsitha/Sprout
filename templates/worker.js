@@ -1,15 +1,15 @@
-// 1. Import ONNX Runtime into Worker Context
+// import onnxruntime from jsdelivr
 importScripts(
-  "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.min.js"
+  "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.min.js",
 );
 
-// WASM configuration matching ONNX Runtime version
+// wasm conf
 ort.env.wasm.wasmPaths =
   "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
 
 let session = null;
 let classNames = [];
-const CACHE_NAME = "sprout-onnx-model-v1";
+const CACHE_NAME = "sprout-model";
 const MODEL_URL =
   "https://raw.githubusercontent.com/RanukaDinsitha/Sprout/main/models/best.onnx";
 const MODEL_CLASS_NAMES = [
@@ -113,7 +113,7 @@ async function createSession(modelBuffer) {
   throw lastError || new Error("Unable to create an ONNX inference session.");
 }
 
-// Download or load the cached model from CacheStorage
+// download or load the cached model from cachestorage
 async function initOfflineModel() {
   try {
     postMessage({
@@ -123,6 +123,21 @@ async function initOfflineModel() {
 
     const cache = await caches.open(CACHE_NAME);
     let response = await cache.match(MODEL_URL);
+
+    let isDownloading = true;
+
+    // html loading screen while func
+    while (isDownloading && !response) {
+      postMessage({ type: 'PROGRESS', value: 0.5 });
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    // post the isDownloading variable to main thread when not downloading
+    postMessage({ type: 'PROGRESS', value: 1.0 });
+
+    // once the loop breaks
+    downloadProgress = 1;
 
     if (!response) {
       postMessage({
@@ -148,7 +163,7 @@ async function initOfflineModel() {
 
     const modelBuffer = await response.arrayBuffer();
 
-    // Initialize inference session using the best available browser runtime
+    // init inference session using the best available browser runtime
     session = await createSession(modelBuffer);
 
     postMessage({ type: "READY" });
@@ -180,14 +195,13 @@ self.onmessage = async function (e) {
     try {
       const startTime = performance.now();
 
-      // Formulate 1x3x224x224 Float32 Tensor for the ONNX model
+      // formulate tensor for the model
       const inputArray = Array.isArray(data) ? data : Array.from(data);
-      const inputTensor = new ort.Tensor("float32", new Float32Array(inputArray), [
-        1,
-        3,
-        224,
-        224,
-      ]);
+      const inputTensor = new ort.Tensor(
+        "float32",
+        new Float32Array(inputArray),
+        [1, 3, 224, 224],
+      );
       const feeds = { images: inputTensor };
 
       const results = await session.run(feeds);
@@ -204,7 +218,9 @@ self.onmessage = async function (e) {
       );
       const topConfidence = confidenceValues[topIndex];
       const predictedName =
-        classNames[topIndex] || MODEL_CLASS_NAMES[topIndex] || `Class ${topIndex}`;
+        classNames[topIndex] ||
+        MODEL_CLASS_NAMES[topIndex] ||
+        `Class ${topIndex}`;
 
       postMessage({
         type: "RESULT",
