@@ -1854,7 +1854,8 @@
 
       function saveToHistory(item) {
         let history = getHistory();
-        history.unshift(item);
+        const itemForStorage = { ...item, lat: null, lng: null };
+        history.unshift(itemForStorage);
         if (history.length > 20) history = history.slice(0, 20);
         localStorage.setItem("sprout_history", JSON.stringify(history));
       }
