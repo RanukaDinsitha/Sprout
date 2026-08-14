@@ -1,181 +1,78 @@
-// import onnxruntime from jsdelivr
-importScripts(
-  "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.min.js",
-);
+// grab the onnx runtime from the cdn
+importScripts("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.min.js");
 
-// wasm conf
-ort.env.wasm.wasmPaths =
-  "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
+// tell the engine exactly where to find the wasm files
+ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
 
 let session = null;
-let classNames = [];
 const CACHE_NAME = "sprout-16-model";
-const MODEL_URL =
-  "https://github.com/RanukaDinsitha/Sprout/raw/refs/heads/main/data/yolo/final_fp16.onnx";
+const MODEL_URL = "https://media.githubusercontent.com/media/RanukaDinsitha/Sprout/main/data/yolo/final_fp16.onnx";
+
 const MODEL_CLASS_NAMES = [
-  "Annual poa",
-  "Black nightshade",
-  "Blackberry",
-  "Bracken",
-  "Broad-leaved dock",
-  "Broad-leaved fleabane",
-  "Broad-leaved plantain",
-  "Broom",
-  "Californian thistle",
-  "Cape weed",
-  "Catsear",
-  "Chickweed",
-  "Cleavers",
-  "Clustered dock",
-  "Couch",
-  "Creeping buttercup",
-  "Creeping oxalis",
-  "Creeping speedwell",
-  "Daisy",
-  "Dandelion",
-  "Fiddle dock",
-  "Field speedwell",
-  "Galinsoga",
-  "Giant buttercup",
-  "Gorse",
-  "Great bindweed",
-  "Groundsel",
-  "Hairy buttercup",
-  "Hawkbit",
-  "Hawksbeard",
-  "Hedge mustard",
-  "Hemlock",
-  "Hydrocotyle",
-  "Ivy",
-  "Mallow",
-  "Manuka",
-  "Mouse-ear hawkweed",
-  "Musky storksbill",
-  "Narrow-leaved plantain",
-  "Nettle",
-  "Nodding thistle",
-  "Old man's beard",
-  "Onehunga weed",
-  "Oxeye daisy",
-  "Parsley dropwort",
-  "Parsley piert",
-  "Paspalum",
-  "Pennyroyal",
-  "Pink shamrock",
-  "Ragwort",
-  "Red dead-nettle",
-  "Redroot",
-  "Scarlet pimpernel",
-  "Scotch thistle",
-  "Scrambling fumitory",
-  "Scrambling speedwell",
-  "Selfheal",
-  "Sheep's sorrel",
-  "Shepherd's purse",
-  "Sow thistle",
-  "Spurrey",
-  "Staggerweed",
-  "Stinking mayweed",
-  "Suckling clover",
-  "Sweet brier",
-  "Tauhinu",
-  "Tradescantia",
-  "Turf speedwell",
-  "Twin cress",
-  "Water pepper",
-  "White clover",
-  "Wild radish",
-  "Wild turnip",
-  "Willow weed",
-  "Winged thistle",
-  "Wireweed",
-  "Yarrow",
+  "Annual poa", "Black nightshade", "Blackberry", "Bracken", "Broad-leaved dock",
+  "Broad-leaved fleabane", "Broad-leaved plantain", "Broom", "Californian thistle",
+  "Cape weed", "Catsear", "Chickweed", "Cleavers", "Clustered dock", "Couch",
+  "Creeping buttercup", "Creeping oxalis", "Creeping speedwell", "Daisy",
+  "Dandelion", "Fiddle dock", "Field speedwell", "Galinsoga", "Giant buttercup",
+  "Gorse", "Great bindweed", "Groundsel", "Hairy buttercup", "Hawkbit",
+  "Hawksbeard", "Hedge mustard", "Hemlock", "Hydrocotyle", "Ivy", "Mallow",
+  "Manuka", "Mouse-ear hawkweed", "Musky storksbill", "Narrow-leaved plantain",
+  "Nettle", "Nodding thistle", "Old man's beard", "Onehunga weed", "Oxeye daisy",
+  "Parsley dropwort", "Parsley piert", "Paspalum", "Pennyroyal", "Pink shamrock",
+  "Ragwort", "Red dead-nettle", "Redroot", "Scarlet pimpernel", "Scotch thistle",
+  "Scrambling fumitory", "Scrambling speedwell", "Selfheal", "Sheep's sorrel",
+  "Shepherd's purse", "Sow thistle", "Spurrey", "Staggerweed", "Stinking mayweed",
+  "Suckling clover", "Sweet brier", "Tauhinu", "Tradescantia", "Turf speedwell",
+  "Twin cress", "Water pepper", "White clover", "Wild radish", "Wild turnip",
+  "Willow weed", "Winged thistle", "Wireweed", "Yarrow"
 ];
 
+// try to start the engine using wasm (best for workers)
 async function createSession(modelBuffer) {
-  const providerCandidates = [
-    ["webgpu", "webgl", "wasm"],
-    ["webgl", "wasm"],
-    ["wasm"],
-  ];
-
-  let lastError = null;
-  for (const providers of providerCandidates) {
-    try {
-      return await ort.InferenceSession.create(modelBuffer, {
-        executionProviders: providers,
-      });
-    } catch (err) {
-      lastError = err;
-    }
+  try {
+    return await ort.InferenceSession.create(modelBuffer, {
+      executionProviders: ['wasm'],
+      graphOptimizationLevel: 'all'
+    });
+  } catch (err) {
+    console.warn("wasm failed, falling back to cpu", err);
+    return await ort.InferenceSession.create(modelBuffer, {
+      executionProviders: ['cpu']
+    });
   }
-
-  throw lastError || new Error("Unable to create an ONNX inference session.");
 }
 
-// download or load the cached model from cachestorage
 async function initOfflineModel() {
   try {
-    postMessage({
-      type: "STATUS",
-      message: "Checking local storage for model...",
-    });
+    postMessage({ type: "STATUS", message: "checking for saved model..." });
 
     const cache = await caches.open(CACHE_NAME);
     let response = await cache.match(MODEL_URL);
 
-    let isDownloading = true;
-
-    // html loading screen while func
-    while (isDownloading && !response) {
-      postMessage({ type: 'PROGRESS', value: 0.5 });
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    // post the isDownloading variable to main thread when not downloading
-    postMessage({ type: 'PROGRESS', value: 1.0 });
-
-    // once the loop breaks
-    downloadProgress = 1;
-
     if (!response) {
-      postMessage({
-        type: "STATUS",
-        message: "Downloading ONNX model for offline storage...",
-      });
-      response = await fetch(MODEL_URL);
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
+      postMessage({ type: "STATUS", message: "downloading model for offline use..." });
+      postMessage({ type: 'PROGRESS', value: 0.3 });
 
-      // Cache the raw ONNX file for offline re-use
+      response = await fetch(MODEL_URL);
+      if (!response.ok) throw new Error("download failed");
+
+      // save it for next time
       await cache.put(MODEL_URL, response.clone());
-      postMessage({
-        type: "STATUS",
-        message: "Model cached successfully for offline mode!",
-      });
-    } else {
-      postMessage({
-        type: "STATUS",
-        message: "Model loaded directly from local CacheStorage.",
-      });
     }
+
+    postMessage({ type: 'PROGRESS', value: 0.7 });
+    postMessage({ type: "STATUS", message: "warming up the engine..." });
 
     const modelBuffer = await response.arrayBuffer();
-
-    // init inference session using the best available browser runtime
     session = await createSession(modelBuffer);
 
+    postMessage({ type: 'PROGRESS', value: 1.0 });
     postMessage({ type: "READY" });
   } catch (err) {
-    postMessage({
-      type: "ERROR",
-      message: `Offline Initialization Error: ${err.message}`,
-    });
+    postMessage({ type: "ERROR", message: err.message });
   }
 }
 
-// Receive messages from main application thread
 self.onmessage = async function (e) {
   const { type, data } = e.data;
 
@@ -184,57 +81,41 @@ self.onmessage = async function (e) {
   }
 
   if (type === "RUN_OFFLINE") {
-    if (!session) {
-      postMessage({
-        type: "ERROR",
-        message: "Local model is not initialized yet.",
-      });
-      return;
-    }
+    if (!session) return;
 
     try {
       const startTime = performance.now();
 
-      // formulate tensor for the model
-      const inputArray = Array.isArray(data) ? data : Array.from(data);
-      const inputTensor = new ort.Tensor(
-        "float32",
-        new Float32Array(inputArray),
-        [1, 3, 224, 224],
-      );
-      const feeds = { images: inputTensor };
-
-      const results = await session.run(feeds);
+      // create the tensor from the image pixels
+      const inputTensor = new ort.Tensor("float32", new Float32Array(data), [1, 3, 224, 224]);
+      const results = await session.run({ images: inputTensor });
+      
       const endTime = performance.now();
 
+      // get the scores
       const outputKey = Object.keys(results)[0];
-      const output = Array.from(results[outputKey].data);
-      const confidenceValues = output.map((value) => Number(value));
-      const topIndex = confidenceValues.reduce(
-        (bestIndex, value, index, array) => {
-          return value > array[bestIndex] ? index : bestIndex;
-        },
-        0,
-      );
-      const topConfidence = confidenceValues[topIndex];
-      const predictedName =
-        classNames[topIndex] ||
-        MODEL_CLASS_NAMES[topIndex] ||
-        `Class ${topIndex}`;
+      const output = results[outputKey].data;
+
+      // find the best match
+      let topIndex = 0;
+      let maxConf = -1;
+      for (let i = 0; i < output.length; i++) {
+        if (output[i] > maxConf) {
+          maxConf = output[i];
+          topIndex = i;
+        }
+      }
 
       postMessage({
         type: "RESULT",
         data: {
-          name: predictedName,
-          confidence: topConfidence,
+          name: MODEL_CLASS_NAMES[topIndex] || `unknown (${topIndex})`,
+          confidence: maxConf,
           duration: endTime - startTime,
         },
       });
     } catch (err) {
-      postMessage({
-        type: "ERROR",
-        message: `Offline execution failed: ${err.message}`,
-      });
+      postMessage({ type: "ERROR", message: `inference failed: ${err.message}` });
     }
   }
 };
