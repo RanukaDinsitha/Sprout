@@ -14,6 +14,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">  <link
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;icon_names=room_service"
     rel="stylesheet" />
+    <noscript>
+      For full functionality of this site it is necessary to enable JavaScript.
+      Here are the <a href="https://www.enable-javascript.com/">
+      instructions how to enable JavaScript in your web browser</a>.
+  </noscript>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=wifi_off" />
   <!--     legacy line of code
@@ -1287,10 +1292,10 @@
       <div class="flex items-center gap-3">
         <!-- Switch for Online/Offline -->
         <div class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
-          <i class="fa-solid fa-wifi text-xs text-emerald-400" id="modeIcon"></i>
-          <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif] text-[11px] font-bold uppercase tracking-wider text-slate-300" id="modeLabel">Online</span>
+          <i class="fa-solid fa-wifi ease-in-out text-xs text-emerald-400" id="modeIcon"></i>
+          <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif] text-[11px] font-bold uppercase tracking-wider text-emerald-300 text-slate-300" id="modeLabel">Online</span>
           <label class="relative inline-flex items-center cursor-pointer ml-1">
-            <input class="sr-only peer" id="offlineToggle" type="checkbox" />
+            <input class="sr-only peer " id="offlineToggle" type="checkbox" />
             <div
               class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500">
             </div>
@@ -1472,6 +1477,8 @@
           window.AudioContext || window.webkitAudioContext
         )();
 
+        console.info("Welcome to Sprout!");
+        
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
 
@@ -1791,14 +1798,14 @@
             .html(
               `<div style="display: flex; align-items: center; gap: 4px;">
       <img src="https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/images/wifi_slash.svg"
-           alt="offline"
-           style="width: 1.2em; height: auto; vertical-align: middle; margin-right: -2px; display: inline-block;"></div>`,
+           alt="wifi offline symbol" fetchpriority="high" decoding="sync" rel="preload" 
+           style="width: 1.4345em; height: auto; vertical-align: middle; margin-right: -2px; display: inline-block;"></div>`,
             )
             .removeAttr('class', 'fa-solid fa-wifi text-emerald-400');
           $modeLabel
             .text('Offline')
             .removeClass('text-slate-300')
-            .addClass('text-amber-400');
+            .addClass('text-[#F8BD24]');
 
           initOfflineWorker();
         } else {
@@ -1808,8 +1815,8 @@
 
           $modeLabel
             .text('Online')
-            .removeClass('text-amber-400')
-            .addClass('text-slate-300');
+            .removeClass('text-[#F8BD24]')
+            .addClass('text-emerald-300 text-slate-300');
 
           if (pestStatus) {
             $(pestStatus).html(
@@ -1976,10 +1983,11 @@
         });
       }
 
-      // MAP MODAL LOGIC FIX
+   // map state variables
       let sproutMap = null;
       let sproutMapInitialized = false;
 
+      // dom elements
       const mapModal = document.getElementById('mapModal');
       const mapModalCard = document.getElementById('mapModalCard');
       const mapModalTitle = document.getElementById('mapModalTitle');
@@ -1987,35 +1995,34 @@
       const closeMapBtn = document.getElementById('closeMapBtn');
       const openAllMapBtn = document.getElementById('openAllMapBtn');
 
+      // open modal and setup map view
       function openMapModal(focusItem) {
         if (!mapModal) return;
         mapModal.classList.add('active');
 
+        // animate scale in
         setTimeout(() => {
           mapModalCard.classList.remove('scale-95');
           mapModalCard.classList.add('scale-100');
         }, 10);
 
+        // start map engine
+        initSproutMap(); 
+        
+        // wait for animation then refresh map
         setTimeout(() => {
-          initSproutMap();
           if (sproutMap) {
             sproutMap.resize();
           }
 
-          const history = getHistory();
+          // get items with valid coordinates
+          const history = (typeof getHistory === 'function') ? getHistory() : [];
           const geoItems = history.filter(
-            (h) =>
-              h.lat !== undefined &&
-              h.lng !== undefined &&
-              h.lat !== null &&
-              h.lng !== null,
+            (h) => h.lat != null && h.lng != null
           );
 
-          if (
-            focusItem &&
-            focusItem.lat !== undefined &&
-            focusItem.lng !== undefined
-          ) {
+          // update modal text based on focus
+          if (focusItem && focusItem.lat != null && focusItem.lng != null) {
             mapModalTitle.textContent = focusItem.name;
             mapModalSub.textContent = `${Number(focusItem.lat).toFixed(5)}, ${Number(focusItem.lng).toFixed(5)}`;
           } else {
@@ -2027,6 +2034,7 @@
         }, 150);
       }
 
+      // close modal with animation
       function closeMapModal() {
         if (!mapModal) return;
         mapModalCard.classList.remove('scale-100');
@@ -2036,16 +2044,20 @@
         }, 220);
       }
 
+      // initialize maplibre instance
       function initSproutMap() {
         if (sproutMapInitialized) return;
 
         sproutMap = new maplibregl.Map({
           container: 'plantMap',
           style: 'https://tiles.openfreemap.org/styles/liberty',
-          center: [174.7645, -36.8509], // [Lng, Lat]
+          center: [174.7645, -36.8509], // nz default
           zoom: 5,
         });
 
+        sproutMap.on('error', (e) => console.error('map error:', e.error));
+
+        // add layers once map loads
         sproutMap.on('load', () => {
           if (!sproutMap.getSource('plants')) {
             sproutMap.addSource('plants', {
@@ -2053,6 +2065,7 @@
               data: { type: 'FeatureCollection', features: [] },
             });
 
+            // add marker circles
             sproutMap.addLayer({
               id: 'plants-circle',
               type: 'circle',
@@ -2066,6 +2079,7 @@
               },
             });
 
+            // add emoji icon
             sproutMap.addLayer({
               id: 'plants-label',
               type: 'symbol',
@@ -2077,37 +2091,42 @@
               },
             });
 
+            // click event for popups
             sproutMap.on('click', 'plants-circle', (e) => {
               const props = e.features[0].properties;
               const coords = e.features[0].geometry.coordinates.slice();
+              
               const imgHtml = props.image
                 ? `<img src="${props.image}" style="width:100%;height:90px;object-fit:cover;border-radius:10px 10px 0 0;display:block;" />`
                 : '';
               const confHtml = props.confidence
                 ? `<span style="background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.3);border-radius:999px;padding:1px 8px;font-size:9px;font-weight:700;letter-spacing:.04em;">${props.confidence}</span>`
                 : '';
+              
               const popupHtml = `
-                                    <div style="font-family:'Inter',sans-serif;min-width:170px;max-width:210px;border-radius:14px;overflow:hidden;">
-                                      ${imgHtml}
-                                      <div style="padding:10px 13px 12px;">
-                                        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
-                                          <h5 style="margin:0;font-size:13px;font-weight:800;color:#10b981;line-height:1.2;">${props.name}</h5>
-                                          ${confHtml}
-                                        </div>
-                                        <p style="margin:0 0 3px;font-size:10px;color:#94a3b8;">
-                                          <i class="fa-solid fa-calendar-days" style="margin-right:3px;"></i>${props.date || 'Recent Scan'}
-                                        </p>
-                                        <p style="margin:0;font-size:10px;color:#64748b;">
-                                          <i class="fa-solid fa-location-dot" style="margin-right:3px;color:#10b981;"></i>${Number(coords[1]).toFixed(5)}, ${Number(coords[0]).toFixed(5)}
-                                        </p>
-                                      </div>
-                                    </div>`;
+                <div style="font-family:'Inter',sans-serif;min-width:170px;max-width:210px;border-radius:14px;overflow:hidden;">
+                  ${imgHtml}
+                  <div style="padding:10px 13px 12px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
+                      <h5 style="margin:0;font-size:13px;font-weight:800;color:#10b981;line-height:1.2;">${props.name}</h5>
+                      ${confHtml}
+                    </div>
+                    <p style="margin:0 0 3px;font-size:10px;color:#94a3b8;">
+                      <i class="fa-solid fa-calendar-days" style="margin-right:3px;"></i>${props.date || 'Recent Scan'}
+                    </p>
+                    <p style="margin:0;font-size:10px;color:#64748b;">
+                      <i class="fa-solid fa-location-dot" style="margin-right:3px;color:#10b981;"></i>${Number(coords[1]).toFixed(5)}, ${Number(coords[0]).toFixed(5)}
+                    </p>
+                  </div>
+                </div>`;
+
               new maplibregl.Popup({ maxWidth: '220px' })
                 .setLngLat(coords)
                 .setHTML(popupHtml)
                 .addTo(sproutMap);
             });
 
+            // change cursor on hover
             sproutMap.on('mouseenter', 'plants-circle', () => {
               sproutMap.getCanvas().style.cursor = 'pointer';
             });
@@ -2117,6 +2136,7 @@
           }
 
           sproutMapInitialized = true;
+          // check if there was data waiting for the map to load
           if (window._pendingMapData) {
             const { history, focusItem } = window._pendingMapData;
             window._pendingMapData = null;
@@ -2125,16 +2145,11 @@
         });
       }
 
+      // logic to filter and draw points
       function _applyMapMarkers(history, focusItem) {
         if (!sproutMap || !sproutMap.getSource('plants')) return;
 
-        const geoItems = history.filter(
-          (h) =>
-            h.lat !== undefined &&
-            h.lng !== undefined &&
-            h.lat !== null &&
-            h.lng !== null,
-        );
+        const geoItems = history.filter((h) => h.lat != null && h.lng != null);
 
         const features = geoItems.map((item) => ({
           type: 'Feature',
@@ -2157,11 +2172,8 @@
 
         if (features.length === 0) return;
 
-        if (
-          focusItem &&
-          focusItem.lat !== undefined &&
-          focusItem.lng !== undefined
-        ) {
+        // zoom to specific item or fit all
+        if (focusItem && focusItem.lat != null && focusItem.lng != null) {
           sproutMap.flyTo({
             center: [Number(focusItem.lng), Number(focusItem.lat)],
             zoom: 14,
@@ -2182,6 +2194,7 @@
         }
       }
 
+      // helper to bridge modal and map data
       function populateMapMarkers(history, focusItem) {
         if (!sproutMapInitialized || !sproutMap.getSource('plants')) {
           window._pendingMapData = { history, focusItem };
@@ -2190,29 +2203,30 @@
         _applyMapMarkers(history, focusItem);
       }
 
+      // global function to open map from a list item
       window.openSinglePlantMap = function (idx) {
-        const history = getHistory();
+        const history = (typeof getHistory === 'function') ? getHistory() : [];
         const item = history[idx];
         if (!item) return;
-        closeHistoryModal();
+        if (typeof closeHistoryModal === 'function') closeHistoryModal();
         setTimeout(() => openMapModal(item), 250);
       };
 
+      // setup event listeners
       if (openAllMapBtn) {
         openAllMapBtn.addEventListener('click', () => {
-          closeHistoryModal();
+          if (typeof closeHistoryModal === 'function') closeHistoryModal();
           setTimeout(() => openMapModal(null), 250);
         });
       }
+      
       if (closeMapBtn) closeMapBtn.addEventListener('click', closeMapModal);
+      
       if (mapModal) {
         mapModal.addEventListener('click', (e) => {
           if (e.target === mapModal) closeMapModal();
         });
       }
-
-      let userLocation = null;
-
       // Tab Controller
       const tabUpload = document.getElementById('tabUpload');
       const tabCamera = document.getElementById('tabCamera');
@@ -2598,7 +2612,11 @@
         function handleSingleLocation(position) {
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-          userLocation = { lat: lat, lng: lon };
+          
+          const safeLat = typeof lat === 'number' ? lat : 0;
+          const safeLon = typeof lon === 'number' ? lon : 0;
+
+          userLocation = [safeLat, safeLon]; 
         }
 
         function handleLocationError(error) {
@@ -2615,11 +2633,12 @@
           showMessageModal({
             title: 'Location optional',
             message:
-              'Geolocation is not available here, but identification can still continue without it.',
+              'Geolocation is not available here—<i>might be an issue with the browser you are using</i>—but identification can still continue without it.',
             iconClass: 'fa-solid fa-location-crosshairs',
           });
         }
       }
+
 
       function resetPhotoSelection() {
         selectedFile = null;
