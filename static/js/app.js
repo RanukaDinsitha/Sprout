@@ -1,4 +1,5 @@
     $(document).ready(function () {
+
       $('#playSound').on('click', function () {
         const audioCtx = new (
           window.AudioContext || window.webkitAudioContext
@@ -31,6 +32,8 @@
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.5);
       });
+      
+
     });
 
     function clearClickablePlant() {
@@ -508,7 +511,6 @@
         });
       }
 
-      // MAP MODAL LOGIC FIX
       let sproutMap = null;
       let sproutMapInitialized = false;
 
@@ -573,8 +575,8 @@
 
         sproutMap = new maplibregl.Map({
           container: 'plantMap',
-          style: 'https://demotiles.maplibre.org/style.json',
-          center: [174.7645, -36.8509], // [Lng, Lat]
+          style: 'https://tiles.openfreemap.org/styles/liberty/style.json', 
+          center: [174.7645, -36.8509], // [Lng, Lat] 
           zoom: 5,
         });
 
