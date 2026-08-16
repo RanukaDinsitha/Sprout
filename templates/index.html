@@ -2,6 +2,10 @@
 <html lang="en">
 <!-- for you doubters a human did write this code! :3 -->
 
+<!doctype html>
+<html lang="en">
+<!-- for you doubters a human did write this code! :3 -->
+
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport" />
@@ -11,7 +15,8 @@
   <title>Sprout</title>
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">  <link
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  <link
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;icon_names=room_service"
     rel="stylesheet" />
     <noscript>
@@ -21,24 +26,6 @@
   </noscript>
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=wifi_off" />
-  <!--     legacy line of code
- -->
-  <!--     <script>
-      $(document).ready(function() {
-        $('#audioButton').click(function() {
-          var audio = $('#buttonClick')[0]; 
-          var button = $(this);
-
-          if (audio.paused) {
-            audio.play();
-            button.text('Pause');
-          } else {
-            audio.pause();
-            button.text('Play');
-          }
-        });
-      });
-    </script> -->
   <script crossorigin="anonymous"
     integrity="sha512-8LENNbXmzI/Gbj+OwXmqR6V4QaUAw0/porPzy1+dQoJqC0JPHedWoe0DDOTL2uHA5XXJyIsPtiMHH86pVlay6A=="
     referrerpolicy="no-referrer" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js"></script>
@@ -105,7 +92,6 @@
       right: -80px;
     }
 
-    /* Typewriter Animation Loader Styles */
     .typewriter {
       --blue: #10b981;
       --blue-dark: #059669;
@@ -280,253 +266,27 @@
     }
 
     @keyframes bounce05 {
-
-      85%,
-      92%,
-      100% {
-        transform: translateY(0);
-      }
-
-      89% {
-        transform: translateY(-4px);
-      }
-
-      95% {
-        transform: translateY(2px);
-      }
+      85%, 92%, 100% { transform: translateY(0); }
+      89% { transform: translateY(-4px); }
+      95% { transform: translateY(2px); }
     }
 
     @keyframes slide05 {
-      5% {
-        transform: translateX(14px);
-      }
-
-      15%,
-      30% {
-        transform: translateX(6px);
-      }
-
-      40%,
-      55% {
-        transform: translateX(0);
-      }
-
-      65%,
-      70% {
-        transform: translateX(-4px);
-      }
-
-      80%,
-      89% {
-        transform: translateX(-12px);
-      }
-
-      100% {
-        transform: translateX(14px);
-      }
+      5% { transform: translateX(14px); }
+      15%, 30% { transform: translateX(6px); }
+      40%, 55% { transform: translateX(0); }
+      65%, 70% { transform: translateX(-4px); }
+      80%, 89% { transform: translateX(-12px); }
+      100% { transform: translateX(14px); }
     }
 
     @keyframes paper05 {
-      5% {
-        transform: translateY(46px);
-      }
-
-      20%,
-      30% {
-        transform: translateY(34px);
-      }
-
-      40%,
-      55% {
-        transform: translateY(22px);
-      }
-
-      65%,
-      70% {
-        transform: translateY(10px);
-      }
-
-      80%,
-      85% {
-        transform: translateY(0);
-      }
-
-      92%,
-      100% {
-        transform: translateY(46px);
-      }
-    }
-
-    @keyframes keyboard05 {
-
-      5%,
-      12%,
-      21%,
-      30%,
-      39%,
-      48%,
-      57%,
-      66%,
-      75%,
-      84% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      9% {
-        box-shadow:
-          15px 2px 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      18% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 2px 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      27% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 12px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      36% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 12px 0 var(--key),
-          60px 12px 0 var(--key),
-          68px 12px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      45% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 2px 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      54% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 2px 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      63% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 12px 0 var(--key);
-      }
-
-      72% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 2px 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 10px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
-
-      81% {
-        box-shadow:
-          15px 0 0 var(--key),
-          30px 0 0 var(--key),
-          45px 0 0 var(--key),
-          60px 0 0 var(--key),
-          75px 0 0 var(--key),
-          90px 0 0 var(--key),
-          22px 10px 0 var(--key),
-          37px 12px 0 var(--key),
-          52px 10px 0 var(--key),
-          60px 10px 0 var(--key),
-          68px 10px 0 var(--key),
-          83px 10px 0 var(--key);
-      }
+      5% { transform: translateY(46px); }
+      20%, 30% { transform: translateY(34px); }
+      40%, 55% { transform: translateY(22px); }
+      65%, 70% { transform: translateY(10px); }
+      80%, 85% { transform: translateY(0); }
+      92%, 100% { transform: translateY(46px); }
     }
 
     .glass-card {
@@ -596,15 +356,8 @@
     }
 
     @keyframes floatPulse {
-
-      0%,
-      100% {
-        transform: translateY(0px);
-      }
-
-      50% {
-        transform: translateY(-5px);
-      }
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
     }
 
     .animate-float {
@@ -632,9 +385,7 @@
       display: grid;
       place-items: center;
       cursor: pointer;
-      transition:
-        transform 0.2s ease,
-        filter 0.2s ease;
+      transition: transform 0.2s ease, filter 0.2s ease;
       overflow: visible;
     }
 
@@ -656,11 +407,7 @@
     }
 
     .material-symbols-outlined {
-      font-variation-settings:
-        'FILL' 0,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24;
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       color: #34d399;
     }
 
@@ -669,15 +416,8 @@
     }
 
     @keyframes bellPulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.08);
-      }
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
     }
 
     .custom-scrollbar::-webkit-scrollbar {
@@ -710,19 +450,11 @@
       height: 100vh;
       height: 100dvh;
       background-color: #121212;
-      display: -webkit-box;
-      display: -ms-flexbox;
       display: flex;
-      -webkit-box-pack: center;
-      -ms-flex-pack: center;
       justify-content: center;
-      -webkit-box-align: center;
-      -ms-flex-align: center;
       align-items: center;
       z-index: 9999;
       opacity: 1;
-      -webkit-transition: opacity 0.5s ease;
-      -o-transition: opacity 0.5s ease;
       transition: opacity 0.5s ease;
     }
 
@@ -732,40 +464,14 @@
       border: 6px solid #333333;
       border-top: 6px solid #3498db;
       border-radius: 50%;
-      -webkit-animation: spin 1s linear infinite;
       animation: spin 1s linear infinite;
     }
 
-    @-webkit-keyframes spin {
-      0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-      }
-    }
-
     @keyframes spin {
-      0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-      }
-
-      100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-      }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    .main-content {
-      padding: 40px;
-      text-align: center;
-    }
-
-    /* Modal Display Controls */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -797,9 +503,7 @@
       inset: -35% auto auto -20%;
       width: 16rem;
       height: 16rem;
-      background: radial-gradient(circle,
-          rgba(16, 185, 129, 0.24),
-          transparent 70%);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.24), transparent 70%);
       pointer-events: none;
     }
 
@@ -811,14 +515,12 @@
     }
 
     @media (min-width: 640px) {
-
       .consent-actions,
       .dialog-actions {
         flex-direction: row;
       }
     }
 
-    /* Hazard Badge Styling */
     .hazard-badge {
       display: inline-flex;
       align-items: center;
@@ -857,7 +559,6 @@
       border: 1px solid rgba(239, 68, 68, 0.4);
     }
 
-    /* Weed vs Plant Badge Styling */
     .badge-weed {
       background: rgba(239, 68, 68, 0.2);
       color: #f87171;
@@ -870,7 +571,6 @@
       border: 1px solid rgba(16, 185, 129, 0.4);
     }
 
-    /* Dark theme for MapLibre GL popups */
     .maplibregl-popup-content {
       background: rgba(12, 29, 22, 0.97) !important;
       color: #f1f5f9 !important;
@@ -902,7 +602,6 @@
       display: none;
     }
 
-    /* Map modal sizing */
     #mapModal .map-modal-card {
       width: min(100%, 44rem);
       max-height: 90vh;
@@ -916,7 +615,6 @@
       border-radius: 0 0 1.5rem 1.5rem;
     }
 
-    /* History tab buttons */
     .hist-tab-btn {
       padding: 0.4rem 1.1rem;
       border-radius: 9999px;
@@ -933,33 +631,6 @@
       background: rgba(16, 185, 129, 0.18);
       color: #34d399;
       border: 1px solid rgba(16, 185, 129, 0.35);
-    }
-
-    /* Pulse animation for new map pin */
-    @keyframes pinPulse {
-      0% {
-        transform: scale(1);
-        opacity: 1;
-      }
-
-      70% {
-        transform: scale(2.2);
-        opacity: 0;
-      }
-
-      100% {
-        transform: scale(2.2);
-        opacity: 0;
-      }
-    }
-
-    .pin-pulse {
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      background: rgba(16, 185, 129, 0.4);
-      animation: pinPulse 1.6s ease-out infinite;
-      pointer-events: none;
     }
   </style>
 </head>
@@ -985,12 +656,9 @@
           const audioUrl =
             'https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3';
           const audio = new Audio(audioUrl);
-
           $(audio).attr('preload', 'auto');
-
           $('.audioBtn').on('click', function () {
             audio.currentTime = 0;
-
             try {
               audio.play();
             } catch (error) {
@@ -1105,7 +773,6 @@
   <div class="modal-overlay p-4" id="mapModal" style="z-index: 60">
     <div class="map-modal-card glass-card transition-transform duration-300 scale-95 relative overflow-hidden"
       id="mapModalCard">
-      <!-- Header -->
       <div class="flex items-center justify-between px-6 pt-5 pb-3 flex-shrink-0">
         <div class="flex items-center gap-3">
           <div
@@ -1127,7 +794,6 @@
           <i class="fa-solid fa-xmark text-xs"></i>
         </button>
       </div>
-      <!-- Map -->
       <div id="plantMap" style="height: 520px"></div>
     </div>
   </div>
@@ -1273,13 +939,10 @@
 
           setInterval(function () {
             currentIndex++;
-
             if (currentIndex >= totalItems) {
               currentIndex = 0;
             }
-
             const moveAmount = -(currentIndex * itemHeight);
-
             $scrollList.animate(
               {
                 'margin-top': moveAmount + 'px',
@@ -1301,6 +964,14 @@
             </div>
           </label>
         </div>
+          <i class="fa-solid fa-wifi text-xs text-emerald-400" id="modeIcon"></i>
+          <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif] text-[11px] font-bold uppercase tracking-wider text-slate-300" id="modeLabel">Online</span>
+<label class="relative inline-flex items-center cursor-pointer ml-1">
+  <input class="sr-only peer" id="offlineToggle" type="checkbox" />
+  <div
+    class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500">
+  </div>
+</label>        </div>
         <button
           class="w-10 h-10 audioBtn rounded-full btn-secondary-glass flex items-center justify-center text-slate-300 hover:text-white transition"
           id="openHistoryBtn" title="Scan History">
@@ -1321,7 +992,7 @@
           <span>Upload Photo</span>
         </button>
         <button class="pill-tab-btn py-2.5 text-center flex items-center justify-center gap-2 audioBtn" id="tabCamera">
-          <i class="fa-solid fa-camera text-sm"></i>
+          <i class="fa-solid fa-camera text-sm animate-float inline-block"></i>
           <span>Live Camera</span>
         </button>
       </div>
@@ -1343,7 +1014,6 @@
               </span>
             </div>
           </div>
-          <!-- Input explicit attributes added -->
           <input accept="image/*" id="plantImage" name="file" style="display: none" type="file" />
         </div>
       </div>
@@ -1381,18 +1051,16 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-      <!-- Status Card with Hazard Badge & Weed/Plant Classification Badge -->
+      <!-- Status Card -->
       <div
         class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4">
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Status</span>
-            <!-- Plant vs Weed Badge -->
             <span class="hidden hazard-badge badge-plant" id="plantTypeBadge">
               <i class="fa-solid fa-seedling text-xs font-[Inter,Plus_Jakarta_Sans,sans-serif]" id="plantTypeIcon"></i>
               <span id="plantTypeLabel">PLANT</span>
             </span>
-            <!-- Hazard Badge -->
             <span class="hidden hazard-badge hazard-safe" id="hazardBadge">
               <i class="fa-solid fa-shield-heart" id="hazardIcon"></i>
               <span id="hazardLabel" class="font-[Inter,Plus_Jakarta_Sans,sans-serif]">Harmless</span>
@@ -1414,7 +1082,7 @@
           </button>
         </div>
       </div>
-      <!-- Plant Summary Details & Treatment/Control Section on UI Card -->
+      <!-- Plant Summary Details -->
       <div
         class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3"
         id="extendedDetailsCard">
@@ -1425,7 +1093,6 @@
         <p class="text-xs text-slate-300 leading-relaxed" id="extendedDetailsText">
           --
         </p>
-        <!-- Integrated HTML Treatment Section -->
         <div class="hidden border-t border-white/10 pt-2.5 mt-1" id="treatmentSection">
           <h5 class="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 mb-1">
             <i class="fa-solid fa-kit-medical text-xs"></i>
@@ -1435,11 +1102,9 @@
             --
           </p>
         </div>
-        <!-- loading overlay -->
         <div id="loadingOverlay">
           <div class="spinner"></div>
         </div>
-        <!-- Integrated HTML Control / Removal Section -->
         <div class="hidden border-t border-white/10 pt-2.5 mt-1" id="controlSection">
           <h5 class="text-[11px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5 mb-1">
             <i class="fa-solid fa-hand-holding-hand text-xs"></i>
@@ -1466,7 +1131,7 @@
           href="https://github.com/RanukaDinsitha" id="playSound" target="_blank">Ranuka</a>
         and
         <a class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline"
-          href="https://github.com/lambo-camper" id="playSound" target="_blank">Eliaseen</a>; thank you for using! 🌱💻
+          href="https://github.com/lambo-camper" target="_blank">Eliaseen</a>; thank you for using! 🌱💻
       </p>
     </main>
   </div>
@@ -1485,22 +1150,14 @@
         const gainNode = audioCtx.createGain();
 
         const waveforms = ['sine', 'square', 'sawtooth', 'triangle'];
-        const randomWaveform =
-          waveforms[Math.floor(Math.random() * waveforms.length)];
-        const randomFrequency =
-          Math.floor(Math.random() * (1200 - 200 + 1)) + 200;
+        const randomWaveform = waveforms[Math.floor(Math.random() * waveforms.length)];
+        const randomFrequency = Math.floor(Math.random() * (1200 - 200 + 1)) + 200;
 
         oscillator.type = randomWaveform;
-        oscillator.frequency.setValueAtTime(
-          randomFrequency,
-          audioCtx.currentTime,
-        );
+        oscillator.frequency.setValueAtTime(randomFrequency, audioCtx.currentTime);
 
         gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(
-          0.0001,
-          audioCtx.currentTime + 0.5,
-        );
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
 
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
@@ -1519,20 +1176,16 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      const statusFidgetSpinner = document.getElementById(
-        'statusFidgetSpinner',
-      );
+      const statusFidgetSpinner = document.getElementById('statusFidgetSpinner');
       let audioContext = null;
 
       function playBellChime() {
         if (!statusFidgetSpinner) return;
-
         if (!audioContext) {
           const AudioCtor = window.AudioContext || window.webkitAudioContext;
           if (!AudioCtor) return;
           audioContext = new AudioCtor();
         }
-
         if (audioContext.state === 'suspended') {
           audioContext.resume().catch(() => { });
         }
@@ -1551,14 +1204,8 @@
           oscillator.type = index === 0 ? 'triangle' : 'sine';
           oscillator.frequency.setValueAtTime(freq, now + index * 0.04);
           gainNode.gain.setValueAtTime(0.0001, now + index * 0.04);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.05 + Math.random() * 0.02,
-            now + index * 0.04 + 0.015,
-          );
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.0001,
-            now + index * 0.04 + 0.18,
-          );
+          gainNode.gain.exponentialRampToValueAtTime(0.05 + Math.random() * 0.02, now + index * 0.04 + 0.015);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.04 + 0.18);
 
           oscillator.connect(gainNode);
           gainNode.connect(audioContext.destination);
@@ -1574,7 +1221,6 @@
 
       if (statusFidgetSpinner) {
         statusFidgetSpinner.addEventListener('click', playBellChime);
-
         statusFidgetSpinner.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -1610,7 +1256,6 @@
         if (vantaEffect) vantaEffect.resize();
       });
 
-      // App Loader Animation
       const pageLoader = document.getElementById('pageLoader');
       const appContent = document.getElementById('appContent');
       const loaderSubtext = document.getElementById('loaderSubtext');
@@ -1636,165 +1281,21 @@
         if (appContent) appContent.style.opacity = '1';
       }, 2500);
 
-      // Web Worker Mode Integration
       let worker = null;
       let isOfflineMode = false;
-      let isWorkerReady = false;
 
       const offlineToggle = document.getElementById('offlineToggle');
       const modeIcon = document.getElementById('modeIcon');
       const modeLabel = document.getElementById('modeLabel');
 
-      const candidates = [
-        './worker.js',
-        './static/worker.js',
-        './templates/worker.js',
-      ];
-      
-      const initWorker = async () => {
-        if (state.worker) return;
-
-        let workerPath = './worker.js';
-
-        for (const candidate of candidates) {
-          try {
-            const response = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
-            if (response.ok) {
-              workerPath = candidate;
-              break;
-            }
-          } catch (e) { }
-        }
-
-        state.worker = new Worker(workerPath);
-
-        state.worker.onmessage = (e) => {
-          if (e.data.type === 'RESULT') handleResult(e.data.data, true);
-        };
-
-        state.worker.postMessage({ type: 'INIT_OFFLINE' });
-      };
-
-
-      const words = [
-        'Thanks for your patience! ⏳',
-        'Just a second now...⏱️',
-        'Sprout waves! 🍃',
-        'Engines running... 🛠️',
-      ];
-      let index = 0;
-      let textRotationInterval = null;
-
-      const $loaderContainer = $('<div>')
-        .attr('id', 'dynamic-loader-text')
-        .addClass(
-          'hidden text-xl font-medium text-gray-700 flex flex-col items-center justify-center gap-2 mt-4',
-        );
-
-      const $rotatingText = $('<span>')
-        .addClass(
-          'text-indigo-600 transition-opacity duration-300 opacity-100',
-        )
-        .text(words[index]);
-
-      $loaderContainer.append($rotatingText);
-      $('#loading').append($loaderContainer);
       $('#loadingOverlay').hide();
 
-      async function initOfflineWorker() {
-        if (worker) {
-          worker.postMessage({ type: 'INIT_OFFLINE' });
-          return;
-        }
-
-        const workerScript = await resolveWorkerScript();
-        worker = new Worker(workerScript);
-
-        worker.onmessage = (e) => {
-          const { type, message, data, value } = e.data;
-
-          if (type === 'STATUS') {
-            if (pestStatus) $(pestStatus).text(message);
-          } else if (type === 'READY') {
-            isWorkerReady = true;
-            if (pestStatus)
-              $(pestStatus).text(
-                'Offline model ready. You can identify plants without a network connection.',
-              );
-          } else if (type === 'RESULT') {
-            handleOfflineResult(data);
-          } else if (type === 'ERROR') {
-            showMessageModal({
-              title: 'Offline issue',
-              message:
-                message || 'The offline model could not finish the request.',
-              iconClass: 'fa-solid fa-triangle-exclamation',
-            });
-          } else if (type === 'PROGRESS') {
-            const downloadProgress = value;
-
-            if (downloadProgress === 0.5) {
-              if ($('#page-overlay').length === 0) {
-                $('body').append('<div id="page-overlay"></div>');
-                $('#page-overlay').css({
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  background: 'rgba(0, 0, 0, 0.4)',
-                  'z-index': 99999,
-                  cursor: 'not-allowed',
-                });
-              }
-              $('#loading').fadeIn();
-              $loaderContainer.removeClass('hidden');
-              $rotatingText
-                .text(words[0])
-                .removeClass('opacity-0')
-                .addClass('opacity-100');
-              index = 0;
-
-              if (!textRotationInterval) {
-                textRotationInterval = setInterval(function () {
-                  $rotatingText
-                    .removeClass('opacity-100')
-                    .addClass('opacity-0');
-                  setTimeout(function () {
-                    index = (index + 1) % words.length;
-                    $rotatingText
-                      .text(words[index])
-                      .removeClass('opacity-0')
-                      .addClass('opacity-100');
-                  }, 300);
-                }, 2500);
-              }
-            } else if (downloadProgress === 1.0) {
-              if (textRotationInterval) {
-                clearInterval(textRotationInterval);
-                textRotationInterval = null;
-              }
-              $('#page-overlay').remove();
-              $loaderContainer.addClass('hidden');
-              $('#loading').fadeOut();
-            }
-          }
-        };
-
-        worker.postMessage({ type: 'INIT_OFFLINE' });
-      }
-
-      // UI Event Listener
       $(offlineToggle).on('change', (e) => {
-        new Audio(
-          'https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3',
-        ).play();
+        new Audio('https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3').play();
         isOfflineMode = e.target.checked;
         const $modeIcon = $(modeIcon);
         const $modeLabel = $(modeLabel);
 
-        /*         $(".audioBtn").play();
-         */
         if (isOfflineMode) {
           $modeIcon
             .html(
@@ -1812,9 +1313,8 @@
           initOfflineWorker();
         } else {
           $modeIcon
-            .text('')
-            .attr('class', 'fa-solid fa-wifi text-emerald-400');
-
+            .attr('class', 'fa-solid fa-wifi text-emerald-400 text-xs')
+            .empty();
           $modeLabel
             .text('Online')
             .removeClass('text-[#F8BD24]')
@@ -2251,295 +1751,8 @@
         });
       }
 
-      const startCameraBtn = document.getElementById('startCameraBtn');
-      const capturePhotoBtn = document.getElementById('capturePhotoBtn');
-      const cameraVideo = document.getElementById('cameraVideo');
-      const cameraOverlay = document.getElementById('cameraOverlay');
       const uploadDropzone = document.getElementById('uploadDropzone');
       const plantImage = document.getElementById('plantImage');
-      const previewContainer = document.getElementById('previewContainer');
-      const previewImage = document.getElementById('previewImage');
-      const changePhotoBtn = document.getElementById('changePhotoBtn');
-      const speciesName = document.getElementById('speciesName');
-      const pestStatus = document.getElementById('pestStatus');
-      const statusIcon = document.getElementById('statusIcon');
-      const extendedDetailsCard = document.getElementById(
-        'extendedDetailsCard',
-      );
-      const extendedDetailsText = document.getElementById(
-        'extendedDetailsText',
-      );
-      const treatmentSection = document.getElementById('treatmentSection');
-      const treatmentText = document.getElementById('treatmentText');
-      const controlSection = document.getElementById('controlSection');
-      const controlText = document.getElementById('controlText');
-      const analyzeButton = document.getElementById('analyzeButton');
-      const analyzeIcon = document.getElementById('analyzeIcon');
-      const analyzeBtnText = document.getElementById('analyzeBtnText');
-
-      const hazardBadge = document.getElementById('hazardBadge');
-      const hazardIcon = document.getElementById('hazardIcon');
-      const hazardLabel = document.getElementById('hazardLabel');
-
-      const plantTypeBadge = document.getElementById('plantTypeBadge');
-      const plantTypeIcon = document.getElementById('plantTypeIcon');
-      const plantTypeLabel = document.getElementById('plantTypeLabel');
-
-      const consentOverlay = document.getElementById('consentOverlay');
-      const consentTitle = document.getElementById('consentTitle');
-      const consentBody = document.getElementById('consentBody');
-      const consentStatusText = document.getElementById('consentStatusText');
-      const consentAllowBtn = document.getElementById('consentAllowBtn');
-      const consentDeclineBtn = document.getElementById('consentDeclineBtn');
-      const consentStateKey = 'sprout-identification-consent';
-      const locationPromptOverlay = document.getElementById(
-        'locationPromptOverlay',
-      );
-      const locationAllowBtn = document.getElementById('locationAllowBtn');
-      const locationDeclineBtn =
-        document.getElementById('locationDeclineBtn');
-      const locationPromptStatus = document.getElementById(
-        'locationPromptStatus',
-      );
-      const messageModal = document.getElementById('messageModal');
-      const messageModalTitle = document.getElementById('messageModalTitle');
-      const messageModalBody = document.getElementById('messageModalBody');
-      const messageModalIcon = document.getElementById('messageModalIcon');
-      const messageModalIconInner = document.getElementById(
-        'messageModalIconInner',
-      );
-      const messageModalOkBtn = document.getElementById('messageModalOkBtn');
-
-      let cameraStream = null;
-      let selectedFile = null;
-      let identificationConsentGranted = false;
-      let pendingIdentificationAfterConsent = false;
-
-      function releaseConsentOverlay() {
-        if (consentOverlay) {
-          consentOverlay.classList.remove('active');
-        }
-        if (appContent) {
-          appContent.style.opacity = '1';
-          appContent.style.pointerEvents = 'auto';
-        }
-      }
-
-      function showMessageModal({
-        title,
-        message,
-        iconClass = 'fa-solid fa-circle-info',
-        confirmText = 'Continue',
-      }) {
-        if (
-          !messageModal ||
-          !messageModalTitle ||
-          !messageModalBody ||
-          !messageModalIcon ||
-          !messageModalIconInner ||
-          !messageModalOkBtn
-        ) {
-          return;
-        }
-
-        messageModalTitle.textContent = title || 'Just a quick note';
-        messageModalBody.textContent = message || 'Everything is ready.';
-        messageModalIconInner.className = `${iconClass} text-xl`;
-        messageModalOkBtn.textContent = confirmText;
-        messageModal.classList.add('active');
-      }
-
-      function closeMessageModal() {
-        if (messageModal) {
-          messageModal.classList.remove('active');
-        }
-      }
-
-      if (messageModalOkBtn) {
-        messageModalOkBtn.addEventListener('click', closeMessageModal);
-      }
-      if (messageModal) {
-        messageModal.addEventListener('click', (event) => {
-          if (event.target === messageModal) {
-            closeMessageModal();
-          }
-        });
-      }
-
-      function showLocationPrompt() {
-        if (!locationPromptOverlay) return;
-        locationPromptOverlay.classList.add('active');
-        if (appContent) {
-          appContent.style.opacity = '0.35';
-          appContent.style.pointerEvents = 'none';
-        }
-      }
-
-      function hideLocationPrompt() {
-        if (locationPromptOverlay) {
-          locationPromptOverlay.classList.remove('active');
-        }
-        if (appContent) {
-          appContent.style.opacity = '1';
-          appContent.style.pointerEvents = 'auto';
-        }
-      }
-      if (locationAllowBtn) {
-        locationAllowBtn.addEventListener('click', () => {
-          if ('geolocation' in navigator) {
-            getLocation();
-          }
-          hideLocationPrompt();
-        });
-      }
-
-      if (locationDeclineBtn) {
-        locationDeclineBtn.addEventListener('click', () => {
-          hideLocationPrompt();
-        });
-      }
-
-      if (locationPromptOverlay) {
-        locationPromptOverlay.addEventListener('click', (event) => {
-          if (event.target === locationPromptOverlay) {
-            hideLocationPrompt();
-          }
-        });
-      }
-
-      function showConsentOverlay(state, message) {
-        if (
-          !consentOverlay ||
-          !consentTitle ||
-          !consentBody ||
-          !consentStatusText
-        ) {
-          return;
-        }
-
-        consentOverlay.classList.add('active');
-        if (appContent) {
-          appContent.style.opacity = '0.35';
-          appContent.style.pointerEvents = 'none';
-        }
-
-        if (state === 'declined') {
-          consentTitle.textContent = 'Identification paused';
-          consentBody.textContent =
-            message ||
-            'You can keep using the app without identifying a plant. Start again whenever you want.';
-          consentStatusText.textContent = 'Location stays optional.';
-        } else {
-          consentTitle.textContent = 'Agree to identify your plant';
-          consentBody.textContent =
-            message ||
-            "This app uses experimental technology. Your image will be sent to a server for processing, and results may not always be accurate. By pressing 'Yes', you consent to this process.";
-          consentStatusText.textContent = 'Location stays optional.';
-        }
-      }
-
-      function handleConsentAllow() {
-        identificationConsentGranted = true;
-        try {
-          window.sessionStorage.setItem(consentStateKey, 'accepted');
-        } catch (err) {
-          console.warn('Could not persist consent state:', err);
-        }
-        releaseConsentOverlay();
-        if (pendingIdentificationAfterConsent && analyzeButton) {
-          pendingIdentificationAfterConsent = false;
-          analyzeButton.click();
-        }
-      }
-
-      function handleConsentDecline() {
-        identificationConsentGranted = false;
-        try {
-          window.sessionStorage.setItem(consentStateKey, 'declined');
-        } catch (err) {
-          console.warn('Could not persist consent state:', err);
-        }
-        releaseConsentOverlay();
-        showMessageModal({
-          title: 'Identification paused',
-          message:
-            'You can keep using the app without identifying a plant. Start again whenever you want.',
-          iconClass: 'fa-solid fa-circle-info',
-        });
-      }
-
-      if (consentAllowBtn) {
-        consentAllowBtn.addEventListener('click', handleConsentAllow);
-      }
-      if (consentDeclineBtn) {
-        consentDeclineBtn.addEventListener('click', handleConsentDecline);
-      }
-
-      setTimeout(() => {
-        if (pageLoader) {
-          pageLoader.style.opacity = '0';
-          pageLoader.style.display = 'none';
-        }
-        if (appContent) {
-          appContent.style.opacity = '1';
-          appContent.style.pointerEvents = 'auto';
-        }
-        showLocationPrompt();
-      }, 2500);
-
-      function updateHazardBadge(type) {
-        if (!hazardBadge || !hazardIcon || !hazardLabel) return;
-
-        hazardBadge.className = 'hazard-badge';
-
-        switch (type) {
-          case 'poisonous':
-            hazardBadge.classList.add('hazard-poisonous');
-            hazardIcon.className = 'fa-solid fa-skull-crossbones';
-            hazardLabel.textContent = 'Poisonous';
-            break;
-          case 'prickly':
-            hazardBadge.classList.add('hazard-prickly');
-            hazardIcon.className = 'fa-solid fa-triangle-exclamation';
-            hazardLabel.textContent = 'Sharp / Prickly';
-            break;
-          case 'deadly':
-            hazardBadge.classList.add('hazard-deadly');
-            hazardIcon.className = 'fa-solid fa-biohazard';
-            hazardLabel.textContent = 'Deadly / Toxic';
-            break;
-          case 'safe':
-          default:
-            hazardBadge.classList.add('hazard-safe');
-            hazardIcon.className = 'fa-solid fa-shield-heart';
-            hazardLabel.textContent = 'Harmless / Low Risk';
-            break;
-        }
-
-        hazardBadge.classList.remove('hidden');
-      }
-
-      function updatePlantTypeBadge(category) {
-        if (!plantTypeBadge || !plantTypeIcon || !plantTypeLabel) return;
-
-        const catLower = (category || '').toLowerCase();
-        const isWeed =
-          catLower.includes('weed') ||
-          catLower.includes('pest') ||
-          catLower.includes('invasive');
-
-        if (isWeed) {
-          plantTypeBadge.className = 'hazard-badge badge-weed';
-          plantTypeIcon.className = 'fa-solid fa-ban text-xs';
-          plantTypeLabel.textContent = 'WEED';
-        } else {
-          plantTypeBadge.className = 'hazard-badge badge-plant';
-          plantTypeIcon.className = 'fa-solid fa-seedling text-xs';
-          plantTypeLabel.textContent = 'PLANT';
-        }
-
-        plantTypeBadge.classList.remove('hidden');
-      }
 
       if (uploadDropzone && plantImage) {
         uploadDropzone.addEventListener('click', () => {
