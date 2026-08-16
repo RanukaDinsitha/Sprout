@@ -1472,12 +1472,14 @@
   </div>
   <script>
     $(document).ready(function () {
+        console.info("Welcome to Sprout; if you're a judge this is the console, you can view the outputs Sprout gives incase there is a error. Thank you for using Sprout! 🌱💻");
+        console.info("This is project was made for NIWA science")
+    })
+    $(document).ready(function () {
       $('#playSound').on('click', function () {
         const audioCtx = new (
           window.AudioContext || window.webkitAudioContext
         )();
-
-        console.info("Welcome to Sprout!");
         
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
