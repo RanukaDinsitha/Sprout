@@ -1,0 +1,43 @@
+  <div id="vanta-canvas"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div
+    class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#040a08]/95 backdrop-blur-xl transition-opacity duration-500 p-6"
+    id="pageLoader">
+    <div class="relative flex flex-col items-center max-w-xs w-full text-center">
+      <div class="relative mb-6">
+        <div class="absolute -inset-2 rounded-3xl bg-emerald-500/20 blur-xl"></div>
+        <div class="typewriter my-4">
+          <div class="slide"><i></i></div>
+          <div class="paper"></div>
+          <div class="keyboard"></div>
+        </div>
+      </div>
+      <script>
+        $(function () {
+          const audioUrl =
+            'https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3';
+          const audio = new Audio(audioUrl);
+
+          $(audio).attr('preload', 'auto');
+
+          $('.audioBtn').on('click', function () {
+            audio.currentTime = 0;
+
+            try {
+              audio.play();
+            } catch (error) {
+              $.error('Audio playback failed: ' + error.message);
+            }
+          });
+        });
+      </script>
+      <h2 class="text-2xl font-black text-white tracking-wider uppercase leading-none">
+        Sprout
+      </h2>
+      <p class="text-xs font-semibold tracking-widest text-emerald-400 uppercase mt-2 h-4 transition-all duration-300"
+        id="loaderSubtext">
+        Initializing Sprout...
+      </p>
+    </div>
+  </div>

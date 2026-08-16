@@ -1,0 +1,257 @@
+  <!-- Main Content Container -->
+  <div
+    class="relative z-10 flex flex-col justify-between w-full max-w-xl md:max-w-2xl my-auto opacity-0 transition-opacity duration-500"
+    id="appContent">
+    <header class="flex items-center justify-between py-3 mb-4 px-2">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-11 h-11 rounded-2xl glass-card flex items-center justify-center p-2 border border-emerald-500/30 shadow-lg">
+          <img alt="Sprout Logo" class="h-full w-full object-contain"
+            src="https://i.postimg.cc/8CNmNF4V/Whats-App-Image-2026-06-21-at-6-56-39-PM-2-removebg-preview.png" />
+        </div>
+        <div>
+          <div class="flex flex-col items-start">
+            <h1 class="text-lg sm:text-xl font-extrabold text-white tracking-wide leading-tight font-[Inter,Plus_Jakarta_Sans,sans-serif]">
+              SPROUT
+            </h1>
+            <div class="-mt-[2px]" id="scroll-container">
+              <div class="leading-none" id="scroll-list">
+                <div
+                  class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none font-[Plus_Jakarta_Sans,Inter,sans-serif]">
+                  Thanks for using! 🙌
+                </div>
+                <div
+                  class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none font-[Plus_Jakarta_Sans,Inter,sans-serif]">
+                  Polishing... 🧹
+                </div>
+                <div
+                  class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none font-[Plus_Jakarta_Sans,Inter,sans-serif]">
+                  Sprout waves! 🍃
+                </div>
+                <div
+                  class="scroll-item text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-tighter leading-none font-[Plus_Jakarta_Sans,Inter,sans-serif]">
+                  You are awesome! 🙃
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <style>
+        #scroll-container {
+          height: 30px;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .scroll-item {
+          height: 30px;
+          line-height: 26px;
+        }
+      </style>
+      <script>
+        $(document).ready(function () {
+          let currentIndex = 0;
+          const itemHeight = 30;
+          const $scrollList = $('#scroll-list');
+          const totalItems = $('.scroll-item').length;
+
+          setInterval(function () {
+            currentIndex++;
+
+            if (currentIndex >= totalItems) {
+              currentIndex = 0;
+            }
+
+            const moveAmount = -(currentIndex * itemHeight);
+
+            $scrollList.animate(
+              {
+                'margin-top': moveAmount + 'px',
+              },
+              500,
+            );
+          }, 5000);
+        });
+      </script>
+      <div class="flex items-center gap-3">
+        <!-- Switch for Online/Offline -->
+        <div class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
+          <i class="fa-solid fa-wifi text-xs text-emerald-400" id="modeIcon"></i>
+          <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif] text-[11px] font-bold uppercase tracking-wider text-slate-300" id="modeLabel">Online</span>
+          <label class="relative inline-flex items-center cursor-pointer ml-1">
+            <input class="sr-only peer" id="offlineToggle" type="checkbox" />
+            <div
+              class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500">
+            </div>
+          </label>
+        </div>
+        <button
+          class="w-10 h-10 audioBtn rounded-full btn-secondary-glass flex items-center justify-center text-slate-300 hover:text-white transition"
+          id="openHistoryBtn" title="Scan History">
+          <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+        </button>
+        <button
+          class="w-10 h-10 audioBtn rounded-full btn-secondary-glass flex items-center justify-center text-slate-300 hover:text-white transition"
+          id="openHelpBtn" title="Help &amp; Info">
+          <i class="fa-solid fa-circle-question text-sm"></i>
+        </button>
+      </div>
+    </header>
+    <main class="glass-card p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden">
+      <div class="pill-tab grid grid-cols-2 text-xs sm:text-sm font-semibold text-slate-400">
+        <button class="pill-tab-btn py-2.5 text-center active flex items-center justify-center gap-2 audioBtn"
+          id="tabUpload">
+          <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+          <span>Upload Photo</span>
+        </button>
+        <button class="pill-tab-btn py-2.5 text-center flex items-center justify-center gap-2 audioBtn" id="tabCamera">
+          <i class="fa-solid fa-camera text-sm"></i>
+          <span>Live Camera</span>
+        </button>
+      </div>
+      <div class="flex flex-col justify-center" id="uploadSection">
+        <div
+          class="group relative flex flex-col items-center justify-center w-full h-72 sm:h-80 dropzone-frame rounded-2xl cursor-pointer p-6 text-center transition"
+          id="uploadDropzone">
+          <div class="space-y-3 pointer-events-none">
+            <div
+              class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-lg group-hover:scale-110 transition duration-300">
+              <i class="fa-solid fa-leaf text-2xl animate-float"></i>
+            </div>
+            <div>
+              <span class="font-[Inter,Plus_Jakarta_Sans,sans-serif] block text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition">
+                Select <i>by clicking</i> or Drop Plant Image
+              </span>
+              <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif] block text-xs text-slate-400 mt-1">
+                Supports common image formats.
+              </span>
+            </div>
+          </div>
+          <!-- Input explicit attributes added -->
+          <input accept="image/*" id="plantImage" name="file" style="display: none" type="file" />
+        </div>
+      </div>
+      <div class="hidden flex-col justify-center" id="cameraSection">
+        <div
+          class="relative w-full h-72 sm:h-80 rounded-2xl overflow-hidden border border-emerald-500/20 bg-slate-950 flex items-center justify-center">
+          <video autoplay="" class="absolute inset-0 h-full w-full object-cover" id="cameraVideo" muted=""
+            playsinline=""></video>
+          <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 p-6 text-center"
+            id="cameraOverlay">
+            <i class="fa-solid fa-video-slash text-2xl text-slate-500 mb-3"></i>
+            <p class="text-xs sm:text-sm font-medium font-[Plus_Jakarta_Sans,Inter,sans-serif] text-slate-300">
+              Camera is currently off
+            </p>
+            <button class="mt-3 px-4 py-2 rounded-xl btn-gradient text-xs font-bold text-white font-[Plus_Jakarta_Sans,Inter,sans-serif] shadow-md audioBtn"
+              id="startCameraBtn">
+              Turn On Camera
+            </button>
+          </div>
+        </div>
+        <button
+          class="mt-3 w-full py-2.5 rounded-xl btn-secondary-glass text-xs font-bold text-white flex items-center justify-center gap-2 audioBtn"
+          id="capturePhotoBtn">
+          <i class="fa-solid fa-circle-dot text-emerald-400 font-[Plus_Jakarta_Sans,Inter,sans-serif] text-xs"></i>
+          <span>Take Snapshot</span>
+        </button>
+      </div>
+      <div
+        class="hidden relative w-full h-72 sm:h-80 rounded-2xl overflow-hidden border border-emerald-500/40 bg-slate-950"
+        id="previewContainer">
+        <img alt="Plant preview" class="h-full w-full object-contain" id="previewImage" src="" />
+        <button
+          class="absolute top-3 right-3 rounded-full bg-slate-900/80 hover:bg-slate-900 text-slate-300 hover:text-white h-8 w-8 flex items-center justify-center text-xs transition border border-white/10 backdrop-blur-md audioBtn"
+          id="changePhotoBtn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <!-- Status Card with Hazard Badge & Weed/Plant Classification Badge -->
+      <div
+        class="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex items-center justify-between gap-4">
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">Status</span>
+            <!-- Plant vs Weed Badge -->
+            <span class="hidden hazard-badge badge-plant" id="plantTypeBadge">
+              <i class="fa-solid fa-seedling text-xs font-[Inter,Plus_Jakarta_Sans,sans-serif]" id="plantTypeIcon"></i>
+              <span id="plantTypeLabel">PLANT</span>
+            </span>
+            <!-- Hazard Badge -->
+            <span class="hidden hazard-badge hazard-safe" id="hazardBadge">
+              <i class="fa-solid fa-shield-heart" id="hazardIcon"></i>
+              <span id="hazardLabel" class="font-[Inter,Plus_Jakarta_Sans,sans-serif]">Harmless</span>
+            </span>
+          </div>
+          <h3 class="text-base font-bold text-white mt-1 font-[Plus_Jakarta_Sans,Inter,sans-serif] truncate" id="speciesName">
+            Waiting for your photo!
+          </h3>
+          <p class="text-xs text-slate-400 truncate mt-0.5 font-[Plus_Jakarta_Sans,Inter,sans-serif]" id="pestStatus">
+            Upload or capture a picture of a plant and <b>Sprout</b> will tell
+            you what it is.
+          </p>
+        </div>
+        <div
+          class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs flex-shrink-0"
+          id="statusIcon" title="Current AI status">
+          <button aria-label="Ring bell" class="status-bell" id="statusFidgetSpinner" title="Press me!" type="button">
+            <span class="material-symbols-outlined material-icon">room_service</span>
+          </button>
+        </div>
+      </div>
+      <!-- Plant Summary Details & Treatment/Control Section on UI Card -->
+      <div
+        class="hidden bg-emerald-950/30 border border-emerald-500/20 rounded-2xl p-4 backdrop-blur-md flex flex-col gap-3"
+        id="extendedDetailsCard">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+          <i class="fa-solid fa-circle-info"></i>
+          <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif]">Plant Summary</span>
+        </h4>
+        <p class="text-xs text-slate-300 leading-relaxed" id="extendedDetailsText">
+          --
+        </p>
+        <!-- Integrated HTML Treatment Section -->
+        <div class="hidden border-t border-white/10 pt-2.5 mt-1" id="treatmentSection">
+          <h5 class="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 mb-1">
+            <i class="fa-solid fa-kit-medical text-xs"></i>
+            <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif]">Treatment &amp; Care</span>
+          </h5>
+          <p class="text-xs text-slate-300 leading-relaxed" id="treatmentText">
+            --
+          </p>
+        </div>
+        <!-- loading overlay -->
+        <div id="loadingOverlay">
+          <div class="spinner"></div>
+        </div>
+        <!-- Integrated HTML Control / Removal Section -->
+        <div class="hidden border-t border-white/10 pt-2.5 mt-1" id="controlSection">
+          <h5 class="text-[11px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5 mb-1">
+            <i class="fa-solid fa-hand-holding-hand text-xs"></i>
+            <span class="font-[Plus_Jakarta_Sans,Inter,sans-serif]">Control &amp; Removal</span>
+          </h5>
+          <p class="text-xs text-slate-300 leading-relaxed" id="controlText">
+            --
+          </p>
+        </div>
+      </div>
+      <button
+        class="w-full py-3.5 audioBtn rounded-xl btn-gradient text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-lg flex items-center justify-center gap-2"
+        id="analyzeButton">
+        <i class="fa-solid fa-sparkles text-xs" id="analyzeIcon"></i>
+        <span id="analyzeBtnText" class="text-xs sm:text-sm font-[Inter,Plus_Jakarta_Sans,sans-serif]">Identify Plant</span>
+      </button>
+      <p style="
+            text-align: center;
+            font-size: 10px;
+            font-family: 'Inter', monospace, sans-serif;
+          ">
+        This was created by
+        <a class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline"
+          href="https://github.com/RanukaDinsitha" id="playSound" target="_blank">Ranuka</a>
+        and
+        <a class="text-emerald-300 hover:text-emerald-300 no-underline hover:underline"
+          href="https://github.com/lambo-camper" id="playSound" target="_blank">Eliaseen</a>; thank you for using! 🌱💻
+      </p>
+    </main>
+  </div>

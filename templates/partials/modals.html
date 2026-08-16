@@ -1,0 +1,205 @@
+  <div class="modal-overlay p-4" id="helpModal">
+    <div class="relative w-full max-w-md glass-card p-6 sm:p-8 transition-transform duration-300 scale-95"
+      id="helpModalCard">
+      <button aria-label="Close help modal"
+        class="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition audioBtn"
+        id="closeHelpBtn">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+      <div class="flex items-center gap-3 mb-6">
+        <div
+          class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-base">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-white">Quick Guide</h2>
+          <p class="text-xs text-slate-400">
+            Simple steps to identify plants
+          </p>
+        </div>
+      </div>
+      <div class="space-y-3.5 text-xs sm:text-sm text-slate-200">
+        <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
+          <span
+            class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">1</span>
+          <span>Choose <strong>Camera</strong> or tap
+            <strong>Upload</strong>.</span>
+        </div>
+        <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
+          <span
+            class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">2</span>
+          <span>Capture or pick a clear plant image.</span>
+        </div>
+        <div class="flex items-center gap-3.5 bg-white/5 p-3.5 rounded-xl border border-white/5">
+          <span
+            class="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-xs">3</span>
+          <span>Click <strong>"Identify Plant"</strong> to see your results and
+            save them to your history!</span>
+        </div>
+      </div>
+      <button
+        class="mt-6 w-full rounded-xl btn-gradient py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg audioBtn"
+        id="dismissHelpBtn">
+        Got It
+      </button>
+    </div>
+  </div>
+  <!-- History Modal -->
+  <div class="modal-overlay p-4" id="historyModal">
+    <div
+      class="relative w-full max-w-lg glass-card p-6 sm:p-8 transition-transform duration-300 scale-95 flex flex-col max-h-[80vh]"
+      id="historyModalCard">
+      <button aria-label="Close history modal"
+        class="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition audioBtn"
+        id="closeHistoryBtn">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+      <div class="flex items-center justify-between mb-4 pr-8">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-base">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white">
+              Identification History
+            </h2>
+            <p class="text-xs text-slate-400">
+              Your recently identified plants
+            </p>
+          </div>
+        </div>
+        <button
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wide text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition ml-auto mr-10 audioBtn"
+          id="openAllMapBtn" title="View all on map">
+          <i class="fa-solid fa-map-location-dot text-xs"></i>
+          <span>Map</span>
+        </button>
+      </div>
+      <div class="space-y-3 overflow-y-auto custom-scrollbar my-2 pr-1 flex-1" id="historyList"></div>
+      <div class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center">
+        <button
+          class="text-xs text-rose-400 hover:text-rose-300 font-semibold transition flex items-center gap-1.5 audioBtn"
+          id="clearHistoryBtn">
+          <i class="fa-solid fa-trash-can"></i>
+          <span>Clear History</span>
+        </button>
+        <button class="px-5 py-2 rounded-xl btn-gradient text-xs font-bold uppercase tracking-wider text-white audioBtn"
+          id="dismissHistoryBtn">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Map Modal -->
+  <div class="modal-overlay p-4" id="mapModal" style="z-index: 60">
+    <div class="map-modal-card glass-card transition-transform duration-300 scale-95 relative overflow-hidden"
+      id="mapModalCard">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 pt-5 pb-3 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-sm">
+            <i class="fa-solid fa-map-location-dot"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-white leading-tight" id="mapModalTitle">
+              Map
+            </h2>
+            <p class="text-[10px] text-slate-400" id="mapModalSubtitle">
+              All of identified locations
+            </p>
+          </div>
+        </div>
+        <button
+          class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition audioBtn"
+          id="closeMapBtn">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+      <!-- Map -->
+      <div id="plantMap" style="height: 520px"></div>
+    </div>
+  </div>
+  <div class="modal-overlay p-4" id="locationPromptOverlay">
+    <div class="consent-card glass-card p-6 sm:p-8 text-center transition-transform duration-300 scale-95"
+      id="locationPromptCard">
+      <div
+        class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/20 text-emerald-400">
+        <i class="fa-solid fa-location-dot text-xl"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white" id="locationPromptTitle">
+        Optional location access
+      </h2>
+      <p class="mt-3 text-sm text-slate-300 leading-6" id="locationPromptBody">
+        Share your location to view where you identified your plants and help
+        our local councils remove weeds.
+      </p>
+      <div class="consent-actions mt-6 justify-center">
+        <button
+          class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 audioBtn"
+          id="locationDeclineBtn" type="button">
+          No thanks
+        </button>
+        <button class="w-full rounded-xl btn-gradient px-4 py-3 text-sm font-semibold text-white shadow-lg audioBtn"
+          id="locationAllowBtn" type="button">
+          Allow
+        </button>
+      </div>
+      <p class="mt-4 text-xs text-slate-400" id="locationPromptStatus">
+        This does not block identification.
+      </p>
+    </div>
+  </div>
+  <div class="modal-overlay p-4" id="consentOverlay">
+    <div class="consent-card glass-card p-6 sm:p-8 text-center transition-transform duration-300 scale-95"
+      id="consentCard">
+      <div
+        class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/20 text-emerald-400">
+        <i class="fa-solid fa-seedling text-xl"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white" id="consentTitle">
+        Agree to identify your plant
+      </h2>
+      <p class="mt-3 text-sm text-slate-300 leading-6" id="consentBody">
+        Sprout needs your permission before it can analyze a photo. Location
+        is optional and will not be required for identification.
+      </p>
+      <div class="consent-actions mt-6 justify-center">
+        <button
+          class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 audioBtn"
+          id="consentDeclineBtn" type="button">
+          Not now
+        </button>
+        <button class="w-full rounded-xl btn-gradient px-4 py-3 text-sm font-semibold text-white shadow-lg audioBtn"
+          id="consentAllowBtn" type="button">
+          Continue
+        </button>
+      </div>
+      <p class="mt-4 text-xs text-slate-400" id="consentStatusText">
+        Location stays optional.
+      </p>
+    </div>
+  </div>
+  <div class="modal-overlay p-4" id="messageModal">
+    <div class="dialog-card glass-card p-6 sm:p-8 text-center transition-transform duration-300 scale-95"
+      id="messageModalCard">
+      <div
+        class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/20 text-emerald-400"
+        id="messageModalIcon">
+        <i class="fa-solid fa-circle-info text-xl" id="messageModalIconInner"></i>
+      </div>
+      <h2 class="text-xl font-bold text-white" id="messageModalTitle">
+        Just a quick note
+      </h2>
+      <p class="mt-3 text-sm text-slate-300 leading-6" id="messageModalBody">
+        Everything is ready.
+      </p>
+      <div class="dialog-actions mt-6 justify-center">
+        <button class="w-full audioBtn rounded-xl btn-gradient px-4 py-3 text-sm font-semibold text-white shadow-lg"
+          id="messageModalOkBtn" type="button">
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
