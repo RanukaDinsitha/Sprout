@@ -17,7 +17,7 @@ from tqdm import tqdm
 # --- CONFIG ---
 IMAGE_DIR = "wellington_pest_images"
 TOTAL_IMAGES = 50
-WELLINGTON_PLACE_ID = 7352
+WELLINGTON_PLACE_ID = 6867  # Wellington Region, NZ (was 7352 — invalid/near-empty place, caused near-zero results)
 MAX_WORKERS = 20  # parallel download threads
 PEST_SPECIES = [
     "Tradescantia fluminensis", "Clematis vitalba", "Asparagus scandens",
@@ -43,16 +43,19 @@ def get_model_config(session):
     return input_meta.name, (w, h)
 
 
-def _fetch_observation_urls(species, per_species):
-    """Hit the iNaturalist API for one species and return (url, path, species) tuples."""
+def _fetch_observation_urls(species, per_species, place_id=WELLINGTON_PLACE_ID):
+    """Hit the iNaturalist API for one species and return (url, path, species) tuples.
+    place_id=None searches nationwide (NZ), used as a fallback when the regional
+    search comes up short for a species."""
     tasks = []
     url = "https://api.inaturalist.org/v1/observations"
     params = {
         "taxon_name": species,
-        "place_id": WELLINGTON_PLACE_ID,
         "per_page": per_species,
         "photos": "true",
     }
+    if place_id is not None:
+        params["place_id"] = place_id
     try:
         res = requests.get(url, params=params, timeout=10).json()
         for obs in res.get("results", []):
@@ -85,16 +88,41 @@ def download_pests():
         os.makedirs(IMAGE_DIR)
 
     per_species = max(1, TOTAL_IMAGES // len(PEST_SPECIES))
+    per_species_fetch = per_species + 2  # over-fetch a little in case some obs lack photos
 
-    # 1. Gather candidate image URLs (metadata lookups) in parallel across species
+    # 1. Gather candidate image URLs (metadata lookups) in parallel across species.
+    #    Regional (Wellington) search first; if a species comes up short, backfill
+    #    with a nationwide search so we still land close to TOTAL_IMAGES.
     print("Looking up observations...")
     all_tasks = []
     with ThreadPoolExecutor(max_workers=len(PEST_SPECIES)) as executor:
-        futures = [executor.submit(_fetch_observation_urls, s, per_species) for s in PEST_SPECIES]
+        futures = {executor.submit(_fetch_observation_urls, s, per_species_fetch): s for s in PEST_SPECIES}
+        shortfalls = []
         for f in as_completed(futures):
-            all_tasks.extend(f.result())
+            species = futures[f]
+            tasks = f.result()
+            if len(tasks) < per_species:
+                shortfalls.append(species)
+            all_tasks.extend(tasks)
 
-    all_tasks = all_tasks[:TOTAL_IMAGES] if len(all_tasks) > TOTAL_IMAGES else all_tasks
+    if shortfalls:
+        with ThreadPoolExecutor(max_workers=max(1, len(shortfalls))) as executor:
+            futures = [executor.submit(_fetch_observation_urls, s, per_species_fetch, None) for s in shortfalls]
+            for f in as_completed(futures):
+                all_tasks.extend(f.result())
+
+    # De-dupe by path, then cap at TOTAL_IMAGES
+    seen = set()
+    deduped = []
+    for t in all_tasks:
+        if t[1] not in seen:
+            seen.add(t[1])
+            deduped.append(t)
+    all_tasks = deduped[:TOTAL_IMAGES]
+
+    if not all_tasks:
+        print("No observations found — check WELLINGTON_PLACE_ID and species names.")
+        return []
 
     # 2. Download the actual image bytes in parallel with a progress bar
     data_log = []
