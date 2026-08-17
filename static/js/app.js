@@ -583,7 +583,7 @@
 
         sproutMap = new maplibregl.Map({
           container: 'plantMap',
-          style: 'https://tiles.openfreemap.org/styles/liberty',
+          style: 'https://tiles.openfreemap.org/styles/bright',
           center: [174.7762, -41.2865],
           zoom: 5
         });
