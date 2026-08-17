@@ -17,8 +17,8 @@ from tqdm import tqdm
 # --- CONFIG ---
 IMAGE_DIR = "wellington_pest_images"
 TOTAL_IMAGES = 50
-WELLINGTON_PLACE_ID = 6867  # Wellington Region, NZ (was 7352 — invalid/near-empty place, caused near-zero results)
-MAX_WORKERS = 20  # parallel download threads
+WELLINGTON_PLACE_ID = 6867  
+MAX_WORKERS = 20  
 PEST_SPECIES = [
     "Tradescantia fluminensis", "Clematis vitalba", "Asparagus scandens",
     "Passiflora tarminiana", "Solanum mauritianum", "Berberis darwinii",
@@ -88,11 +88,8 @@ def download_pests():
         os.makedirs(IMAGE_DIR)
 
     per_species = max(1, TOTAL_IMAGES // len(PEST_SPECIES))
-    per_species_fetch = per_species + 2  # over-fetch a little in case some obs lack photos
+    per_species_fetch = per_species + 2  
 
-    # 1. Gather candidate image URLs (metadata lookups) in parallel across species.
-    #    Regional (Wellington) search first; if a species comes up short, backfill
-    #    with a nationwide search so we still land close to TOTAL_IMAGES.
     print("Looking up observations...")
     all_tasks = []
     with ThreadPoolExecutor(max_workers=len(PEST_SPECIES)) as executor:
@@ -192,7 +189,7 @@ def create_watercolour_graph(results_dict, metric_name):
     ax.set_axisbelow(True)
 
     total_images = sum(len(v) for v in results_dict.values())
-    ax.set_title("Wellington Pest Detection Report", fontsize=20, fontfamily=serif,
+    ax.set_title("Sprout", fontsize=20, fontfamily=serif,
                  fontweight="bold", color="#2F4F2F", pad=34)
     ax.text(0.5, 1.045, f"{metric_name}  ·  {total_images} images  ·  {n} species",
             transform=ax.transAxes, ha="center", fontsize=11.5, fontfamily=serif,
@@ -222,10 +219,8 @@ def main():
         with open(label_path, "r") as f:
             class_map = {i: line.strip().lower() for i, line in enumerate(f.readlines())}
 
-    # 1. Download (fast, parallel, with progress bar)
     image_data = download_pests()
 
-    # 2. Run inference
     print(f"Testing {len(image_data)} images against {model_path}...")
     for item in image_data:
         try:
