@@ -14,14 +14,14 @@
         </div>
       </div>
       <script>
-        $(function () {
+        $(document).ready(function() {
           const audioUrl =
             'https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3';
           const audio = new Audio(audioUrl);
 
           $(audio).attr('preload', 'auto');
 
-          $('.audioBtn').on('click', function () {
+          $('.audioBtn').on('click', function() {
             audio.currentTime = 0;
 
             try {
@@ -30,6 +30,7 @@
               $.error('Audio playback failed: ' + error.message);
             }
           });
+
         });
       </script>
       <h2 class="text-2xl font-black text-white tracking-wider uppercase leading-none">

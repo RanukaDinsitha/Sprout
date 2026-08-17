@@ -847,14 +847,17 @@
     /* Map modal sizing */
     #mapModal .map-modal-card {
       width: min(100%, 44rem);
+      height: min(90vh, 40rem);
       max-height: 90vh;
       display: flex;
       flex-direction: column;
     }
 
     #plantMap {
-      flex: 1;
-      min-height: 0;
+      flex: 1 1 auto;
+      width: 100%;
+      height: 520px;
+      min-height: 320px;
       border-radius: 0 0 1.5rem 1.5rem;
     }
 

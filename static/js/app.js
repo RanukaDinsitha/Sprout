@@ -573,14 +573,23 @@
       function initSproutMap() {
         if (sproutMapInitialized) return;
 
+        // TODO old
+        // sproutMap = new maplibregl.Map({
+        //   container: 'plantMap',
+        //   style: 'https://demotiles.maplibre.org/style.json',
+        //   center: [174.7645, -36.8509], // [Lng, Lat]
+        //   zoom: 5,
+        // });
+
         sproutMap = new maplibregl.Map({
           container: 'plantMap',
-          style: 'https://tiles.openfreemap.org/styles/liberty/style.json', 
-          center: [174.7645, -36.8509], // [Lng, Lat] 
-          zoom: 5,
+          style: 'https://tiles.openfreemap.org/styles/liberty',
+          center: [174.7762, -41.2865],
+          zoom: 5
         });
 
         sproutMap.on('load', () => {
+          sproutMap.resize();
           if (!sproutMap.getSource('plants')) {
             sproutMap.addSource('plants', {
               type: 'geojson',
@@ -636,7 +645,7 @@
                                         </p>
                                       </div>
                                     </div>`;
-              new maplibregl.Popup({ maxWidth: '220px' })
+              new maplibregl.Popup({ maxWidth: '520px', maxHeight:'400px' }) //height: 520px; width:400px
                 .setLngLat(coords)
                 .setHTML(popupHtml)
                 .addTo(sproutMap);
