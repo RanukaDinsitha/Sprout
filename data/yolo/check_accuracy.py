@@ -172,10 +172,8 @@ def create_watercolour_graph(results_dict, metric_name):
         for _ in range(6):
             jitter = rng.uniform(-0.015, 0.015)
             ax.barh(i + jitter, val, color=color, alpha=0.12, height=0.62, zorder=1)
-        # crisp bar on top
         ax.barh(i, val, color=color, alpha=0.75, height=0.5,
                  edgecolor=color, linewidth=1.2, zorder=2)
-        # value label
         txt = ax.text(val + 0.015, i, f"{val:.0%}", va="center", ha="left",
                        fontfamily=serif, fontweight="bold", fontsize=11, color="#2F4F2F", zorder=3)
         txt.set_path_effects([path_effects.withStroke(linewidth=3, foreground="#FBF7EE")])
