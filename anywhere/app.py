@@ -3,7 +3,7 @@ import io
 from pathlib import Path
 from typing import Any
 import requests
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, abort, render_template, request, jsonify, send_file
 from PIL import Image, ImageOps
 import numpy as np
 import onnxruntime as ort
@@ -118,9 +118,27 @@ def preprocess_image(pil_img: Image.Image) -> np.ndarray:
 # ------------------------------------------------------------------------------
 # ROUTES
 # ------------------------------------------------------------------------------
+def serve_onnx_model():
+    if not MODEL_PATH.is_file():
+        abort(404, description="Offline model file is missing on this server.")
+    response = send_file(
+        MODEL_PATH,
+        mimetype="application/octet-stream",
+        conditional=True,
+        download_name="best.onnx",
+    )
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Cache-Control"] = "public, max-age=86400"
+    return response
+
 @app.route("/")
 def home():
     return render_template("index.html")
+
+@app.route("/model")
+@app.route("/models/best.onnx")
+def model_download():
+    return serve_onnx_model()
 
 @app.route("/predict", methods=["POST"])
 def predict() -> Any:

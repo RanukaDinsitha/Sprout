@@ -163,30 +163,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const modeIcon = document.getElementById('modeIcon');
   const modeLabel = document.getElementById('modeLabel');
 
-  const words = [
-    'Thanks for your patience! ⏳',
-    'Just a second now...⏱️',
-    'Sprout waves! 🍃',
-    'Engines running... 🛠️',
-    'Connecting to server... 🌐',
-  ];
-  let index = 0;
-  let textRotationInterval = null;
-
-  const $loaderContainer = $('<div>')
-    .attr('id', 'dynamic-loader-text')
-    .addClass(
-      'hidden text-xl font-medium text-gray-700 flex flex-col items-center justify-center gap-2 mt-4',
-    );
-
-  const $rotatingText = $('<span>')
-    .addClass('text-indigo-600 transition-opacity duration-300 opacity-100')
-    .text(words[index]);
-
-  $loaderContainer.append($rotatingText);
-  $('#loading').append($loaderContainer);
-  $('#loadingOverlay').hide();
-
   function resolveWorkerScriptUrl() {
     const appScript = document.querySelector('script[src*="app.js"]');
     if (appScript && appScript.src) {
@@ -195,106 +171,15 @@ window.addEventListener('DOMContentLoaded', () => {
     return new URL('static/js/worker.js', window.location.href).href;
   }
 
-  let worker = null;
-  try {
-    worker = new Worker(resolveWorkerScriptUrl());
-  } catch (err) {
-    console.warn('Could not start offline worker:', err);
+  function setOfflineToggleEnabled(enabled) {
+    if (offlineToggle) offlineToggle.disabled = !enabled;
   }
 
-  if (worker) {
-    worker.onmessage = (e) => {
-      const { type, message, error, data, value } = e.data;
-
-      if (type === 'STATUS') {
-        if (pestStatus) $(pestStatus).text(message);
-      } else if (type === 'READY') {
-        isWorkerReady = true;
-        if (pestStatus)
-          $(pestStatus).text(
-            'Offline model ready. You can identify plants without a network connection.',
-          );
-      } else if (type === 'RESULT') {
-        handleOfflineResult(data);
-      } else if (type === 'ERROR') {
-        showMessageModal({
-          title: 'Offline issue',
-          message:
-            error || message || 'The offline model could not finish the request.',
-          iconClass: 'fa-solid fa-triangle-exclamation',
-        });
-      } else if (type === 'PROGRESS') {
-        const downloadProgress = value;
-
-        if (downloadProgress === 0.5) {
-          if ($('#page-overlay').length === 0) {
-            $('body').append('<div id="page-overlay"></div>');
-            $('#page-overlay').css({
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: 'rgba(0, 0, 0, 0.4)',
-              'z-index': 99999,
-              cursor: 'not-allowed',
-            });
-          }
-          $('#loading').fadeIn();
-          $loaderContainer.removeClass('hidden');
-          $rotatingText
-            .text(words[0])
-            .removeClass('opacity-0')
-            .addClass('opacity-100');
-          index = 0;
-
-          if (!textRotationInterval) {
-            textRotationInterval = setInterval(function () {
-              $rotatingText.removeClass('opacity-100').addClass('opacity-0');
-              setTimeout(function () {
-                index = (index + 1) % words.length;
-                $rotatingText
-                  .text(words[index])
-                  .removeClass('opacity-0')
-                  .addClass('opacity-100');
-              }, 300);
-            }, 2500);
-          }
-        } else if (downloadProgress === 1.0) {
-          if (textRotationInterval) {
-            clearInterval(textRotationInterval);
-            textRotationInterval = null;
-          }
-          $('#page-overlay').remove();
-          $loaderContainer.addClass('hidden');
-          $('#loading').fadeOut();
-        }
-      }
-    };
-  }
-
-  function initOfflineWorker() {
-    if (!worker) {
-      showMessageModal({
-        title: 'Offline issue',
-        message: 'The offline model worker could not start in this browser.',
-        iconClass: 'fa-solid fa-triangle-exclamation',
-      });
-      return;
-    }
-    worker.postMessage({ type: 'INIT_OFFLINE' });
-  }
-
-  // UI Event Listener
-  $(offlineToggle).on('change', (e) => {
-    new Audio(
-      'https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3',
-    ).play();
-    isOfflineMode = e.target.checked;
+  function showOfflineModeAppearance(enabled) {
     const $modeIcon = $(modeIcon);
     const $modeLabel = $(modeLabel);
 
-    if (isOfflineMode) {
+    if (enabled) {
       $modeIcon
         .html(
           `<div style="display: flex; align-items: center; gap: 4px;">
@@ -303,26 +188,185 @@ window.addEventListener('DOMContentLoaded', () => {
         </svg>
         </div>`,
         )
-        .removeAttr('class', 'fa-solid fa-wifi text-emerald-400');
+        .removeAttr('class');
       $modeLabel
         .text('Offline')
         .removeClass('text-slate-300')
         .addClass('text-amber-400');
+      return;
+    }
 
-      initOfflineWorker();
-    } else {
-      $modeIcon.text('').attr('class', 'fa-solid fa-wifi text-emerald-400');
+    $modeIcon.text('').attr('class', 'fa-solid fa-wifi text-emerald-400');
+    $modeLabel
+      .text('Online')
+      .removeClass('text-amber-400')
+      .addClass('text-slate-300');
+  }
 
-      $modeLabel
-        .text('Online')
-        .removeClass('text-amber-400')
-        .addClass('text-slate-300');
+  function showOfflineDownloadLock(label, value) {
+    let overlay = document.getElementById('offlineDownloadOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'offlineDownloadOverlay';
+      overlay.setAttribute('role', 'alertdialog');
+      overlay.setAttribute('aria-live', 'polite');
+      overlay.setAttribute('aria-busy', 'true');
+      overlay.innerHTML =
+        '<div style="width:min(100%,20rem);padding:1.5rem;border:1px solid rgba(16,185,129,0.3);border-radius:1rem;background:#06110d;text-align:center;">' +
+        '<p id="offlineDownloadLabel" style="color:#e2e8f0;font-size:0.85rem;font-weight:600;margin-bottom:0.75rem;"></p>' +
+        '<progress id="offlineDownloadBar" max="1" style="width:100%;height:0.5rem;"></progress>' +
+        '</div>';
+      Object.assign(overlay.style, {
+        position: 'fixed',
+        inset: '0',
+        zIndex: '100000',
+        background: 'rgba(4, 10, 8, 0.85)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'all',
+        cursor: 'wait',
+      });
+      document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
 
-      if (pestStatus) {
-        $(pestStatus).html(
-          'Offline mode is now inactive. Switch back on when you want local inference.',
-        );
+    const text = document.getElementById('offlineDownloadLabel');
+    const bar = document.getElementById('offlineDownloadBar');
+    if (text) text.textContent = label || 'Preparing offline model…';
+    if (bar) {
+      if (typeof value === 'number' && value > 0) {
+        bar.value = Math.min(value, 1);
+      } else {
+        bar.removeAttribute('value');
       }
+    }
+
+    if (appContent) appContent.style.pointerEvents = 'none';
+    setOfflineToggleEnabled(false);
+  }
+
+  function hideOfflineDownloadLock() {
+    const overlay = document.getElementById('offlineDownloadOverlay');
+    if (overlay) overlay.remove();
+    setOfflineToggleEnabled(true);
+    if (appContent) appContent.style.pointerEvents = 'auto';
+  }
+
+  function failOfflineMode(message) {
+    hideOfflineDownloadLock();
+    isOfflineMode = false;
+    if (offlineToggle) offlineToggle.checked = false;
+    showOfflineModeAppearance(false);
+    showMessageModal({
+      title: 'Offline issue',
+      message: message || 'The offline model could not finish the request.',
+      iconClass: 'fa-solid fa-triangle-exclamation',
+    });
+  }
+
+  let worker = null;
+  let pendingOfflineRun = null;
+  try {
+    worker = new Worker(resolveWorkerScriptUrl());
+  } catch (err) {
+    console.warn('Could not start offline worker:', err);
+  }
+
+  function runOfflineInference(float32Data) {
+    if (!worker) {
+      return Promise.reject(
+        new Error('The offline model worker could not start in this browser.'),
+      );
+    }
+    return new Promise((resolve, reject) => {
+      pendingOfflineRun = { resolve, reject };
+      worker.postMessage(
+        { type: 'RUN_OFFLINE', data: float32Data.buffer },
+        [float32Data.buffer],
+      );
+    });
+  }
+
+  if (worker) {
+    worker.onmessage = (e) => {
+      const { type, message, error, data, value, label } = e.data;
+
+      if (type === 'STATUS') {
+        if (pestStatus) $(pestStatus).text(message);
+      } else if (type === 'PROGRESS') {
+        showOfflineDownloadLock(label, value);
+      } else if (type === 'READY') {
+        isWorkerReady = true;
+        hideOfflineDownloadLock();
+        if (pestStatus)
+          $(pestStatus).text(
+            'Offline model ready. You can identify plants without a network connection.',
+          );
+      } else if (type === 'RESULT') {
+        if (pendingOfflineRun) {
+          pendingOfflineRun.resolve(data);
+          pendingOfflineRun = null;
+          return;
+        }
+        handleOfflineResult(data);
+      } else if (type === 'ERROR') {
+        const errorText =
+          error || message || 'The offline model could not finish the request.';
+        if (pendingOfflineRun) {
+          pendingOfflineRun.reject(new Error(errorText));
+          pendingOfflineRun = null;
+          return;
+        }
+        if (!isWorkerReady) {
+          failOfflineMode(errorText);
+        } else {
+          hideOfflineDownloadLock();
+          showMessageModal({
+            title: 'Offline issue',
+            message: errorText,
+            iconClass: 'fa-solid fa-triangle-exclamation',
+          });
+        }
+      }
+    };
+  }
+
+  function initOfflineWorker() {
+    if (!worker) {
+      failOfflineMode(
+        'The offline model worker could not start in this browser.',
+      );
+      return;
+    }
+    worker.postMessage({ type: 'INIT_OFFLINE' });
+  }
+
+  $(offlineToggle).on('change', (e) => {
+    new Audio(
+      'https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/sounds/button.mp3',
+    ).play();
+    isOfflineMode = e.target.checked;
+    showOfflineModeAppearance(isOfflineMode);
+
+    if (isOfflineMode) {
+      if (isWorkerReady) {
+        if (pestStatus)
+          $(pestStatus).text(
+            'Offline model ready. You can identify plants without a network connection.',
+          );
+        return;
+      }
+      showOfflineDownloadLock('Preparing offline model…', 0);
+      initOfflineWorker();
+      return;
+    }
+
+    hideOfflineDownloadLock();
+    if (pestStatus) {
+      $(pestStatus).html(
+        'Offline mode is now inactive. Switch back on when you want local inference.',
+      );
     }
   });
 
@@ -993,6 +1037,56 @@ window.addEventListener('DOMContentLoaded', () => {
     return isUsableImageFile(selectedFile) || Boolean(getAttachedPreviewSrc());
   }
 
+  function loadImageElement(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () =>
+        reject(new Error('Could not decode the image for offline inference.'));
+      img.src = src;
+    });
+  }
+
+  async function getImageElementForInference() {
+    if (isUsableImageFile(selectedFile)) {
+      const objectUrl = URL.createObjectURL(selectedFile);
+      try {
+        return await loadImageElement(objectUrl);
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    }
+
+    const previewSrc = getAttachedPreviewSrc();
+    if (previewSrc) {
+      return loadImageElement(previewSrc);
+    }
+
+    throw new Error('No image available for offline inference.');
+  }
+
+  function buildOfflineInputTensor(imageEl) {
+    const size = 224;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(imageEl, 0, 0, size, size);
+
+    const { data } = ctx.getImageData(0, 0, size, size);
+    const planeSize = size * size;
+    const tensor = new Float32Array(3 * planeSize);
+
+    for (let i = 0; i < planeSize; i += 1) {
+      const rgba = i * 4;
+      tensor[i] = data[rgba] / 255;
+      tensor[planeSize + i] = data[rgba + 1] / 255;
+      tensor[2 * planeSize + i] = data[rgba + 2] / 255;
+    }
+
+    return tensor;
+  }
+
   function getLocation() {
     const locationOptions = {
       enableHighAccuracy: true,
@@ -1138,13 +1232,28 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleOfflineResult(data) {
-    const confidencePercent = data.confidence
-      ? `${(Number(data.confidence) * 100).toFixed(1)}%`
-      : 'High';
+    const rawConfidence = data.confidence;
+    let confidencePercent = 'High';
+    if (typeof rawConfidence === 'string' && rawConfidence.includes('%')) {
+      confidencePercent = rawConfidence;
+    } else if (rawConfidence !== undefined && rawConfidence !== null) {
+      const numeric = Number(rawConfidence);
+      confidencePercent = Number.isFinite(numeric)
+        ? `${(numeric <= 1 ? numeric * 100 : numeric).toFixed(1)}%`
+        : 'High';
+    }
+
+    const durationMs =
+      typeof data.duration === 'number' && Number.isFinite(data.duration)
+        ? data.duration
+        : null;
+
     const identifiedPlant = {
       name: data.name || 'Offline Plant Scan',
       confidence: confidencePercent,
-      summary: `Identified plant in ${data.duration.toFixed(1)}ms using your device’s browser runtime; unable to fetch description and other details in offline mode`,
+      summary: durationMs
+        ? `Identified plant in ${durationMs.toFixed(1)}ms using your device’s browser runtime; unable to fetch description and other details in offline mode`
+        : 'Identified plant using your device’s browser runtime; unable to fetch description and other details in offline mode',
       hazardType: 'safe',
       date: new Date().toLocaleDateString('en-US', {
         month: 'short',
@@ -1221,50 +1330,30 @@ window.addEventListener('DOMContentLoaded', () => {
       if (plantTypeBadge) plantTypeBadge.classList.add('hidden');
       if (treatmentSection) treatmentSection.classList.add('hidden');
       if (controlSection) controlSection.classList.add('hidden');
-      let modalOpened = false;
-      const warmupCheckInterval = setInterval(function () {
-        const needsWarmup =
-          !isWorkerReady && (analyzeButton.disabled === false || isOfflineMode);
-
-        if (needsWarmup) {
-          if (!modalOpened) {
-            modalOpened = true;
-
-            showMessageModal({
-              title: 'Still warming up',
-              message:
-                'The offline model is still warming up. Please wait a moment and try again.',
-              iconClass: '',
-            });
-
-            setTimeout(function () {
-              const $loader = $('<div class="loader"></div>');
-              $('#messageModalIcon, .swal2-icon').replaceWith($loader);
-              $loader.css({
-                margin: '0 auto 20px auto',
-              });
-            }, 50);
-          }
-        } else {
-          clearInterval(warmupCheckInterval);
-
-          if (modalOpened) {
-            if (
-              typeof Swal !== 'undefined' &&
-              Swal.isVisible &&
-              Swal.isVisible()
-            ) {
-              Swal.close();
-            }
-            $(
-              '.swal2-container, .modal, .modal-backdrop, .swal2-popup, #messageModal',
-            ).hide();
-            $('body').removeClass('modal-open swal2-shown');
-          }
-        }
-      }, 300);
 
       try {
+        if (isOfflineMode) {
+          if (!worker || !isWorkerReady) {
+            showMessageModal({
+              title: 'Offline model not ready',
+              message:
+                'The offline model is still loading. Wait until it is ready, then try again.',
+              iconClass: 'fa-solid fa-triangle-exclamation',
+            });
+            return;
+          }
+
+          const started = performance.now();
+          const imageEl = await getImageElementForInference();
+          const tensor = buildOfflineInputTensor(imageEl);
+          const offlineResult = await runOfflineInference(tensor);
+          handleOfflineResult({
+            ...offlineResult,
+            duration: performance.now() - started,
+          });
+          return;
+        }
+
         const previewSrc = getAttachedPreviewSrc();
         const formData = new FormData();
 
