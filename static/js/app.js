@@ -2,11 +2,9 @@
 // this is start of code
 document.addEventListener('DOMContentLoaded', function () {
   $('#playSound').on('click', function () {
-    const audioCtx = new (
-      window.AudioContext || window.webkitAudioContext
-    )();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    authentication()
+    authentication();
 
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
@@ -14,14 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const waveforms = ['sine', 'square', 'sawtooth', 'triangle'];
     const randomWaveform =
       waveforms[Math.floor(Math.random() * waveforms.length)];
-    const randomFrequency =
-      Math.floor(Math.random() * (1200 - 200 + 1)) + 200;
+    const randomFrequency = Math.floor(Math.random() * (1200 - 200 + 1)) + 200;
 
     oscillator.type = randomWaveform;
-    oscillator.frequency.setValueAtTime(
-      randomFrequency,
-      audioCtx.currentTime,
-    );
+    oscillator.frequency.setValueAtTime(randomFrequency, audioCtx.currentTime);
 
     gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(
@@ -35,8 +29,6 @@ document.addEventListener('DOMContentLoaded', function () {
     oscillator.start();
     oscillator.stop(audioCtx.currentTime + 0.5);
   });
-
-
 });
 
 function clearClickablePlant() {
@@ -48,9 +40,7 @@ function clearClickablePlant() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const statusFidgetSpinner = document.getElementById(
-    'statusFidgetSpinner',
-  );
+  const statusFidgetSpinner = document.getElementById('statusFidgetSpinner');
   let audioContext = null;
 
   function playBellChime() {
@@ -63,7 +53,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     if (audioContext.state === 'suspended') {
-      audioContext.resume().catch(() => { });
+      audioContext.resume().catch(() => {});
     }
 
     const now = audioContext.currentTime;
@@ -166,7 +156,7 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 2500);
 
   // Web Worker Mode Integration
-  let worker = null;
+  // let worker = null;
   let isOfflineMode = false;
   let isWorkerReady = false;
   let userLocation = null;
@@ -175,18 +165,18 @@ window.addEventListener('DOMContentLoaded', () => {
   const modeIcon = document.getElementById('modeIcon');
   const modeLabel = document.getElementById('modeLabel');
 
-  const candidates = [
-    './worker.js',
-    '../static/worker.js',
-    './templates/worker.js',
-  ];
+  // const candidates = [
+  //   './worker.js',
+  //   '../static/worker.js',
+  //   './templates/worker.js',
+  // ];
 
   const words = [
     'Thanks for your patience! ⏳',
     'Just a second now...⏱️',
     'Sprout waves! 🍃',
     'Engines running... 🛠️',
-    'Connecting to server... 🌐'
+    'Connecting to server... 🌐',
   ];
   let index = 0;
   let textRotationInterval = null;
@@ -198,33 +188,118 @@ window.addEventListener('DOMContentLoaded', () => {
     );
 
   const $rotatingText = $('<span>')
-    .addClass(
-      'text-indigo-600 transition-opacity duration-300 opacity-100',
-    )
+    .addClass('text-indigo-600 transition-opacity duration-300 opacity-100')
     .text(words[index]);
 
   $loaderContainer.append($rotatingText);
   $('#loading').append($loaderContainer);
   $('#loadingOverlay').hide();
 
-  async function resolveWorkerScript() {
-    for (const candidate of candidates) {
-      try {
-        const response = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
-        if (response.ok) return candidate;
-      } catch (e) { }
-    }
-    return './worker.js';
-  }
+  // async function resolveWorkerScript() {
+  //   for (const candidate of candidates) {
+  //     try {
+  //       const response = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
+  //       if (response.ok) return candidate;
+  //     } catch (e) { }
+  //   }
+  //   return './worker.js';
+  // }
 
-  async function initOfflineWorker() {
+    const workerScript = `
+importScripts("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.min.js");
+ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
+
+let session = null;
+const CACHE_NAME = "hyperion";
+const MODEL_URL = "https://ranukadinsitha.github.io/cdn/sprout_fp16.onnx";
+
+const CLASSES = [
+  "Annual poa", "Black nightshade", "Blackberry", "Bracken", "Broad-leaved dock", "Broad-leaved fleabane", 
+  "Broad-leaved plantain", "Broom", "Californian thistle", "Cape weed", "Catsear", "Chickweed", "Cleavers", 
+  "Clustered dock", "Couch", "Creeping buttercup", "Creeping oxalis", "Creeping speedwell", "Daisy", 
+  "Dandelion", "Fiddle dock", "Field speedwell", "Galinsoga", "Giant buttercup", "Gorse", "Great bindweed", 
+  "Groundsel", "Hairy buttercup", "Hawkbit", "Hawksbeard", "Hedge mustard", "Hemlock", "Hydrocotyle", "Ivy", 
+  "Mallow", "Manuka", "Mouse-ear hawkweed", "Musky storksbill", "Narrow-leaved plantain", "Nettle", 
+  "Nodding thistle", "Old man's beard", "Onehunga weed", "Oxeye daisy", "Parsley dropwort", "Parsley piert", 
+  "Paspalum", "Pennyroyal", "Pink shamrock", "Ragwort", "Red dead-nettle", "Redroot", "Scarlet pimpernel", 
+  "Scotch thistle", "Scrambling fumitory", "Scrambling speedwell", "Selfheal", "Sheep's sorrel", 
+  "Shepherd's purse", "Sow thistle", "Spurrey", "Staggerweed", "Stinking mayweed", "Suckling clover", 
+  "Sweet brier", "Tauhinu", "Tradescantia", "Turf speedwell", "Twin cress", "Water pepper", "White clover", 
+  "Wild radish", "Wild turnip", "Willow weed", "Winged thistle", "Wireweed", "Yarrow"
+];
+
+async function loadModel() {
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    let res = await cache.match(MODEL_URL);
+    if (!res) {
+      res = await fetch(MODEL_URL);
+      cache.put(MODEL_URL, res.clone());
+    }
+    const buf = await res.arrayBuffer();
+    
+    session = await ort.InferenceSession.create(buf, { 
+      executionProviders: ['wasm'], 
+      graphOptimizationLevel: 'all' 
+    });
+    postMessage({ type: "READY" });
+  } catch (e) {
+    postMessage({ type: "ERROR", error: e.message });
+  }
+}
+
+self.onmessage = async (e) => {
+  if (e.data.type === "INIT_OFFLINE") await loadModel();
+  if (e.data.type === "RUN_OFFLINE" && session) {
+    try {
+      const float16Data = new Float16Array(e.data.data);
+      const elementsPerImage = 3 * 224 * 224;
+      const B = float16Data.length / elementsPerImage;
+      
+      if (B === 0 || float16Data.length % elementsPerImage !== 0) {
+        throw new Error(\`Data array size (\${float16Data.length}) doesn't match expected dimensions.\`);
+      }
+
+      const input = new ort.Tensor("float16", float16Data, [B, 3, 224, 224]);
+      const output = await session.run({ images: input });
+      
+      const outputKey = Object.keys(output)[0];
+      const scores = output[outputKey].data;
+
+      // FIXED: Correct numeric comparison value initialization
+      let maxIdx = 0;
+      let maxVal = -Infinity; 
+      
+      for (let i = 0; i < scores.length; i++) {
+        if (scores[i] > maxVal) {
+          maxVal = scores[i];
+          maxIdx = i;
+        }
+      }
+
+      postMessage({ 
+        type: "RESULT", 
+        data: { 
+          name: CLASSES[maxIdx] || "Unknown Strain", 
+          confidence: (maxVal * 100).toFixed(1) + '%' 
+        } 
+      });
+    } catch (err) {
+      postMessage({ type: "ERROR", error: \`Inference failed: \${err.message}\` });
+    }
+  }
+};
+`;
+
+    const blob = new Blob([workerScript], { type: 'application/javascript' });
+    const workerScriptUrl = URL.createObjectURL(blob);
+    const worker = new Worker(workerScriptUrl);
+
+      async function initOfflineWorker() {
     if (worker) {
       worker.postMessage({ type: 'INIT_OFFLINE' });
       return;
     }
-
-    const workerScript = await resolveWorkerScript();
-    worker = new Worker(workerScript);
 
     worker.onmessage = (e) => {
       const { type, message, data, value } = e.data;
@@ -242,8 +317,7 @@ window.addEventListener('DOMContentLoaded', () => {
       } else if (type === 'ERROR') {
         showMessageModal({
           title: 'Offline issue',
-          message:
-            message || 'The offline model could not finish the request.',
+          message: message || 'The offline model could not finish the request.',
           iconClass: 'fa-solid fa-triangle-exclamation',
         });
       } else if (type === 'PROGRESS') {
@@ -273,9 +347,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
           if (!textRotationInterval) {
             textRotationInterval = setInterval(function () {
-              $rotatingText
-                .removeClass('opacity-100')
-                .addClass('opacity-0');
+              $rotatingText.removeClass('opacity-100').addClass('opacity-0');
               setTimeout(function () {
                 index = (index + 1) % words.length;
                 $rotatingText
@@ -313,9 +385,10 @@ window.addEventListener('DOMContentLoaded', () => {
       $modeIcon
         .html(
           `<div style="display: flex; align-items: center; gap: 4px;">
-      <img src="https://raw.githubusercontent.com/RanukaDinsitha/Quickly/main/images/wifi_slash.svg"
-           alt="offline"
-           style="width: 1.2em; height: auto; vertical-align: middle; margin-right: -2px; display: inline-block;"></div>`,
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#F8BD24" style="width: 1.2em; height: auto; vertical-align: middle; margin-right: -2px; display: inline-block;">
+          <path d="M790-56 414-434q-47 11-87.5 33T254-346l-84-86q32-32 69-56t79-42l-90-90q-41 21-76.5 46.5T84-516L0-602q32-32 66.5-57.5T140-708l-84-84 56-56 736 736-58 56Zm-381-93.5Q380-179 380-220q0-42 29-71t71-29q42 0 71 29t29 71q0 41-29 70.5T480-120q-42 0-71-29.5ZM716-358l-29-29-29-29-144-144q81 8 151.5 41T790-432l-74 74Zm160-158q-77-77-178.5-120.5T480-680q-21 0-40.5 1.5T400-674L298-776q44-12 89.5-18t92.5-6q142 0 265 53t215 145l-84 86Z"/>
+        </svg>
+        </div>`,
         )
         .removeAttr('class', 'fa-solid fa-wifi text-emerald-400');
       $modeLabel
@@ -325,9 +398,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
       initOfflineWorker();
     } else {
-      $modeIcon
-        .text('')
-        .attr('class', 'fa-solid fa-wifi text-emerald-400');
+      $modeIcon.text('').attr('class', 'fa-solid fa-wifi text-emerald-400');
 
       $modeLabel
         .text('Online')
@@ -364,17 +435,24 @@ window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => modal.classList.remove('active'), 200);
     };
 
-    openBtns.forEach(btn => btn?.addEventListener('click', open));
-    closeBtns.forEach(btn => btn?.addEventListener('click', close));
-    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    openBtns.forEach((btn) => btn?.addEventListener('click', open));
+    closeBtns.forEach((btn) => btn?.addEventListener('click', close));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) close();
+    });
 
     return { open, close };
   }
 
   // --- Help Modal ---
-  setupModal('helpModal', 'helpModalCard',
+  setupModal(
+    'helpModal',
+    'helpModalCard',
     [document.getElementById('openHelpBtn')],
-    [document.getElementById('closeHelpBtn'), document.getElementById('dismissHelpBtn')]
+    [
+      document.getElementById('closeHelpBtn'),
+      document.getElementById('dismissHelpBtn'),
+    ],
   );
 
   // --- History Logic ---
@@ -383,8 +461,14 @@ window.addEventListener('DOMContentLoaded', () => {
   function getHistory() {
     try {
       const raw = JSON.parse(localStorage.getItem('sprout_history')) || [];
-      return raw.map(item => (typeof item === 'string' ? { name: item, date: 'Recent Scan', image: null } : item));
-    } catch (e) { return []; }
+      return raw.map((item) =>
+        typeof item === 'string'
+          ? { name: item, date: 'Recent Scan', image: null }
+          : item,
+      );
+    } catch (e) {
+      return [];
+    }
   }
 
   function saveToHistory(item) {
@@ -395,10 +479,13 @@ window.addEventListener('DOMContentLoaded', () => {
       image: item.image || null,
       lat: item.lat || null,
       lng: item.lng || null,
-      confidence: item.confidence || null
+      confidence: item.confidence || null,
     };
     history.unshift(itemForStorage);
-    localStorage.setItem('sprout_history', JSON.stringify(history.slice(0, 20)));
+    localStorage.setItem(
+      'sprout_history',
+      JSON.stringify(history.slice(0, 20)),
+    );
   }
 
   function renderHistoryList() {
@@ -414,13 +501,16 @@ window.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    historyList.innerHTML = history.map((item, idx) => `
+    historyList.innerHTML = history
+      .map(
+        (item, idx) => `
     <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition">
       <div class="flex-shrink-0 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
-        ${item.image
-        ? `<img src="${item.image}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
-        : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
-      }
+        ${
+          item.image
+            ? `<img src="${item.image}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
+            : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
+        }
       </div>
       <div class="min-w-0 flex-1">
         <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
@@ -432,12 +522,19 @@ window.addEventListener('DOMContentLoaded', () => {
         <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')" class="w-8 h-8 rounded-full bg-white/5 text-slate-400 flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-xs"></i></button>
       </div>
     </div>
-  `).join('');
+  `,
+      )
+      .join('');
   }
 
-  const historyModalCtrl = setupModal('historyModal', 'historyModalCard',
+  const historyModalCtrl = setupModal(
+    'historyModal',
+    'historyModalCard',
     [document.getElementById('openHistoryBtn')],
-    [document.getElementById('closeHistoryBtn'), document.getElementById('dismissHistoryBtn')]
+    [
+      document.getElementById('closeHistoryBtn'),
+      document.getElementById('dismissHistoryBtn'),
+    ],
   );
 
   document.getElementById('clearHistoryBtn')?.addEventListener('click', () => {
@@ -463,14 +560,16 @@ window.addEventListener('DOMContentLoaded', () => {
       }
 
       const history = getHistory();
-      const geoItems = history.filter(h => h.lat && h.lng);
+      const geoItems = history.filter((h) => h.lat && h.lng);
 
       if (focusItem?.lat) {
         document.getElementById('mapModalTitle').textContent = focusItem.name;
-        document.getElementById('mapModalSubtitle').textContent = `${focusItem.lat.toFixed(5)}, ${focusItem.lng.toFixed(5)}`;
+        document.getElementById('mapModalSubtitle').textContent =
+          `${focusItem.lat.toFixed(5)}, ${focusItem.lng.toFixed(5)}`;
       } else {
         document.getElementById('mapModalTitle').textContent = 'Plant Map';
-        document.getElementById('mapModalSubtitle').textContent = `${geoItems.length} locations recorded`;
+        document.getElementById('mapModalSubtitle').textContent =
+          `${geoItems.length} locations recorded`;
       }
 
       populateMapMarkers(history, focusItem);
@@ -489,7 +588,7 @@ window.addEventListener('DOMContentLoaded', () => {
       container: 'plantMap',
       style: 'https://tiles.openfreemap.org/styles/bright',
       center: [174.7762, -41.2866],
-      zoom: 5
+      zoom: 5,
     });
 
     sproutMap.on('load', () => {
@@ -521,12 +620,18 @@ window.addEventListener('DOMContentLoaded', () => {
           <p style="margin:4px 0; font-size:10px; color:#64748b;">${props.date}</p>
         </div>`;
 
-        new maplibregl.Popup().setLngLat(coords).setHTML(popupHtml).addTo(sproutMap);
+        new maplibregl.Popup()
+          .setLngLat(coords)
+          .setHTML(popupHtml)
+          .addTo(sproutMap);
       });
 
       sproutMapInitialized = true;
       if (window._pendingMapData) {
-        _applyMapMarkers(window._pendingMapData.history, window._pendingMapData.focusItem);
+        _applyMapMarkers(
+          window._pendingMapData.history,
+          window._pendingMapData.focusItem,
+        );
         window._pendingMapData = null;
       }
     });
@@ -535,19 +640,23 @@ window.addEventListener('DOMContentLoaded', () => {
   function _applyMapMarkers(history, focusItem) {
     if (!sproutMapInitialized || !sproutMap.getSource('plants')) return;
 
-    const features = history.filter(h => h.lat && h.lng).map(item => ({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [item.lng, item.lat] },
-      properties: { ...item }
-    }));
+    const features = history
+      .filter((h) => h.lat && h.lng)
+      .map((item) => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [item.lng, item.lat] },
+        properties: { ...item },
+      }));
 
-    sproutMap.getSource('plants').setData({ type: 'FeatureCollection', features });
+    sproutMap
+      .getSource('plants')
+      .setData({ type: 'FeatureCollection', features });
 
     if (focusItem?.lat) {
       sproutMap.flyTo({ center: [focusItem.lng, focusItem.lat], zoom: 14 });
     } else if (features.length > 0) {
       const bounds = new maplibregl.LngLatBounds();
-      features.forEach(f => bounds.extend(f.geometry.coordinates));
+      features.forEach((f) => bounds.extend(f.geometry.coordinates));
       sproutMap.fitBounds(bounds, { padding: 50, maxZoom: 14 });
     }
   }
@@ -573,7 +682,9 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => openMapModal(null), 250);
   });
 
-  document.getElementById('closeMapBtn')?.addEventListener('click', closeMapModal);
+  document
+    .getElementById('closeMapBtn')
+    ?.addEventListener('click', closeMapModal);
 
   // Tab Controller
   const tabUpload = document.getElementById('tabUpload');
@@ -633,14 +744,18 @@ window.addEventListener('DOMContentLoaded', () => {
   const consentAllowBtn = document.getElementById('consentAllowBtn');
   const consentDeclineBtn = document.getElementById('consentDeclineBtn');
   const consentStateKey = 'sprout-identification-consent';
-  const locationPromptOverlay = document.getElementById('locationPromptOverlay');
+  const locationPromptOverlay = document.getElementById(
+    'locationPromptOverlay',
+  );
   const locationAllowBtn = document.getElementById('locationAllowBtn');
   const locationDeclineBtn = document.getElementById('locationDeclineBtn');
   const messageModal = document.getElementById('messageModal');
   const messageModalTitle = document.getElementById('messageModalTitle');
   const messageModalBody = document.getElementById('messageModalBody');
   const messageModalIcon = document.getElementById('messageModalIcon');
-  const messageModalIconInner = document.getElementById('messageModalIconInner');
+  const messageModalIconInner = document.getElementById(
+    'messageModalIconInner',
+  );
   const messageModalOkBtn = document.getElementById('messageModalOkBtn');
 
   let cameraStream = null;
@@ -1028,8 +1143,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (cameraOverlay) cameraOverlay.classList.remove('hidden');
   }
 
-  if (startCameraBtn)
-    startCameraBtn.addEventListener('click', startCamera);
+  if (startCameraBtn) startCameraBtn.addEventListener('click', startCamera);
 
   if (capturePhotoBtn) {
     capturePhotoBtn.addEventListener('click', () => {
@@ -1117,8 +1231,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     if (extendedDetailsText) {
       extendedDetailsText.textContent = identifiedPlant.summary;
-      if (extendedDetailsCard)
-        extendedDetailsCard.classList.remove('hidden');
+      if (extendedDetailsCard) extendedDetailsCard.classList.remove('hidden');
     }
 
     updatePlantTypeBadge(data.category || 'Plant');
@@ -1126,8 +1239,7 @@ window.addEventListener('DOMContentLoaded', () => {
     saveToHistory(identifiedPlant);
 
     if (analyzeButton) analyzeButton.disabled = false;
-    if (analyzeIcon)
-      analyzeIcon.className = 'fa-solid fa-sparkles text-xs';
+    if (analyzeIcon) analyzeIcon.className = 'fa-solid fa-sparkles text-xs';
     if (analyzeBtnText) analyzeBtnText.textContent = 'Identify Plant';
   }
 
@@ -1151,10 +1263,8 @@ window.addEventListener('DOMContentLoaded', () => {
       analyzeButton.disabled = true;
       if (analyzeIcon)
         analyzeIcon.className = 'fa-solid fa-spinner fa-spin text-xs';
-      if (analyzeBtnText)
-        analyzeBtnText.textContent = 'Analyzing Plant...';
-      if (speciesName)
-        speciesName.textContent = 'Scanning plant details...';
+      if (analyzeBtnText) analyzeBtnText.textContent = 'Analyzing Plant...';
+      if (speciesName) speciesName.textContent = 'Scanning plant details...';
       if (pestStatus)
         pestStatus.textContent = 'Extracting botanical features...';
       if (hazardBadge) hazardBadge.classList.add('hidden');
@@ -1164,8 +1274,7 @@ window.addEventListener('DOMContentLoaded', () => {
       let modalOpened = false;
       const warmupCheckInterval = setInterval(function () {
         const needsWarmup =
-          !isWorkerReady &&
-          (analyzeButton.disabled === false || isOfflineMode);
+          !isWorkerReady && (analyzeButton.disabled === false || isOfflineMode);
 
         if (needsWarmup) {
           if (!modalOpened) {
@@ -1221,10 +1330,13 @@ window.addEventListener('DOMContentLoaded', () => {
           formData.append('image', file);
         }
 
-        const response = await fetch('https://sproutboy.pythonanywhere.com/predict', {
-          method: 'POST',
-          body: formData,
-        });
+        const response = await fetch(
+          'https://sproutboy.pythonanywhere.com/predict',
+          {
+            method: 'POST',
+            body: formData,
+          },
+        );
 
         if (!response.ok) {
           let bodyText = '';
@@ -1293,10 +1405,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         let hazardType = 'safe';
         const toxLower = toxicity.toLowerCase();
-        if (
-          toxLower.includes('highly toxic') ||
-          toxLower.includes('deadly')
-        ) {
+        if (toxLower.includes('highly toxic') || toxLower.includes('deadly')) {
           hazardType = 'deadly';
         } else if (
           toxLower.includes('toxic') ||
@@ -1366,14 +1475,12 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       } catch (err) {
         console.error('Identification Error:', err);
-        if (speciesName)
-          speciesName.textContent = 'Identification Failed';
+        if (speciesName) speciesName.textContent = 'Identification Failed';
         if (pestStatus)
           pestStatus.textContent = `Unable to process the image right now (${err.message || 'unknown error'}). Please try again or switch back to offline mode.`;
       } finally {
         analyzeButton.disabled = false;
-        if (analyzeIcon)
-          analyzeIcon.className = 'fa-solid fa-sparkles text-xs';
+        if (analyzeIcon) analyzeIcon.className = 'fa-solid fa-sparkles text-xs';
         if (analyzeBtnText) analyzeBtnText.textContent = 'Identify Plant';
       }
     });
