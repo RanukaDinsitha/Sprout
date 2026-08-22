@@ -393,12 +393,26 @@ window.addEventListener('DOMContentLoaded', () => {
       name: item.name,
       date: item.date || new Date().toLocaleDateString(),
       image: item.image || null,
-      lat: item.lat || null,
-      lng: item.lng || null,
+      // Do not persist precise user geolocation in localStorage.
+      lat: null,
+      lng: null,
       confidence: item.confidence || null
     };
     history.unshift(itemForStorage);
     localStorage.setItem('sprout_history', JSON.stringify(history.slice(0, 20)));
+  }
+
+  function escapeHtml(value) {
+    return $('<div>').text(value == null ? '' : String(value)).html();
+  }
+
+  function safeImageSrc(value) {
+    const src = value == null ? '' : String(value).trim();
+    if (!src) return '';
+    if (/^(https?:|data:|blob:)/i.test(src)) {
+      return src.replace(/"/g, '&quot;');
+    }
+    return '';
   }
 
   function renderHistoryList() {
@@ -414,25 +428,32 @@ window.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    historyList.innerHTML = history.map((item, idx) => `
+    historyList.innerHTML = history.map((item, idx) => {
+      const safeName = escapeHtml(item.name);
+      const safeDate = escapeHtml(item.date);
+      const safeImg = safeImageSrc(item.image);
+      const searchQuery = encodeURIComponent(String(item.name == null ? '' : item.name));
+
+      return `
     <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition">
-      <div class="flex-shrink-0 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
-        ${item.image
-        ? `<img src="${item.image}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
+      <div class="flex-shrink-0 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${searchQuery}', '_blank')">
+        ${safeImg
+        ? `<img src="${safeImg}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
         : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
       }
       </div>
       <div class="min-w-0 flex-1">
-        <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
-        <p class="text-[10px] text-slate-400">${item.date}</p>
+        <h4 class="text-sm font-bold text-white truncate">${safeName}</h4>
+        <p class="text-[10px] text-slate-400">${safeDate}</p>
         ${item.lat ? `<p class="text-[10px] text-emerald-400/80"><i class="fa-solid fa-location-dot"></i> ${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}</p>` : ''}
       </div>
       <div class="flex gap-2">
         ${item.lat ? `<button onclick="openSinglePlantMap(${idx})" class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-map-location-dot text-xs"></i></button>` : ''}
-        <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')" class="w-8 h-8 rounded-full bg-white/5 text-slate-400 flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-xs"></i></button>
+        <button onclick="window.open('https://www.google.com/search?q=${searchQuery}', '_blank')" class="w-8 h-8 rounded-full bg-white/5 text-slate-400 flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-xs"></i></button>
       </div>
     </div>
-  `).join('');
+  `;
+    }).join('');
   }
 
   const historyModalCtrl = setupModal('historyModal', 'historyModalCard',
