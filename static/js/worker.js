@@ -4,7 +4,7 @@ ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/di
 
 let session = null;
 const CACHE_NAME = "hyperion";
-const MODEL_URL = "https://github.com/RanukaDinsitha/Sprout/raw/refs/heads/feat/map/data/yolo/sprout_fp16.onnx";
+const MODEL_URL = "https://sproutboy.pythonanywhere.com/models/best.onnx";
 
 // const classes define classes to map to image result of model weights
 const CLASSES = [
@@ -26,26 +26,48 @@ const CLASSES = [
     "Willow weed", "Winged thistle", "Wireweed", "Yarrow"
 ];
 
+
+// TODO ran this is the old async function 
+// async function loadModel() {
+//     try {
+//         const cache = await caches.open(CACHE_NAME);
+//         let res = await cache.match(MODEL_URL);
+//         if (!res) {
+//             res = await fetch(MODEL_URL);
+//             cache.put(MODEL_URL, res.clone());
+//         }
+//         const buf = await res.arrayBuffer();
+        
+//         // force flags explicitly if running inside standard webasm sandbox context
+//         session = await ort.InferenceSession.create(buf, { 
+//             executionProviders: ['wasm'],
+//             graphOptimizationLevel: 'all'
+//         });
+//         postMessage({ type: "READY" });
+//     } catch (e) {
+//         postMessage({ type: "ERROR", error: e.message });
+//     }
+// }
+
 async function loadModel() {
     try {
-        const cache = await caches.open(CACHE_NAME);
-        let res = await cache.match(MODEL_URL);
+      let res;
+      if (self.caches) {
+        const cache = await self.caches.open(CACHE_NAME);
+        res = await cache.match(MODEL_URL);
         if (!res) {
-            res = await fetch(MODEL_URL);
-            cache.put(MODEL_URL, res.clone());
+          res = await fetch(MODEL_URL);
+          await cache.put(MODEL_URL, res.clone());
         }
-        const buf = await res.arrayBuffer();
-        
-        // force flags explicitly if running inside standard webasm sandbox context
-        session = await ort.InferenceSession.create(buf, { 
-            executionProviders: ['wasm'],
-            graphOptimizationLevel: 'all'
-        });
-        postMessage({ type: "READY" });
+      } else {
+        res = await fetch(MODEL_URL);
+      }
+      const buf = await res.arrayBuffer();
+      // ... create session, post READY
     } catch (e) {
-        postMessage({ type: "ERROR", error: e.message });
+      postMessage({ type: "ERROR", error: e.message });
     }
-}
+  }
 
 self.onmessage = async (e) => {
     if (e.data.type === "INIT_OFFLINE") await loadModel();
