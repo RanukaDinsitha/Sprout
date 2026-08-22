@@ -165,7 +165,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (appContent) appContent.style.opacity = '1';
   }, 2500);
 
-  // web worker mode integration
+  // Web Worker Mode Integration
   let worker = null;
   let isOfflineMode = false;
   let isWorkerReady = false;
@@ -176,16 +176,16 @@ window.addEventListener('DOMContentLoaded', () => {
   const modeLabel = document.getElementById('modeLabel');
 
   const candidates = [
-    './worker.js'
-    // '../static/worker.js',
-    // './templates/worker.js',
+    './worker.js',
+    '../static/worker.js',
+    './templates/worker.js',
   ];
 
   const words = [
     'Thanks for your patience! ⏳',
     'Just a second now...⏱️',
     'Sprout waves! 🍃',
-    'Engines running... 🛠️', 
+    'Engines running... 🛠️',
     'Connecting to server... 🌐'
   ];
   let index = 0;
