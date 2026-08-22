@@ -3,10 +3,10 @@
 
 Sprout is a handy little—and lite/offline—app which determines plant species based on photos.
 
-<h1>A few important things</h1>
-- The images for this project were <b>removed</b> due to heavy weight <i>although some reminants may exist in     previous commits</i>, if you wish to have the image dataset, please send one of the creators an email.
-- You cannot use the app by downloading and opening the index page as it's protected—if you wish to use the backend for yourself send an email to one of the creators.
-<br>
+<h2>A few important things</h2>
+- The images for this project were <b>removed</b> due to heavy weight <i>although some reminants may exist in previous commits</i>, if you wish to have the image dataset, please send one of the creators an email.
+- If you wish to use our backend engine please don't just <b>copy the link</b> from our website files as it costs us credits.
+<p>&nbsp;</p>
 
 ![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white)
 ![AMD](https://img.shields.io/badge/amd-%23ED1C24.svg?style=for-the-badge&logo=amd&logoColor=white)
