@@ -393,8 +393,9 @@ window.addEventListener('DOMContentLoaded', () => {
       name: item.name,
       date: item.date || new Date().toLocaleDateString(),
       image: item.image || null,
-      lat: item.lat || null,
-      lng: item.lng || null,
+      // Do not persist precise user geolocation in localStorage.
+      lat: null,
+      lng: null,
       confidence: item.confidence || null
     };
     history.unshift(itemForStorage);
