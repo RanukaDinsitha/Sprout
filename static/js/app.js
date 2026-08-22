@@ -1,4 +1,5 @@
 // this is start of code
+// this is start of code
 document.addEventListener('DOMContentLoaded', function () {
   $('#playSound').on('click', function () {
     const audioCtx = new (
@@ -168,6 +169,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let worker = null;
   let isOfflineMode = false;
   let isWorkerReady = false;
+  let userLocation = null;
 
   const offlineToggle = document.getElementById('offlineToggle');
   const modeIcon = document.getElementById('modeIcon');
@@ -175,40 +177,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const candidates = [
     './worker.js',
-    './static/worker.js',
+    '../static/worker.js',
     './templates/worker.js',
   ];
-
-  const initWorker = async () => {
-    if (state.worker) return;
-
-    let workerPath = './worker.js';
-
-    for (const candidate of candidates) {
-      try {
-        const response = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
-        if (response.ok) {
-          workerPath = candidate;
-          break;
-        }
-      } catch (e) { }
-    }
-
-    state.worker = new Worker(workerPath);
-
-    state.worker.onmessage = (e) => {
-      if (e.data.type === 'RESULT') handleResult(e.data.data, true);
-    };
-
-    state.worker.postMessage({ type: 'INIT_OFFLINE' });
-  };
-
 
   const words = [
     'Thanks for your patience! ⏳',
     'Just a second now...⏱️',
     'Sprout waves! 🍃',
     'Engines running... 🛠️',
+    'Connecting to server... 🌐'
   ];
   let index = 0;
   let textRotationInterval = null;
@@ -228,6 +206,16 @@ window.addEventListener('DOMContentLoaded', () => {
   $loaderContainer.append($rotatingText);
   $('#loading').append($loaderContainer);
   $('#loadingOverlay').hide();
+
+  async function resolveWorkerScript() {
+    for (const candidate of candidates) {
+      try {
+        const response = await fetch(candidate, { method: 'HEAD', cache: 'no-store' });
+        if (response.ok) return candidate;
+      } catch (e) { }
+    }
+    return './worker.js';
+  }
 
   async function initOfflineWorker() {
     if (worker) {
@@ -321,8 +309,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const $modeIcon = $(modeIcon);
     const $modeLabel = $(modeLabel);
 
-    /*         $(".audioBtn").play();
-     */
     if (isOfflineMode) {
       $modeIcon
         .html(
@@ -354,234 +340,150 @@ window.addEventListener('DOMContentLoaded', () => {
         );
       }
     }
-  }); // Matches your original wrapper closure
+  });
+
   // Modal Helpers
-  const openHelpBtn = document.getElementById('openHelpBtn');
-  const closeHelpBtn = document.getElementById('closeHelpBtn');
-  const dismissHelpBtn = document.getElementById('dismissHelpBtn');
-  const helpModal = document.getElementById('helpModal');
-  const helpModalCard = document.getElementById('helpModalCard');
+  // --- Utility: Modal Toggle Helper ---
+  function setupModal(modalId, cardId, openBtns, closeBtns) {
+    const modal = document.getElementById(modalId);
+    const card = document.getElementById(cardId);
+    if (!modal || !card) return;
 
-  function openHelpModal() {
-    if (!helpModal || !helpModalCard) return;
-    helpModal.classList.add('active');
-    setTimeout(() => {
-      helpModalCard.classList.remove('scale-95');
-      helpModalCard.classList.add('scale-100');
-    }, 10);
+    const open = () => {
+      if (modalId === 'historyModal') renderHistoryList();
+      modal.classList.add('active');
+      setTimeout(() => {
+        card.classList.replace('scale-95', 'scale-100');
+        card.classList.add('opacity-100');
+      }, 10);
+    };
+
+    const close = () => {
+      card.classList.replace('scale-100', 'scale-95');
+      card.classList.remove('opacity-100');
+      setTimeout(() => modal.classList.remove('active'), 200);
+    };
+
+    openBtns.forEach(btn => btn?.addEventListener('click', open));
+    closeBtns.forEach(btn => btn?.addEventListener('click', close));
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+
+    return { open, close };
   }
 
-  function closeHelpModal() {
-    if (!helpModal || !helpModalCard) return;
-    helpModalCard.classList.remove('scale-100');
-    helpModalCard.classList.add('scale-95');
-    setTimeout(() => {
-      helpModal.classList.remove('active');
-    }, 200);
-  }
+  // --- Help Modal ---
+  setupModal('helpModal', 'helpModalCard',
+    [document.getElementById('openHelpBtn')],
+    [document.getElementById('closeHelpBtn'), document.getElementById('dismissHelpBtn')]
+  );
 
-  if (openHelpBtn) openHelpBtn.addEventListener('click', openHelpModal);
-  if (closeHelpBtn)
-    closeHelpBtn.addEventListener('click', closeHelpModal);
-  if (dismissHelpBtn)
-    dismissHelpBtn.addEventListener('click', closeHelpModal);
-  if (helpModal) {
-    helpModal.addEventListener('click', (e) => {
-      if (e.target === helpModal) closeHelpModal();
-    });
-  }
-
-  // History Modal Handlers
-  const openHistoryBtn = document.getElementById('openHistoryBtn');
-  const closeHistoryBtn = document.getElementById('closeHistoryBtn');
-  const dismissHistoryBtn = document.getElementById('dismissHistoryBtn');
-  const historyModal = document.getElementById('historyModal');
-  const historyModalCard = document.getElementById('historyModalCard');
+  // --- History Logic ---
   const historyList = document.getElementById('historyList');
-  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-
-  function openHistoryModal() {
-    if (!historyModal || !historyModalCard) return;
-    renderHistoryList();
-    historyModal.classList.add('active');
-    setTimeout(() => {
-      historyModalCard.classList.remove('scale-95');
-      historyModalCard.classList.add('scale-100');
-    }, 10);
-  }
-
-  function closeHistoryModal() {
-    if (!historyModal || !historyModalCard) return;
-    historyModalCard.classList.remove('scale-100');
-    historyModalCard.classList.add('scale-95');
-    setTimeout(() => {
-      historyModal.classList.remove('active');
-    }, 200);
-  }
 
   function getHistory() {
     try {
-      const rawHistory =
-        JSON.parse(localStorage.getItem('sprout_history')) || [];
-      return rawHistory.map((item) => {
-        if (typeof item === 'string') {
-          return { name: item, date: 'Recent Scan', image: null };
-        }
-        return item;
-      });
-    } catch (e) {
-      return [];
-    }
+      const raw = JSON.parse(localStorage.getItem('sprout_history')) || [];
+      return raw.map(item => (typeof item === 'string' ? { name: item, date: 'Recent Scan', image: null } : item));
+    } catch (e) { return []; }
   }
 
   function saveToHistory(item) {
     let history = getHistory();
-    const itemForStorage = { ...item, lat: null, lng: null };
+    const itemForStorage = {
+      name: item.name,
+      date: item.date || new Date().toLocaleDateString(),
+      image: item.image || null,
+      lat: item.lat || null,
+      lng: item.lng || null,
+      confidence: item.confidence || null
+    };
     history.unshift(itemForStorage);
-    if (history.length > 20) history = history.slice(0, 20);
-    localStorage.setItem('sprout_history', JSON.stringify(history));
-  }
-
-  function clearHistory() {
-    localStorage.removeItem('sprout_history');
-    renderHistoryList();
+    localStorage.setItem('sprout_history', JSON.stringify(history.slice(0, 20)));
   }
 
   function renderHistoryList() {
     if (!historyList) return;
     const history = getHistory();
+
     if (history.length === 0) {
       historyList.innerHTML = `
-                                <div class="text-center py-8 text-slate-400">
-                                  <i class="fa-solid fa-seedling text-3xl mb-2 text-slate-600 block"></i>
-                                  <p class="text-xs">No plant scans in your history yet.</p>
-                                </div>
-                              `;
+      <div class="text-center py-8 text-slate-400">
+        <i class="fa-solid fa-seedling text-3xl mb-2 text-slate-600 block"></i>
+        <p class="text-xs">No plant scans yet.</p>
+      </div>`;
       return;
     }
 
-    historyList.innerHTML = history
-      .map(
-        (item, idx) => `
-                              <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition">
-                                <div class="flex-shrink-0 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
-                                  ${item.image
-            ? `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
-            : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
-          }
-                                </div>
-                                <div class="min-w-0 flex-1 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
-                                  <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
-                                  <p class="text-[10px] text-slate-400 mt-0.5">${item.date || 'Recent Scan'}</p>
-                                  ${item.lat && item.lng
-            ? `<p class="text-[10px] text-emerald-400/80 mt-0.5"><i class="fa-solid fa-location-dot text-[9px]"></i> ${Number(item.lat).toFixed(4)}, ${Number(item.lng).toFixed(4)}</p>`
-            : `<p class="text-[10px] text-slate-600 mt-0.5"><i class="fa-solid fa-location-dot text-[9px]"></i> No location</p>`
-          }
-                                </div>
-                                <div class="flex items-center gap-2 flex-shrink-0">
-                                  ${item.lat && item.lng
-            ? `<button
-                                        class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 flex items-center justify-center transition"
-                                        title="View on map"
-                                        onclick="openSinglePlantMap(${idx})"
-                                      >
-                                        <i class="fa-solid fa-map-location-dot text-xs"></i>
-                                      </button>`
-            : `<div class="w-8 h-8 flex items-center justify-center text-slate-700" title="No location data"><i class="fa-solid fa-location-slash text-xs"></i></div>`
-          }
-                                  <button class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-emerald-400 flex items-center justify-center transition" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')" title="Search plant">
-                                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                                  </button>
-                                </div>
-                              </div>
-                            `,
-      )
-      .join('');
+    historyList.innerHTML = history.map((item, idx) => `
+    <div class="flex items-center gap-3 bg-white/5 hover:bg-white/10 p-3 rounded-xl border border-white/5 transition">
+      <div class="flex-shrink-0 cursor-pointer" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')">
+        ${item.image
+        ? `<img src="${item.image}" class="w-12 h-12 object-cover rounded-lg border border-emerald-500/20" />`
+        : `<div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-leaf"></i></div>`
+      }
+      </div>
+      <div class="min-w-0 flex-1">
+        <h4 class="text-sm font-bold text-white truncate">${item.name}</h4>
+        <p class="text-[10px] text-slate-400">${item.date}</p>
+        ${item.lat ? `<p class="text-[10px] text-emerald-400/80"><i class="fa-solid fa-location-dot"></i> ${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}</p>` : ''}
+      </div>
+      <div class="flex gap-2">
+        ${item.lat ? `<button onclick="openSinglePlantMap(${idx})" class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-map-location-dot text-xs"></i></button>` : ''}
+        <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(item.name)}', '_blank')" class="w-8 h-8 rounded-full bg-white/5 text-slate-400 flex items-center justify-center"><i class="fa-solid fa-magnifying-glass text-xs"></i></button>
+      </div>
+    </div>
+  `).join('');
   }
 
-  if (openHistoryBtn)
-    openHistoryBtn.addEventListener('click', openHistoryModal);
-  if (closeHistoryBtn)
-    closeHistoryBtn.addEventListener('click', closeHistoryModal);
-  if (dismissHistoryBtn)
-    dismissHistoryBtn.addEventListener('click', closeHistoryModal);
-  if (clearHistoryBtn)
-    clearHistoryBtn.addEventListener('click', clearHistory);
-  if (historyModal) {
-    historyModal.addEventListener('click', (e) => {
-      if (e.target === historyModal) closeHistoryModal();
-    });
-  }
+  const historyModalCtrl = setupModal('historyModal', 'historyModalCard',
+    [document.getElementById('openHistoryBtn')],
+    [document.getElementById('closeHistoryBtn'), document.getElementById('dismissHistoryBtn')]
+  );
 
+  document.getElementById('clearHistoryBtn')?.addEventListener('click', () => {
+    localStorage.removeItem('sprout_history');
+    renderHistoryList();
+  });
+
+  // --- Map Logic ---
   let sproutMap = null;
   let sproutMapInitialized = false;
-
   const mapModal = document.getElementById('mapModal');
   const mapModalCard = document.getElementById('mapModalCard');
-  const mapModalTitle = document.getElementById('mapModalTitle');
-  const mapModalSub = document.getElementById('mapModalSubtitle');
-  const closeMapBtn = document.getElementById('closeMapBtn');
-  const openAllMapBtn = document.getElementById('openAllMapBtn');
 
   function openMapModal(focusItem) {
     if (!mapModal) return;
     mapModal.classList.add('active');
 
     setTimeout(() => {
-      mapModalCard.classList.remove('scale-95');
-      mapModalCard.classList.add('scale-100');
-    }, 10);
-
-    setTimeout(() => {
+      mapModalCard.classList.replace('scale-95', 'scale-100');
       initSproutMap();
       if (sproutMap) {
-        sproutMap.resize();
+        setTimeout(() => sproutMap.resize(), 300);
       }
 
       const history = getHistory();
-      const geoItems = history.filter(
-        (h) =>
-          h.lat !== undefined &&
-          h.lng !== undefined &&
-          h.lat !== null &&
-          h.lng !== null,
-      );
+      const geoItems = history.filter(h => h.lat && h.lng);
 
-      if (
-        focusItem &&
-        focusItem.lat !== undefined &&
-        focusItem.lng !== undefined
-      ) {
-        mapModalTitle.textContent = focusItem.name;
-        mapModalSub.textContent = `${Number(focusItem.lat).toFixed(5)}, ${Number(focusItem.lng).toFixed(5)}`;
+      if (focusItem?.lat) {
+        document.getElementById('mapModalTitle').textContent = focusItem.name;
+        document.getElementById('mapModalSubtitle').textContent = `${focusItem.lat.toFixed(5)}, ${focusItem.lng.toFixed(5)}`;
       } else {
-        mapModalTitle.textContent = 'Map';
-        mapModalSub.textContent = `${geoItems.length} location${geoItems.length !== 1 ? 's' : ''} recorded`;
+        document.getElementById('mapModalTitle').textContent = 'Plant Map';
+        document.getElementById('mapModalSubtitle').textContent = `${geoItems.length} locations recorded`;
       }
 
       populateMapMarkers(history, focusItem);
-    }, 150);
+    }, 50);
   }
 
   function closeMapModal() {
-    if (!mapModal) return;
-    mapModalCard.classList.remove('scale-100');
-    mapModalCard.classList.add('scale-95');
-    setTimeout(() => {
-      mapModal.classList.remove('active');
-    }, 220);
+    mapModalCard.classList.replace('scale-100', 'scale-95');
+    setTimeout(() => mapModal.classList.remove('active'), 200);
   }
 
   function initSproutMap() {
     if (sproutMapInitialized) return;
-
-    // TODO old
-    // sproutMap = new maplibregl.Map({
-    //   container: 'plantMap',
-    //   style: 'https://demotiles.maplibre.org/style.json',
-    //   center: [174.7645, -36.8509], // [Lng, Lat]
-    //   zoom: 5,
-    // });
 
     sproutMap = new maplibregl.Map({
       container: 'plantMap',
@@ -591,172 +493,87 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     sproutMap.on('load', () => {
-      sproutMap.resize();
-      if (!sproutMap.getSource('plants')) {
-        sproutMap.addSource('plants', {
-          type: 'geojson',
-          data: { type: 'FeatureCollection', features: [] },
-        });
+      sproutMap.addSource('plants', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
 
-        sproutMap.addLayer({
-          id: 'plants-circle',
-          type: 'circle',
-          source: 'plants',
-          paint: {
-            'circle-radius': 14,
-            'circle-color': '#10b981',
-            'circle-stroke-width': 2.5,
-            'circle-stroke-color': '#fff',
-            'circle-opacity': 0.92,
-          },
-        });
+      sproutMap.addLayer({
+        id: 'plants-circle',
+        type: 'circle',
+        source: 'plants',
+        paint: {
+          'circle-radius': 12,
+          'circle-color': '#10b981',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff',
+        },
+      });
 
-        sproutMap.addLayer({
-          id: 'plants-label',
-          type: 'symbol',
-          source: 'plants',
-          layout: {
-            'text-field': '🌿',
-            'text-size': 14,
-            'text-allow-overlap': true,
-          },
-        });
+      sproutMap.on('click', 'plants-circle', (e) => {
+        const props = e.features[0].properties;
+        const coords = e.features[0].geometry.coordinates;
 
-        sproutMap.on('click', 'plants-circle', (e) => {
-          const props = e.features[0].properties;
-          const coords = e.features[0].geometry.coordinates.slice();
-          const imgHtml = props.image
-            ? `<img src="${props.image}" style="width:100%;height:90px;object-fit:cover;border-radius:10px 10px 0 0;display:block;" />`
-            : '';
-          const confHtml = props.confidence
-            ? `<span style="background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.3);border-radius:999px;padding:1px 8px;font-size:9px;font-weight:700;letter-spacing:.04em;">${props.confidence}</span>`
-            : '';
-          const popupHtml = `
-                                    <div style="font-family:'Inter',sans-serif;min-width:170px;max-width:210px;border-radius:14px;overflow:hidden;">
-                                      ${imgHtml}
-                                      <div style="padding:10px 13px 12px;">
-                                        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
-                                          <h5 style="margin:0;font-size:13px;font-weight:800;color:#10b981;line-height:1.2;">${props.name}</h5>
-                                          ${confHtml}
-                                        </div>
-                                        <p style="margin:0 0 3px;font-size:10px;color:#94a3b8;">
-                                          <i class="fa-solid fa-calendar-days" style="margin-right:3px;"></i>${props.date || 'Recent Scan'}
-                                        </p>
-                                        <p style="margin:0;font-size:10px;color:#64748b;">
-                                          <i class="fa-solid fa-location-dot" style="margin-right:3px;color:#10b981;"></i>${Number(coords[1]).toFixed(5)}, ${Number(coords[0]).toFixed(5)}
-                                        </p>
-                                      </div>
-                                    </div>`;
-          new maplibregl.Popup({ maxWidth: '520px', maxHeight: '400px' }) //height: 520px; width:400px
-            .setLngLat(coords)
-            .setHTML(popupHtml)
-            .addTo(sproutMap);
-        });
+        const popupHtml = `
+        <div style="padding:8px; font-family:sans-serif;">
+          ${props.image ? `<img src="${props.image}" style="width:100%; height:80px; object-fit:cover; border-radius:8px; margin-bottom:8px;"/>` : ''}
+          <h5 style="margin:0; color:#10b981;">${props.name}</h5>
+          <p style="margin:4px 0; font-size:10px; color:#64748b;">${props.date}</p>
+        </div>`;
 
-        sproutMap.on('mouseenter', 'plants-circle', () => {
-          sproutMap.getCanvas().style.cursor = 'pointer';
-        });
-        sproutMap.on('mouseleave', 'plants-circle', () => {
-          sproutMap.getCanvas().style.cursor = '';
-        });
-      }
+        new maplibregl.Popup().setLngLat(coords).setHTML(popupHtml).addTo(sproutMap);
+      });
 
       sproutMapInitialized = true;
       if (window._pendingMapData) {
-        const { history, focusItem } = window._pendingMapData;
+        _applyMapMarkers(window._pendingMapData.history, window._pendingMapData.focusItem);
         window._pendingMapData = null;
-        _applyMapMarkers(history, focusItem);
       }
     });
   }
 
   function _applyMapMarkers(history, focusItem) {
-    if (!sproutMap || !sproutMap.getSource('plants')) return;
+    if (!sproutMapInitialized || !sproutMap.getSource('plants')) return;
 
-    const geoItems = history.filter(
-      (h) =>
-        h.lat !== undefined &&
-        h.lng !== undefined &&
-        h.lat !== null &&
-        h.lng !== null,
-    );
-
-    const features = geoItems.map((item) => ({
+    const features = history.filter(h => h.lat && h.lng).map(item => ({
       type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [Number(item.lng), Number(item.lat)],
-      },
-      properties: {
-        name: item.name,
-        confidence: item.confidence || null,
-        date: item.date || 'Recent Scan',
-        image: item.image || null,
-      },
+      geometry: { type: 'Point', coordinates: [item.lng, item.lat] },
+      properties: { ...item }
     }));
 
-    sproutMap.getSource('plants').setData({
-      type: 'FeatureCollection',
-      features,
-    });
+    sproutMap.getSource('plants').setData({ type: 'FeatureCollection', features });
 
-    if (features.length === 0) return;
-
-    if (
-      focusItem &&
-      focusItem.lat !== undefined &&
-      focusItem.lng !== undefined
-    ) {
-      sproutMap.flyTo({
-        center: [Number(focusItem.lng), Number(focusItem.lat)],
-        zoom: 14,
-      });
-    } else if (features.length === 1) {
-      sproutMap.flyTo({
-        center: features[0].geometry.coordinates,
-        zoom: 14,
-      });
-    } else {
-      const lngs = features.map((f) => f.geometry.coordinates[0]);
-      const lats = features.map((f) => f.geometry.coordinates[1]);
-      const bounds = [
-        [Math.min(...lngs), Math.min(...lats)],
-        [Math.max(...lngs), Math.max(...lats)],
-      ];
-      sproutMap.fitBounds(bounds, { padding: 60, maxZoom: 14 });
+    if (focusItem?.lat) {
+      sproutMap.flyTo({ center: [focusItem.lng, focusItem.lat], zoom: 14 });
+    } else if (features.length > 0) {
+      const bounds = new maplibregl.LngLatBounds();
+      features.forEach(f => bounds.extend(f.geometry.coordinates));
+      sproutMap.fitBounds(bounds, { padding: 50, maxZoom: 14 });
     }
   }
 
   function populateMapMarkers(history, focusItem) {
-    if (!sproutMapInitialized || !sproutMap.getSource('plants')) {
+    if (!sproutMapInitialized) {
       window._pendingMapData = { history, focusItem };
       return;
     }
     _applyMapMarkers(history, focusItem);
   }
 
-  window.openSinglePlantMap = function (idx) {
-    const history = getHistory();
-    const item = history[idx];
+  // Global scope functions for HTML onclicks
+  window.openSinglePlantMap = (idx) => {
+    const item = getHistory()[idx];
     if (!item) return;
-    closeHistoryModal();
+    historyModalCtrl.close();
     setTimeout(() => openMapModal(item), 250);
   };
 
-  if (openAllMapBtn) {
-    openAllMapBtn.addEventListener('click', () => {
-      closeHistoryModal();
-      setTimeout(() => openMapModal(null), 250);
-    });
-  }
-  if (closeMapBtn) closeMapBtn.addEventListener('click', closeMapModal);
-  if (mapModal) {
-    mapModal.addEventListener('click', (e) => {
-      if (e.target === mapModal) closeMapModal();
-    });
-  }
+  document.getElementById('openAllMapBtn')?.addEventListener('click', () => {
+    historyModalCtrl.close();
+    setTimeout(() => openMapModal(null), 250);
+  });
 
-  let userLocation = null;
+  document.getElementById('closeMapBtn')?.addEventListener('click', closeMapModal);
 
   // Tab Controller
   const tabUpload = document.getElementById('tabUpload');
@@ -791,13 +608,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const changePhotoBtn = document.getElementById('changePhotoBtn');
   const speciesName = document.getElementById('speciesName');
   const pestStatus = document.getElementById('pestStatus');
-  const statusIcon = document.getElementById('statusIcon');
-  const extendedDetailsCard = document.getElementById(
-    'extendedDetailsCard',
-  );
-  const extendedDetailsText = document.getElementById(
-    'extendedDetailsText',
-  );
+  const extendedDetailsCard = document.getElementById('extendedDetailsCard');
+  const extendedDetailsText = document.getElementById('extendedDetailsText');
   const treatmentSection = document.getElementById('treatmentSection');
   const treatmentText = document.getElementById('treatmentText');
   const controlSection = document.getElementById('controlSection');
@@ -821,22 +633,14 @@ window.addEventListener('DOMContentLoaded', () => {
   const consentAllowBtn = document.getElementById('consentAllowBtn');
   const consentDeclineBtn = document.getElementById('consentDeclineBtn');
   const consentStateKey = 'sprout-identification-consent';
-  const locationPromptOverlay = document.getElementById(
-    'locationPromptOverlay',
-  );
+  const locationPromptOverlay = document.getElementById('locationPromptOverlay');
   const locationAllowBtn = document.getElementById('locationAllowBtn');
-  const locationDeclineBtn =
-    document.getElementById('locationDeclineBtn');
-  const locationPromptStatus = document.getElementById(
-    'locationPromptStatus',
-  );
+  const locationDeclineBtn = document.getElementById('locationDeclineBtn');
   const messageModal = document.getElementById('messageModal');
   const messageModalTitle = document.getElementById('messageModalTitle');
   const messageModalBody = document.getElementById('messageModalBody');
   const messageModalIcon = document.getElementById('messageModalIcon');
-  const messageModalIconInner = document.getElementById(
-    'messageModalIconInner',
-  );
+  const messageModalIconInner = document.getElementById('messageModalIconInner');
   const messageModalOkBtn = document.getElementById('messageModalOkBtn');
 
   let cameraStream = null;
@@ -913,6 +717,7 @@ window.addEventListener('DOMContentLoaded', () => {
       appContent.style.pointerEvents = 'auto';
     }
   }
+
   if (locationAllowBtn) {
     locationAllowBtn.addEventListener('click', () => {
       if ('geolocation' in navigator) {
@@ -1278,44 +1083,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function extractImageData() {
-    const size = 224;
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-    if (!previewImage) {
-      throw new Error('No preview image is available yet.');
-    }
-
-    if (!previewImage.complete) {
-      await new Promise((resolve) => {
-        previewImage.onload = resolve;
-        previewImage.onerror = resolve;
-      });
-    }
-
-    ctx.drawImage(previewImage, 0, 0, size, size);
-    const imgData = ctx.getImageData(0, 0, size, size).data;
-    const totalPixels = size * size;
-    const float32Array = new Float32Array(3 * totalPixels);
-
-    const MEAN = [0.485, 0.456, 0.406];
-    const STD = [0.229, 0.224, 0.225];
-
-    for (let i = 0; i < imgData.length; i += 4) {
-      const pixelIndex = i / 4;
-      float32Array[pixelIndex] = (imgData[i] / 255.0 - MEAN[0]) / STD[0];
-      float32Array[totalPixels + pixelIndex] =
-        (imgData[i + 1] / 255.0 - MEAN[1]) / STD[1];
-      float32Array[2 * totalPixels + pixelIndex] =
-        (imgData[i + 2] / 255.0 - MEAN[2]) / STD[2];
-    }
-
-    return Array.from(float32Array);
-  }
-
   function handleOfflineResult(data) {
     const confidencePercent = data.confidence
       ? `${(Number(data.confidence) * 100).toFixed(1)}%`
@@ -1366,7 +1133,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if (analyzeButton) {
     analyzeButton.addEventListener('click', async () => {
-      const savedConsent = window.sessionStorage.setItem
+      const savedConsent = window.sessionStorage.getItem
         ? window.sessionStorage.getItem(consentStateKey)
         : null;
       if (savedConsent !== 'accepted') {
@@ -1454,13 +1221,10 @@ window.addEventListener('DOMContentLoaded', () => {
           formData.append('image', file);
         }
 
-        const response = await fetch(
-          'https://sproutboy.pythonanywhere.com/predict',
-          {
-            method: 'POST',
-            body: formData,
-          },
-        );
+        const response = await fetch('https://sproutboy.pythonanywhere.com/predict', {
+          method: 'POST',
+          body: formData,
+        });
 
         if (!response.ok) {
           let bodyText = '';
@@ -1615,4 +1379,3 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
