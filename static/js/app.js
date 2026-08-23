@@ -357,7 +357,7 @@ window.addEventListener('DOMContentLoaded', () => {
           );
         return;
       }
-      showOfflineDownloadLock('Preparing offline model…', 0);
+      showOfflineDownloadLock('Preparing model for liftoff...', 0);
       initOfflineWorker();
       return;
     }
@@ -1252,8 +1252,8 @@ window.addEventListener('DOMContentLoaded', () => {
       name: data.name || 'Offline Plant Scan',
       confidence: confidencePercent,
       summary: durationMs
-        ? `Identified plant in ${durationMs.toFixed(1)}ms using your device’s browser runtime; unable to fetch description and other details in offline mode`
-        : 'Identified plant using your device’s browser runtime; unable to fetch description and other details in offline mode',
+        ? `Identified plant in ${durationMs.toFixed(1)}ms using your device’s browser runtime; unable to fetch description and other information in offline mode.`
+        : 'Identified plant using your device’s browser runtime; unable to fetch description and other details in offline mode due to limitations.',
       hazardType: 'safe',
       date: new Date().toLocaleDateString('en-US', {
         month: 'short',
