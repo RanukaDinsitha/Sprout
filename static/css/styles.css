@@ -779,6 +779,12 @@
       border: 1px solid rgba(239, 68, 68, 0.4);
     }
 
+    .hazard-unknown {
+      background: rgba(100, 116, 139, 0.18);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
     .badge-weed {
       background: rgba(239, 68, 68, 0.2);
       color: #f87171;
@@ -883,4 +889,64 @@
       background: rgba(16, 185, 129, 0.4);
       animation: pinPulse 1.6s ease-out infinite;
       pointer-events: none;
+    }
+
+    /* Offline model download overlay (matches dialog-card prompts) */
+    .offline-download-overlay {
+      z-index: 100000;
+      pointer-events: all;
+      cursor: wait;
+    }
+
+    .offline-progress-wrap {
+      margin-top: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .offline-progress-track {
+      position: relative;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.22);
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    .offline-progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #059669 0%, #10b981 45%, #6ee7b7 100%);
+      box-shadow:
+        0 0 14px rgba(16, 185, 129, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .offline-progress-fill.is-indeterminate {
+      width: 38%;
+      animation: offlineProgressSlide 1.35s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .offline-progress-meta {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6ee7b7;
+      text-align: center;
+    }
+
+    @keyframes offlineProgressSlide {
+      0% {
+        transform: translateX(-110%);
+      }
+
+      100% {
+        transform: translateX(320%);
+      }
     }

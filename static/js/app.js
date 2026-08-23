@@ -208,38 +208,52 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'offlineDownloadOverlay';
+      overlay.className = 'modal-overlay active offline-download-overlay p-4';
       overlay.setAttribute('role', 'alertdialog');
       overlay.setAttribute('aria-live', 'polite');
       overlay.setAttribute('aria-busy', 'true');
       overlay.innerHTML =
-        '<div style="width:min(100%,20rem);padding:1.5rem;border:1px solid rgba(16,185,129,0.3);border-radius:1rem;background:#06110d;text-align:center;">' +
-        '<p id="offlineDownloadLabel" style="color:#e2e8f0;font-size:0.85rem;font-weight:600;margin-bottom:0.75rem;"></p>' +
-        '<progress id="offlineDownloadBar" max="1" style="width:100%;height:0.5rem;"></progress>' +
+        '<div class="dialog-card glass-card p-6 sm:p-8 text-center">' +
+        '<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/20 text-emerald-400">' +
+        '<i class="fa-solid fa-gears text-xl"></i></div>' +
+        '<h2 class="text-xl font-bold text-white">Offline model</h2>' +
+        '<p class="mt-2 text-sm text-slate-300 leading-6" id="offlineDownloadLabel"></p>' +
+        '<div class="offline-progress-wrap">' +
+        '<div class="offline-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">' +
+        '<div class="offline-progress-fill" id="offlineDownloadFill"></div>' +
+        '</div>' +
+        '<span class="offline-progress-meta" id="offlineDownloadPercent">Loading…</span>' +
+        '</div>' +
         '</div>';
-      Object.assign(overlay.style, {
-        position: 'fixed',
-        inset: '0',
-        zIndex: '100000',
-        background: 'rgba(4, 10, 8, 0.85)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        pointerEvents: 'all',
-        cursor: 'wait',
-      });
       document.body.appendChild(overlay);
+    } else {
+      overlay.classList.add('active');
     }
-    overlay.style.display = 'flex';
 
     const text = document.getElementById('offlineDownloadLabel');
-    const bar = document.getElementById('offlineDownloadBar');
+    const fill = document.getElementById('offlineDownloadFill');
+    const track = fill && fill.parentElement;
+    const percent = document.getElementById('offlineDownloadPercent');
+    const hasProgress = typeof value === 'number' && value > 0;
+    const clamped =
+      typeof value === 'number' ? Math.min(Math.max(value, 0), 1) : 0;
+    const percentValue = Math.round(clamped * 100);
+
     if (text) text.textContent = label || 'Preparing offline model…';
-    if (bar) {
-      if (typeof value === 'number' && value > 0) {
-        bar.value = Math.min(value, 1);
+    if (fill) {
+      if (hasProgress) {
+        fill.classList.remove('is-indeterminate');
+        fill.style.width = percentValue + '%';
       } else {
-        bar.removeAttribute('value');
+        fill.classList.add('is-indeterminate');
+        fill.style.width = '';
       }
+    }
+    if (track) {
+      track.setAttribute('aria-valuenow', hasProgress ? String(percentValue) : '0');
+    }
+    if (percent) {
+      percent.textContent = hasProgress ? percentValue + '%' : 'Loading…';
     }
 
     if (appContent) appContent.style.pointerEvents = 'none';
@@ -913,6 +927,11 @@ window.addEventListener('DOMContentLoaded', () => {
         hazardIcon.className = 'fa-solid fa-biohazard';
         hazardLabel.textContent = 'Deadly / Toxic';
         break;
+      case 'unknown':
+        hazardBadge.classList.add('hazard-unknown');
+        hazardIcon.className = 'fa-solid fa-circle-question';
+        hazardLabel.textContent = 'Unknown';
+        break;
       case 'safe':
       default:
         hazardBadge.classList.add('hazard-safe');
@@ -1254,7 +1273,7 @@ window.addEventListener('DOMContentLoaded', () => {
       summary: durationMs
         ? `Identified plant in ${durationMs.toFixed(1)}ms using your device’s browser runtime; unable to fetch description and other information in offline mode.`
         : 'Identified plant using your device’s browser runtime; unable to fetch description and other details in offline mode due to limitations.',
-      hazardType: 'safe',
+      hazardType: 'unknown',
       date: new Date().toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -1276,7 +1295,7 @@ window.addEventListener('DOMContentLoaded', () => {
         );
     }
     if (pestStatus) {
-      pestStatus.textContent = `The engine identified the photo as a ${identifiedPlant.name} with a ${identifiedPlant.confidence} confidence rate.`;
+      pestStatus.textContent = `Hyperion identified the photo as a ${identifiedPlant.name} with a ${identifiedPlant.confidence} confidence rate.`;
     }
     if (extendedDetailsText) {
       extendedDetailsText.textContent = identifiedPlant.summary;

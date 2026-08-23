@@ -4,6 +4,7 @@ let session = null;
 let modelInputName = "images";
 let modelInputType = null;
 const CACHE_NAME = "hyperion";
+const MIN_MODEL_BYTES = 35 * 1024 * 1024;
 
 function resolveModelCandidates() {
     const candidates = [];
@@ -191,14 +192,40 @@ async function runSession(float32Data, dims) {
     }
 }
 
+function formatMegabytes(bytes) {
+    return (bytes / 1048576).toFixed(1) + " MB";
+}
+
+function validateModelBuffer(buf) {
+    const size = buf.byteLength;
+    if (size < MIN_MODEL_BYTES) {
+        throw new Error(
+            "Model file looks incomplete (" +
+                formatMegabytes(size) +
+                "). Clear cache and try again."
+        );
+    }
+}
+
+async function evictAllModelCaches() {
+    if (!self.caches) return;
+    try {
+        const cache = await self.caches.open(CACHE_NAME);
+        const urls = resolveModelCandidates();
+        await Promise.all(urls.map((url) => cache.delete(url)));
+    } catch (e) {
+        // ignore cache cleanup failures
+    }
+}
+
 async function fetchModelWithProgress(url) {
     let res;
     try {
-        res = await fetch(url);
+        res = await fetch(url, { cache: "no-store", credentials: "omit" });
     } catch (err) {
         throw new Error("Failed to fetch model from " + url + ": " + errorText(err));
     }
-    if (!res.ok) {
+    if (res.status !== 200) {
         throw new Error("Model download failed: HTTP " + res.status + " (" + url + ")");
     }
 
@@ -206,6 +233,15 @@ async function fetchModelWithProgress(url) {
     if (!res.body || !res.body.getReader) {
         postProgress(0.5, "Downloading model…");
         const buf = await res.arrayBuffer();
+        if (total > 0 && buf.byteLength !== total) {
+            throw new Error(
+                "Incomplete model download: got " +
+                    formatMegabytes(buf.byteLength) +
+                    " of " +
+                    formatMegabytes(total)
+            );
+        }
+        validateModelBuffer(buf);
         postProgress(1, "Download complete");
         return buf;
     }
@@ -223,8 +259,17 @@ async function fetchModelWithProgress(url) {
             const ratio = Math.min(received / total, 0.99);
             postProgress(ratio, "Downloading model… " + Math.round(ratio * 100) + "%");
         } else {
-            postProgress(0, "Downloading model… " + (received / 1048576).toFixed(1) + " MB");
+            postProgress(0, "Downloading model… " + formatMegabytes(received));
         }
+    }
+
+    if (total > 0 && received !== total) {
+        throw new Error(
+            "Incomplete model download: got " +
+                formatMegabytes(received) +
+                " of " +
+                formatMegabytes(total)
+        );
     }
 
     const merged = new Uint8Array(received);
@@ -233,6 +278,7 @@ async function fetchModelWithProgress(url) {
         merged.set(chunks[i], offset);
         offset += chunks[i].byteLength;
     }
+    validateModelBuffer(merged.buffer);
     postProgress(1, "Download complete");
     return merged.buffer;
 }
@@ -243,10 +289,22 @@ async function getModelBuffer(url) {
         const cached = await cache.match(url);
         if (cached) {
             postProgress(0.85, "Loading cached model…");
-            return await cached.arrayBuffer();
+            const buf = await cached.arrayBuffer();
+            try {
+                validateModelBuffer(buf);
+                return buf;
+            } catch (err) {
+                await cache.delete(url);
+                throw err;
+            }
         }
         const buf = await fetchModelWithProgress(url);
-        await cache.put(url, new Response(buf.slice(0)));
+        await cache.put(
+            url,
+            new Response(buf.slice(0), {
+                headers: { "Content-Length": String(buf.byteLength) },
+            })
+        );
         return buf;
     }
     return fetchModelWithProgress(url);
@@ -317,6 +375,7 @@ async function loadModel() {
             } catch (err) {
                 lastError = err;
                 await evictCachedModel(url);
+                await evictAllModelCaches();
             }
         }
 

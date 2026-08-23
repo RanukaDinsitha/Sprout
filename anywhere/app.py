@@ -124,7 +124,7 @@ def serve_onnx_model():
     response = send_file(
         MODEL_PATH,
         mimetype="application/octet-stream",
-        conditional=True,
+        conditional=False,
         download_name="best.onnx",
     )
     response.headers["Access-Control-Allow-Origin"] = "*"
