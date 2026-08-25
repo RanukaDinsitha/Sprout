@@ -18,6 +18,8 @@ key.txt
 .TODO
 images.zip
 dataset
+anywhere
+anywhere/app.py
 
 # Distribution / packaging
 node_modules

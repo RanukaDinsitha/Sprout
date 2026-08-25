@@ -1,5 +1,4 @@
 // this is start of code
-// this is start of code
 document.addEventListener('DOMContentLoaded', function () {
   $('#playSound').on('click', function () {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1295,7 +1294,7 @@ window.addEventListener('DOMContentLoaded', () => {
         );
     }
     if (pestStatus) {
-      pestStatus.textContent = `Hyperion identified the photo as a ${identifiedPlant.name} with a ${identifiedPlant.confidence} confidence rate.`;
+      pestStatus.textContent = `Sprout identified the photo as a ${identifiedPlant.name} with a ${identifiedPlant.confidence} confidence rate.`;
     }
     if (extendedDetailsText) {
       extendedDetailsText.textContent = identifiedPlant.summary;

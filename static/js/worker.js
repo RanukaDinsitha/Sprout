@@ -4,7 +4,7 @@ let session = null;
 let modelInputName = "images";
 let modelInputType = null;
 const CACHE_NAME = "hyperion";
-const MIN_MODEL_BYTES = 35 * 1024 * 1024;
+const MIN_MODEL_BYTES = 8 * 1024 * 1024;
 
 function resolveModelCandidates() {
     const candidates = [];
@@ -16,15 +16,32 @@ function resolveModelCandidates() {
         candidates.push(url);
     }
 
+    const relativePaths = [
+        "/static/models/best.onnx",
+        "/static/models/sprout_fp16.onnx",
+        "/models/best.onnx",
+        "/models/sprout_fp16.onnx",
+        "/model",
+    ];
+
+    try {
+        add(new URL("../models/best.onnx", self.location.href).href);
+        add(new URL("../models/sprout_fp16.onnx", self.location.href).href);
+    } catch (e) {
+        // ignore invalid worker URL resolution
+    }
+
     try {
         if (self.location && self.location.origin && self.location.origin !== "null") {
-            add(new URL("/models/best.onnx", self.location.origin).href);
-            add(new URL("/model", self.location.origin).href);
+            relativePaths.forEach((path) => {
+                add(new URL(path, self.location.origin).href);
+            });
         }
     } catch (e) {
         // ignore invalid origin resolution
     }
 
+    add("https://sproutboy.pythonanywhere.com/static/models/best.onnx");
     add("https://sproutboy.pythonanywhere.com/models/best.onnx");
     add("https://sproutboy.pythonanywhere.com/model");
 
@@ -196,9 +213,22 @@ function formatMegabytes(bytes) {
     return (bytes / 1048576).toFixed(1) + " MB";
 }
 
+function looksLikeHtmlOrJson(buf) {
+    try {
+        const head = new TextDecoder("utf-8").decode(buf.slice(0, 64)).trim();
+        return (
+            head.startsWith("<") ||
+            head.startsWith("{") ||
+            head.startsWith("[")
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
 function validateModelBuffer(buf) {
     const size = buf.byteLength;
-    if (size < MIN_MODEL_BYTES) {
+    if (size < MIN_MODEL_BYTES || looksLikeHtmlOrJson(buf)) {
         throw new Error(
             "Model file looks incomplete (" +
                 formatMegabytes(size) +
@@ -221,7 +251,11 @@ async function evictAllModelCaches() {
 async function fetchModelWithProgress(url) {
     let res;
     try {
-        res = await fetch(url, { cache: "no-store", credentials: "omit" });
+        res = await fetch(url, {
+            cache: "no-store",
+            credentials: "omit",
+            headers: { Accept: "application/octet-stream" },
+        });
     } catch (err) {
         throw new Error("Failed to fetch model from " + url + ": " + errorText(err));
     }
@@ -233,14 +267,6 @@ async function fetchModelWithProgress(url) {
     if (!res.body || !res.body.getReader) {
         postProgress(0.5, "Downloading model…");
         const buf = await res.arrayBuffer();
-        if (total > 0 && buf.byteLength !== total) {
-            throw new Error(
-                "Incomplete model download: got " +
-                    formatMegabytes(buf.byteLength) +
-                    " of " +
-                    formatMegabytes(total)
-            );
-        }
         validateModelBuffer(buf);
         postProgress(1, "Download complete");
         return buf;
@@ -263,7 +289,7 @@ async function fetchModelWithProgress(url) {
         }
     }
 
-    if (total > 0 && received !== total) {
+    if (total > 0 && received < total * 0.9 && received < MIN_MODEL_BYTES) {
         throw new Error(
             "Incomplete model download: got " +
                 formatMegabytes(received) +
@@ -382,7 +408,7 @@ async function loadModel() {
         const detail = errorText(lastError);
         throw new Error(
             "Could not download or compile the offline ONNX model. " +
-                "Serve models/best.onnx from this app (for example /models/best.onnx) " +
+                "Serve the ONNX file from this app (for example /static/models/best.onnx) " +
                 "or check your network connection. " +
                 detail
         );
