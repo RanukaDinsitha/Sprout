@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Pest App Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Run Codacy Analysis CLI
         uses: codacy/codacy-analysis-cli-action@v1
