@@ -47,6 +47,6 @@ jobs:
           max-allowed-issues: 2147483647
 
       - name: Upload Pest App Scan Results
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
